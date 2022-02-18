@@ -14,21 +14,21 @@ while comando != '.':
     
     # Comando '.lex <texto>': se llama a la funcion lextest de la VM
     # con el el input '<texto>'
-    elif comando.startswith('.lex'):
-        VM.lextest(comando.replace('.lex', '').strip())
-       
+    elif comando.startswith('.lex '):
+        tokens = VM.lextest(comando.replace('.lex', '').strip())
+        print(tokens)
 
     # Comando '.load <archivo>': Se cargan las lineas del archivo '<archivo>' una a una y
     # se procesan como si el usuario las hubiese escrito directamente
-    elif comando.startswith('.load'):
+    elif comando.startswith('.load '):
         print('testLoad')
 
     # Comando '.failed': imprime la lista de errores, uno por linea. (Ver enunciado para el fomato) (fase1 pg 6)
-    elif comando.startswith('.failed'):
+    elif comando.startswith('.failed '):
         print('testFailed')
 
     # Comando '.reset': Por ahora, solo vacia la lista de errores
-    elif comando.startswith('.reset'):
+    elif comando.startswith('.reset '):
         print('testReset')
 
     # En cualquier otro caso, el comando es una asignacion o una expresión por lo que se debe
