@@ -1,44 +1,56 @@
-""" REPL para la VM del lenguaje Stókhos
-Autores: Arturo Yepez
-         Jesus Bandez
 """
+REPL para la VM del lenguaje Stókhos
+    Autores: Arturo Yepez - Jesus Bandez - Christopher Gomez
+    CI3725 - Traductores e Interpretadores
+"""
+# Libreria principal para construir REPL
+from cmd import Cmd
 import VM
 
-print('<Stókhos> ', end='')
-comando = input().strip()
-
-while comando != '.':
-    # Se ignoran las lineas vacias
-    if comando == '':
-        pass
+"""
+Clase StokhosCMD
+    extiende:
+        - Cmd
+            Superclase que hereda con los metodos iniciales del CMD/REPL de nuestro
+            lenguaje de programacion. Se utilza de la libreria de 'cmd'
     
-    # Comando '.lex <texto>': se llama a la funcion lextest de la VM
-    # con el el input '<texto>'
-    elif comando.startswith('.lex '):
-        tokens = VM.lextest(comando.replace('.lex', '').strip())
-        print(tokens)
+    descripcion:
+        Esta clase es donde se van a aplicar los metodos principales para crear la REPL del
+        lenguaje de programacion 'Stókhos'. Utiliza de base los metodos ofrecidos de la
+        libreria 'cmd' con una capa de customizacion para el actual proyecto.
+"""
+class StokhosCMD(Cmd):
+    # El prompt del REPL
+    prompt = '< Stókhos > '
+    # Mensaje de introduccion al REPL de Stókhos
+    intro = '¡Bienvenido! Utiliza "?" para mostrar los comeandos disponibles'
 
-    # Comando '.load <archivo>': Se cargan las lineas del archivo '<archivo>' una a una y
-    # se procesan como si el usuario las hubiese escrito directamente
-    elif comando.startswith('.load '):
-        print('testLoad')
+    # ---------------------------------------------- #
+    # METODOS DE LA VIRTUAL MACHINE
+    # ---------------------------------------------- #
+    def send_lexer(self, line: str) -> None:
+        print("Test lexer", line.split('.lexer '))
 
-    # Comando '.failed': imprime la lista de errores, uno por linea. (Ver enunciado para el fomato) (fase1 pg 6)
-    elif comando.startswith('.failed '):
-        print('testFailed')
+    # ---------------------------------------------- #
+    # DOCUMENTACION DE COMANDOS DISPONIBLES
+    # ---------------------------------------------- #
+    def help_lexer(self) -> None:
+        print('hola')
 
-    # Comando '.reset': Por ahora, solo vacia la lista de errores
-    elif comando.startswith('.reset '):
-        print('testReset')
+    # ---------------------------------------------- #
+    # METODOS BASICOS
+    # ---------------------------------------------- #
+    def do_exit(self, line: str) -> bool:
+        '''Cierra el CMD/REPL de Stókhos.'''
+        return True
 
-    # En cualquier otro caso, el comando es una asignacion o una expresión por lo que se debe
-    # pasar a la VM. Por ahora, imprime un error
-    else:
-        VM.process(comando)
+    def default(self, line: str) -> bool:
+        if line == ".":
+            return self.do_exit(line)
+        elif line.startswith('.lexer ') or line.startswith('.lexer'):
+            return self.send_lexer(line)
+        else:
+            VM.process(line)
 
-    print('<Stókhos> ', end='')
-    comando = input().strip()
-
-
-    # El REPL debe tener colores en su interfaz. Las entradas del usuario deben estar en negrillas y la respuesta 
-    # de la VM en azul
+# Se implementa ciclo principal del REPL
+StokhosCMD().cmdloop()
