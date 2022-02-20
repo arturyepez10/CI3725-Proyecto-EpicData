@@ -1,6 +1,7 @@
-""" Maquina Virtual para la interpretacion de Stókhos
-Autores: Arturo Yepez
-         Jesus Bandez
+""" 
+Maquina Virtual para la interpretacion de Stókhos
+    Autores: Arturo Yepez - Jesus Bandez - Christopher Gomez
+    CI3725 - Traductores e Interpretadores
 """
 from distutils.log import error
 from ply.lex import lex, LexToken
