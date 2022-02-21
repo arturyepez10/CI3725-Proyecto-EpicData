@@ -67,9 +67,10 @@ t_TkAssign = r':='
 t_TkSemicolon = r';'
 t_TkColon = r':'
 
+    
 # Regex para numeros: positivos, negativos, enteros y decimales
 def t_TkNumber(t: LexToken) -> LexToken:
-    r'[-+]?[0-9]*\.?[0-9]+'
+    r'[-+]?[0-9]*\.?[0-9]+(?!\S)'
 
     # Intenta guardar el número como decimal, si da error, es entero
     try:
@@ -81,7 +82,10 @@ def t_TkNumber(t: LexToken) -> LexToken:
 
 # Regex para los nombres de las variables y palabras reservadas
 def t_TkId(t: LexToken) -> LexToken:
-    r'[_]?[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[_0-9a-zA-Z_][a-zA-Z_0-9]*'
+
+    # Se hace match de identificadores con numeros al comienzo, pero se
+    # debe lanzar un error si esto ocurre
 
     # En caso de que se haya conseguido una palabra reservada del lenguaje,
     # se le asigna su respectivo tipo al token. En cualquier otro caso, el

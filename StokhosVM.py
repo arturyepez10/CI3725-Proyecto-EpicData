@@ -100,11 +100,11 @@ class StokhosVM:
         self.errors.clear()
 
         # Analiza el comando con el lexer de la instancia
-        lexer = self.lex.input(command)
+        self.lex.input(command)
 
         # Lista vacia que recolecta todos los tokens encontrados en el comando
         tokens = []
-        for token in lexer:
+        for token in self.lex:
             if token.type == 'IllegalCharacter':
                 # TODO: Hacer lo correspondiente con los errores
                 # (se supone que termina el análisis léxico de la línea

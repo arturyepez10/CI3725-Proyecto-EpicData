@@ -56,7 +56,14 @@ class LexError(Exception):
 # Token class.  This class is used to represent the tokens produced.
 class LexToken(object):
     def __repr__(self):
-        return f'LexToken({self.type},{self.value!r},{self.lineno},{self.lexpos})'
+        # STOKHOS SPECIFIC
+        val = ''
+        if self.type == 'TkId':
+            val = f'("{self.value}")'
+        elif self.type == 'TkNumber':
+            val = f'({self.value})'
+
+        return f'{self.type}{val}'
 
 # This object is a stand-in for a logging object created by the
 # logging module.
