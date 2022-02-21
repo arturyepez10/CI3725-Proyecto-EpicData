@@ -23,7 +23,7 @@ from StokhosVM import StokhosVM as SVM
 
 # Utilidades miscelaneas del proyecto
 from utils.colors import *
-import re
+import os
 
 class StokhosCMD(Cmd):
     """
@@ -47,7 +47,7 @@ class StokhosCMD(Cmd):
     vm = SVM()
 
     # El prompt por defecto del REPL
-    prompt = f'{BOLD}< Stókhos > {RESET}'
+    prompt = f'{RESET}< Stókhos > {BOLD}'
     # Mensaje de introduccion al REPL de Stókhos
     intro = '¡Bienvenido! Utiliza "?" para mostrar los comandos disponibles'
     # Encabezado documentacion de comandos
@@ -118,6 +118,15 @@ class StokhosCMD(Cmd):
             >>> .
         '''
         return True
+
+    def do_clear(self, line: str) -> None:
+        '''Limpia la pantalla de la terminal de los comandos anteriores'''
+        comando = 'clear'
+
+        # Si el SO es Windows, cambia el comando
+        if os.name in ('nt', 'dos'):
+            comando = 'cls'
+        os.system(comando)
 
     def emptyline(self) -> bool:
         '''Procesador de lineas en blanco. El comportamiendo por defecto es no hacer nada.'''
