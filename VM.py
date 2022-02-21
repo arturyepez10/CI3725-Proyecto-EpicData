@@ -1,7 +1,19 @@
-""" 
-Maquina Virtual para la interpretacion de Stókhos
-    Autores: Arturo Yepez - Jesus Bandez - Christopher Gomez
-    CI3725 - Traductores e Interpretadores
+""" Definiciones de reglas para el tokenizer de Stókhos.
+
+Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from distutils.log import error
 from ply.lex import lex, LexToken
@@ -12,13 +24,14 @@ reserved = {
     'true' : 'TkTrue',
     'false' : 'TkFalse',
     'num' : 'TkNum'    
-    }
+}
 
 # Definicion de los tokens.
-tokens = [ 'TkOpenPar', 'TkClosePar','TkOpenBracket','TkCloseBracket', 'TkOpenBrace', 'TkCloseBrace', 
-           'TkNot', 'TkPower', 'TkMult', 'TkDiv', 'TkMod', 'TkPlus', 'TkMinus','TkLT', 'TkLE', 'TkGE', 'TkGT',
-           'TkEq', 'TkNE', 'TkAnd', 'TkOr', 'TkQuote', 'TkComma', 'TkAssign', 'TkSemicolon', 'TkColon',           
-           'TkId', 'TkNumber'] + list(reserved.values())
+tokens = ['TkOpenPar', 'TkClosePar','TkOpenBracket','TkCloseBracket',
+    'TkOpenBrace', 'TkCloseBrace', 'TkNot', 'TkPower', 'TkMult', 'TkDiv',
+    'TkMod', 'TkPlus', 'TkMinus','TkLT', 'TkLE', 'TkGE', 'TkGT', 'TkEq',
+    'TkNE', 'TkAnd', 'TkOr', 'TkQuote', 'TkComma', 'TkAssign', 'TkSemicolon',
+    'TkColon', 'TkId', 'TkNumber'] + list(reserved.values())
 
 # Se debe ignorar todo tipo de espacio en blanco
 t_ignore = ' \t'
@@ -119,10 +132,3 @@ def lextest(comando:str):
     # los tokens de caracteres ilegales estando de primero
 
     return errorTokens
-
-    
-
-
-
-
-
