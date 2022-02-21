@@ -16,6 +16,7 @@ test_cases = [
     'num _sum := 25',
     'bool ci3725 := true || false',
     ''' z = 'x+y' ''',
+    '5'
 ]
 
 for case in test_cases:
