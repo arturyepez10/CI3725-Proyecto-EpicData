@@ -153,3 +153,9 @@ class StokhosCMD(Cmd):
             return self.send_lexer(line)
         else:
             return self.send_process(line)
+
+def main():
+    StokhosCMD().cmdloop()
+
+if __name__ == '__main__':
+    main()
