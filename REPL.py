@@ -66,7 +66,15 @@ class StokhosCMD(Cmd):
             Retorna:
                 Nada, dado que los resultados se imprimen al usuario.
         '''
-        print("Test lexer", line.split('.lex '))
+        # Entrada es cortada para verificar si hay mas contenido luego de '.lex' y enviar a la VM acorde a eso
+        input_splitted = line.split('.lex ')
+        vm_input = line.split('.lex ')[1] if input_splitted[0] != '.lex' else ''
+
+        # Entrada analizada lexicograficamente por la VM
+        processed_input = self.vm.lextest(vm_input)
+
+        # Se imprime al usuario el resultado final
+        printResult(processed_input)
 
     def send_process(self, line: str) -> None:
         '''Envia un comando en especifico al procesador de Stókhos
