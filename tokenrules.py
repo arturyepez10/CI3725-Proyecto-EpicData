@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from ply.lex import LexToken
+import re
 
 # Palabras reservadas del lenguaje
 reserved = {
@@ -67,11 +68,11 @@ t_TkAssign = r':='
 t_TkSemicolon = r';'
 t_TkColon = r':'
 
-    
+
 # Regex para numeros: positivos, negativos, enteros y decimales
 def t_TkNumber(t: LexToken) -> LexToken:
-    r'[-+]?[0-9]*\.?[0-9]+(?!\S)'
-
+    r'[+-]?(\.[0-9]+|[0-9]+\.?[0-9]*)(?!\S)'
+ 
     # Intenta guardar el número como decimal, si da error, es entero
     try:
         t.value = int(t.value)
@@ -82,29 +83,33 @@ def t_TkNumber(t: LexToken) -> LexToken:
 
 # Regex para los nombres de las variables y palabras reservadas
 def t_TkId(t: LexToken) -> LexToken:
-    r'[_0-9a-zA-Z_][a-zA-Z_0-9]*'
+    r'[_0-9a-zA-Z_\.][a-zA-Z_0-9\.]*'
 
-    # Se hace match de identificadores con numeros al comienzo, pero se
-    # debe lanzar un error si esto ocurre
+    # Se filtran los nombres ilegales
+    # Si el ID comienza con un digito o contiene un '.', se retorna un token de tipo 
+    # 'IllegalID'
+    if re.match(r"\d", t.value[0]) or '.' in t.value:
+        t.type = 'IllegalID'
+        return t
 
-    # En caso de que se haya conseguido una palabra reservada del lenguaje,
-    # se le asigna su respectivo tipo al token. En cualquier otro caso, el
-    # el tipo del token es 'TkId'
-    t.type = reserved.get(t.value,'TkId')    # Check for reserved words
-    return t
+    else:
+
+        # En caso de que se haya conseguido una palabra reservada del lenguaje,
+        # se le asigna su respectivo tipo al token. En cualquier otro caso, el
+        # el tipo del token es 'TkId'
+        t.type = reserved.get(t.value,'TkId')    # Check for reserved words
+        return t
 
 # Maneja caracteres ilegales
 def t_error(t: LexToken):
-    # Instancia de la clase token con la información del caracter ilegal.
-    tok = LexToken()
-    tok.type = 'IllegalCharacter'
-    tok.value = t.value[0]
-    tok.lineno = t.lineno
-    tok.lexpos = t.lexpos
+    # modificar tipo de token para que sea un token de caracter ilegal.
+    
+    t.type = 'IllegalCharacter'
+    t.value = t.value[0]   
 
     # Se salta el caracter ilegal
     t.lexer.skip(1)
-
+    return t
     # Quizás se puede lanzar una excepción a ser manejada con la VM con el
     # caracter ilegal. El enunciado dice que no deberíamos manejar caracteres
     # ilegales como tokens.

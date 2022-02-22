@@ -59,8 +59,8 @@ class StokhosCMD(Cmd):
 
         # Corta la etrada para verificar si hay mas contenido luego de '.lex'
         # y enviarlo a la VM
-        command = line.strip('.lex ')
-
+        command = line.replace('.lex ', '')
+        
         # Entrada analizada lexicograficamente por la VM
         output = self.vm.lextest(command)
 

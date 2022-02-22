@@ -33,7 +33,6 @@ class StokhosVM:
 
     def __init__(self):
         self.lex = lex.lex(module=tokenrules)
-        self.errors = []
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -96,25 +95,22 @@ class StokhosVM:
             'ERROR: caracter inválido (“@”) en la entrada'
         """
 
-        # Vacia lista de errores
-        self.errors.clear()
-
         # Analiza el comando con el lexer de la instancia
         self.lex.input(command)
 
         # Lista vacia que recolecta todos los tokens encontrados en el comando
         tokens = []
         for token in self.lex:
-            if token.type == 'IllegalCharacter':
-                # TODO: Hacer lo correspondiente con los errores
-                # (se supone que termina el análisis léxico de la línea
-                # y se imprime el error)
-                self.errors.append(token.value)
+            if token.type == 'IllegalCharacter':                
+                # Arrojar error por token de tipo caracter ilegal
+                return f'ERROR: caracter inválido ("{token.value}")'
+
+            elif token.type == 'IllegalID':
+                 # Arrojar error por token de tipo ID ilegal
+                return f'ERROR: ID ilegal ("{token.value}")'
+            
             else:
                 tokens.append(token)
-
-        # Concatenan los tokens de error con los conseguidos
-        self.errors.extend(tokens)
 
         # La lista "errorTokens" no necesariamente sera siempre vacia. Esta se llena
         # de tokens de error en caso de haberlos al momento de ejecutar el metodo:
