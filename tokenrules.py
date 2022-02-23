@@ -71,7 +71,7 @@ t_TkColon = r':'
 
 # Regex para numeros: positivos, negativos, enteros y decimales
 def t_TkNumber(t: LexToken) -> LexToken:
-    r'[+-]?(\.[0-9]+|[0-9]+\.?[0-9]*)(?!\S)'
+    r'\.[0-9]+|[0-9]+\.?[0-9]*'
  
     # Intenta guardar el número como decimal, si da error, es entero
     try:
