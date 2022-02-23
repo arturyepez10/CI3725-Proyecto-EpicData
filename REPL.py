@@ -1,4 +1,4 @@
-"""REPL cliente de la VM del lenguaje Stókhos
+"""REPL cliente de la VM del lenguaje Stókhos.
 
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
