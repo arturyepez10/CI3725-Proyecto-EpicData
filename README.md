@@ -28,7 +28,7 @@ python Stokhos.py
 
 La implementación corresponde a una versión simplificada de un lenguaje, en la que principalmente se puede notar que no se permiten definiciones de funciones, dado que es un tópico propio de otra cadena de asignaturas.
 
-Para la estructura principal del proyecto se decidio modularizar las distintas funcionalidades del **Interpretador de Stókhos** con el proposito de lograr mejor mantenibilidad y legibilidad.
+La estructura principal del proyecto opta por modularizar las distintas funcionalidades del **Interpretador de Stókhos** con el proposito de lograr mejor mantenibilidad y legibilidad.
 
 La implementación actual está basada en Python. Al momento actual se decantó por utilizar librerias de soporte para la construcción del interpretador. Estas librerias corresponden a:
 
