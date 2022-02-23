@@ -20,6 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import ply.lex as lex
 import tokenrules
 
+# Clase que implementa la máquina virtual
+
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
     
@@ -119,3 +121,16 @@ class StokhosVM:
         # los tokens de caracteres ilegales estando de primero
 
         return f'OK: lex("{command}") ==> {tokens}'
+
+# Sobreescritura del método _repr__ de los tokens de ply
+
+def custom_repr(t: lex.LexToken):
+    val = ''
+    if t.type == 'TkId':
+        val = f'("{t.value}")'
+    elif t.type == 'TkNumber':
+        val = f'({t.value})'
+
+    return f'{t.type}{val}'
+
+lex.LexToken.__repr__ = custom_repr
