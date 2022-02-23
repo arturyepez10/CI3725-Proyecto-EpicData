@@ -1,4 +1,4 @@
-# Interpretador de Stókhos
+# Stókhos by EpicData
 ## CI3725 - Traductores e Interpretadores | Enero - Marzo 2022
 
 ### Arturo Yepez - Jesus Bandez - Christopher Gómez
