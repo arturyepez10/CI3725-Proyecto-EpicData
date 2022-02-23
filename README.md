@@ -30,14 +30,14 @@ La implementación corresponde a una versión simplificada de un lenguaje, en la
 
 La estructura principal del proyecto opta por modularizar las distintas funcionalidades del **Interpretador de Stókhos** con el proposito de lograr mejor mantenibilidad y legibilidad.
 
-La implementación actual está basada en Python. Al momento actual se decantó por utilizar librerias de soporte para la construcción del interpretador. Estas librerias corresponden a:
+La implementación actual está basada en Python. Las librerias que dan soporte a la construcción del interpretador corresponden a:
 
 - [**PLY (Python Lex-Yacc)**](https://github.com/dabeaz/ply): Lexer y parser de utilidad para el interpretador.
 - [**cmd**](https://docs.python.org/3/library/cmd.html): Soporte para intérpretes de línea de comandos, usada para la implementacion del REPL. 
 
 Actualmente, la estructura de proyecto es la siguiente:
 
-- **Stokhos.py**: Convergencia de distintos modulos para la ejecución del proyecto. Archivo "ejecutable" (indicado en la seccion de **Comenzando 🔧**).
+- **Stokhos.py**: Convergencia de distintos módulos para la ejecución del proyecto. Archivo ejecutable (indicado en la seccion de **Comenzando 🔧**).
 - **StokhosVM.py**: Declaración de la clase que implementa la VM (Virtual Machine) que servirá de intérprete del lenguaje Stókhos.
 - **REPL.py**: Declaración de clase que implementa el shell interactivo de Stókhos y su conexión directa a la VM.
 - **tokenrules.py**: Módulo que define las reglas para el tokenizer de Stókhos.
