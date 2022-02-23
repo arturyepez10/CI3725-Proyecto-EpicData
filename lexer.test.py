@@ -16,8 +16,9 @@ def main():
         '''()[]{}!^*/%\\-<<=>>==<>&&||',:=;:''', 'num _sum := 25',
         'bool ci3725 := true || false', ''' z = 'x+y' ''', '5', '123.321', '1.a',
         'a.1', '.123', '123.', '3a', '123.32a', '23a.2', '12.e' , '+12 -12',
-        '+1.a', '-a.2', '0.-4', '0+4', '0-4', '-.2-.1-2.-1'
-    ]
+        '+1.a', '-a.2', '0.-4', '0+4', '0-4', '-.2-.1-2.-1', '+1*.2/1.^-.1', 'id.legal',
+        'expresión', 'bool Bool := num 23', 'if .1=.2: num y:=.1; else: num j:=-.0',
+        'ñero ñero', '{fast} [Alfa] (reto)', 'ra Ra RA aR', '', ' ', '   ', '.lex']
 
     for case in test_cases:
         print(f'''Prueba con:'{BLUE}{case}{RESET}'\n''')
