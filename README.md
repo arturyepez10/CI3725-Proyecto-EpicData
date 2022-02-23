@@ -10,7 +10,7 @@
 
 En base al lenguaje original, la implementacion realizada en este periodo de tiempo constituye a una versión simplificada del lenguaje, detallado en una sección posterior.
 
-La interacción con el lenguaje se realizará principalmente mediante un REPL (Read-Evaluate-Print-Loop) encargada de hacerle llegar a la VM (Virtual Machine) las instrucciones ingresadas por el usuario. El REPL imita el comportamiento de otros lenguajes de programación mas conocidos (Python, NodeJS, etc.).
+La interacción con el lenguaje se realizará principalmente mediante un REPL (Read-Evaluate-Print-Loop) encargado de enviar a la VM (Virtual Machine) las instrucciones ingresadas por el usuario. El REPL imita el comportamiento de otros lenguajes de programación mas conocidos (Python, NodeJS, etc.).
 
 ## Comenzando 🔧
 
