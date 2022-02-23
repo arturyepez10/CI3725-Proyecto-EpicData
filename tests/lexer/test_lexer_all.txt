@@ -1,0 +1,4 @@
+.load tests/lexer/test_lexer_1.txt
+.load tests/lexer/test_lexer_2.txt
+.load tests/lexer/test_lexer_3.txt
+.load tests/lexer/test_lexer_4.txt

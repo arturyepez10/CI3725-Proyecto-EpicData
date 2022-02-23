@@ -1,4 +1,4 @@
-"""Colores para impresión en salida estándar.
+"""Constantes de utilidad para el proyecto.
     Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
     CI3725 - Traductores e Interpretadores
 
@@ -16,17 +16,4 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-# Lista de colores a utilizar para la impresion
-BOLD = '\033[1m'
-BLUE = '\033[94m'
-RESET = '\033[0m'
-
-def print_formatted(line: str) -> None:
-    '''Imprime con un color en especifico los resultados de la REPL al usuario.
-
-        Segun el enunciado, la salida standard de las respuestas de Stókhos debe ser en color azul.
-        
-        Retorna:
-            Nada, dado que los resultados se imprimen al usuario.
-    '''
-    print(f'{RESET}{BLUE}{line}{RESET}')
+VERSION = '0.1.2'

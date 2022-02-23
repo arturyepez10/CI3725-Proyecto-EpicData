@@ -25,6 +25,7 @@ from typing import Union
 
 from StokhosVM import StokhosVM as SVM
 from utils.colors import *
+from utils.constants import VERSION
 
 class StokhosCMD(Cmd):
     """Intérprete de línea de comandos para la REPL cliente de Stókhos.
@@ -43,7 +44,7 @@ class StokhosCMD(Cmd):
 
     # Mensajes de la REPL
     prompt = f'{RESET}< Stókhos > {BOLD}'
-    intro = ('¡Bienvenido a Stókhos v0.1.1!\n'
+    intro = (f'¡Bienvenido a Stókhos v{VERSION}!\n'
         'Utiliza "?" para mostrar los comandos disponibles.')
     doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' para '''
         'informacion detallada)')
@@ -145,6 +146,31 @@ class StokhosCMD(Cmd):
             return self.do_exit(line)
         elif re.match(r'\.lex+($| )', line.strip()):
             # Corta de la entrada '.lex' y envía el comando a la VM
-            return self.send_lexer(line.lstrip('.lex').strip())
+            command = line.lstrip('.lex').strip()
+            return self.send_lexer(command)
+        elif re.match(r'\.load+($| )', line.strip()):
+            # Corta '.load' y carga el archivos
+            path = line.lstrip('.load').strip()
+            self.load(path)
         else:
-            return self.send_process(line)
+            return self.send_process(line.strip())
+    
+    def load(self, path: str):
+        '''Carga un archivo
+        
+        TODO:
+            No implementado por completo todavía
+            Llevar cuenta del contexto para eliminar el riesgo de dependencias
+            circulares.
+            Contexto debe tener:
+                En qué directorio estás actualmente (para permitir rutas
+                absolutas y relativas)
+                Qué archivos se han cargado hasta el momento (para no permitir
+                que se referencien entre ellos)
+        '''
+        try:
+            with open(path) as fi:
+                for line in fi.readlines():
+                    self.default(line.strip())
+        except FileNotFoundError:
+            print_formatted(f'ERROR: no se encuentra el archivo {path}')
