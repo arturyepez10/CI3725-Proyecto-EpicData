@@ -69,36 +69,33 @@ t_TkSemicolon = r';'
 t_TkColon = r':'
 
 
-# Regex para numeros: positivos, negativos, enteros y decimales
-def t_TkNumber(t: LexToken) -> LexToken:
-    r'\.[0-9]+|[0-9]+\.?[0-9]*'
- 
-    # Intenta guardar el número como decimal, si da error, es entero
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        t.value = float(t.value)
-    
-    return t
 
-# Regex para los nombres de las variables y palabras reservadas
+# Regex para los caracteres, digitos y puntos
 def t_TkId(t: LexToken) -> LexToken:
     r'[_0-9a-zA-Z_\.][a-zA-Z_0-9\.]*'
 
+    # Comprobar si la string completa es un numero
+    if re.match(r'^(\.[0-9]+|[0-9]+\.?[0-9]*)$', t.value):
+        # En caso de serlo, se le asigna el tipo Number y el valor
+        t.type = 'TkNumber'
+        try:
+            t.value = int(t.value)
+        except ValueError:
+            t.value = float(t.value)
+
     # Se filtran los nombres ilegales
-    # Si el ID comienza con un digito o contiene un '.', se retorna un token
-    # de tipo 'IllegalID'
-    if re.match(r"\d", t.value[0]) or '.' in t.value:
+    # Si el ID comienza con un digito o contiene un '.', se retorna un token de tipo 
+    # 'IllegalID'
+    elif re.match(r"\d", t.value[0]) or '.' in t.value:
         t.type = 'IllegalID'
-        return t
-
+        
     else:
-
         # En caso de que se haya conseguido una palabra reservada del lenguaje,
         # se le asigna su respectivo tipo al token. En cualquier otro caso, el
         # el tipo del token es 'TkId'
-        t.type = reserved.get(t.value,'TkId') # Chequea si es reservada
-        return t
+        t.type = reserved.get(t.value,'TkId')   # Chequea palabras reservadas
+
+    return t
 
 # Maneja caracteres ilegales
 def t_error(t: LexToken):
