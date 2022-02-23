@@ -1,44 +1,46 @@
 # Interpretador de Stókhos
 ## CI3725 - Traductores e Interpretadores | Enero - Marzo 2022
 
-### Autores:
-### Arturo Yepez, Jesus Bandez, Christopher Gómez
+### Arturo Yepez - Jesus Bandez - Christopher Gómez
 ### Copyright (C) 2022
-## Descripcion General
+
+## Descripcion general 📃
 
 **Stókhos** (del griego στόχος) es un lenguaje interactivo orientado a simulaciones estocásticas.
 
-En base al lenguaje original, la implementacion realizada en este periodo de tiempo constituye a una version simplificada del lenguaje, que sera detallado en una seccion a posterior.
+En base al lenguaje original, la implementacion realizada en este periodo de tiempo constituye a una versión simplificada del lenguaje, detallado en una sección posterior.
 
-La interaccion con el lenguaje se realizara mediante una REPL encargada de hacerle llegar a la VM (Virtual Machine) los comandos ingresados por el usuario. La REPL imita el comportamiento de otros lenguajes de programacion mas conocidos (Python, NodeJS, etc).
+La interacción con el lenguaje se realizará principalmente mediante un REPL (Read-Evaluate-Print-Loop) encargada de hacerle llegar a la VM (Virtual Machine) las instrucciones ingresadas por el usuario. El REPL imita el comportamiento de otros lenguajes de programación mas conocidos (Python, NodeJS, etc.).
 
-## USO
+## Comenzando 🔧
 
-Para poder correr el proyecto, se necesita:
-1. Clonar el repositorio.
-2. Abrir linea de comandos en la raiz del proyecto.
-3. Para iniciar la ejecucion de la REPL del proyecto, se utiliza:
+Para comenzar a programar en Stókhos:
+
+1. Clona el repositorio.
+2. Abre la linea de comandos y navega hasta la raiz del proyecto.
+3. Utiliza el shell interactivo del lenguaje, escribe:
 ```
 python Stokhos.py
 ```
-4. ¡Listo! Disfrute codear en Stókhos.
+4. ¡Listo! Disfruta programar en Stókhos.
 
-## IMPLEMENTACION
+## Implementación 
 
-Como fue mencionado en la primera seccion, esta implementacion corresponde a una version simplificada donde principalmente se puede notar que no se permiten definiciones de funciones, dado que es un topico propio de otra cadena de asignaturas.
+La implementación corresponde a una versión simplificada de un lenguaje, en la que principalmente se puede notar que no se permiten definiciones de funciones, dado que es un tópico propio de otra cadena de asignaturas.
 
-Para estructura principal del proyecto se decidio modularizar las distintas funcionalidades del **Interpretador de Stókhos** con el proposito de lograr mejor mantenibilidad y legibilidad.
+Para la estructura principal del proyecto se decidio modularizar las distintas funcionalidades del **Interpretador de Stókhos** con el proposito de lograr mejor mantenibilidad y legibilidad.
 
-Para implementacion, al momento actual se decanto por utilizar librerias de soporte para la construccion del interpretador. Estas librerias corresponden a:
-- **ply**, para el interpretador.
-- **cmd**, para la implementacion del REPL. 
+La implementación actual está basada en Python. Al momento actual se decantó por utilizar librerias de soporte para la construcción del interpretador. Estas librerias corresponden a:
 
-Los desarrolladores optaron de forma temporal la siguiente estructura de proyecto:
+- [**PLY (Python Lex-Yacc)**](https://github.com/dabeaz/ply): Lexer y parser de utilidad para el interpretador.
+- [**cmd**](https://docs.python.org/3/library/cmd.html): Soporte para intérpretes de línea de comandos, usada para la implementacion del REPL. 
 
-- **Stokhos.py**: Convergencia de distintos modulos para la ejecucion del proyecto. Archivo "ejecutable" (indicado en la seccion de **USO**).
-- **StokhosVM.py**: Declaracion de clase cuya implementacion consiste en la VM (Virtual Machine) de nuestro lenguaje de programacion.
-- **REPL.py**: Declaracion de clase con la implementacion de la cmd de Stókhos y su conexion directa a la VM.
-- **tokenrules.py**: Reglas para el tokenizer de Stókhos.
-- **lexer.test.py**: Archivo con pruebas unitarias para el analizador lexicografico de Stókhos.
-- **utils** (directorio): Distintas funciones de objetivos miscelaneos para el contexto de la aplicacion.
-    - **colors.py**: Metodos y variables para output segun especificaciones.
+Actualmente, la estructura de proyecto es la siguiente:
+
+- **Stokhos.py**: Convergencia de distintos modulos para la ejecución del proyecto. Archivo "ejecutable" (indicado en la seccion de **Comenzando 🔧**).
+- **StokhosVM.py**: Declaración de la clase que implementa la VM (Virtual Machine) que servirá de intérprete del lenguaje Stókhos.
+- **REPL.py**: Declaración de clase que implementa el shell interactivo de Stókhos y su conexión directa a la VM.
+- **tokenrules.py**: Módulo que define las reglas para el tokenizer de Stókhos.
+- **lexer.test.py**: Archivo con pruebas unitarias para el analizador lexicográfico de Stókhos.
+- **utils** (directorio): Distintas funciones de objetivos misceláneos para el contexto del proyecto.
+    - **colors.py**: Módulo con métodos y variables para el formateo de strings en la salida estándar.
