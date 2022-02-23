@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
+import re
 from cmd import Cmd
 from textwrap import dedent
 from typing import Union
@@ -50,23 +51,18 @@ class StokhosCMD(Cmd):
         'para informacion detallada)')
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
-    def send_lexer(self, line: str):
-        '''Envía un comando al analizador lexicografico de Stókhos.
+    def send_lexer(self, command: str):
+        '''Envía un comando al analizador lexicográfico de Stókhos.
 
         El analizador procesa la entrada y construye un arreglo con los tokens
         hallados. Imprime el retorno de la VM en la salida estándar.
         '''
 
-        # Corta la etrada para verificar si hay mas contenido luego de '.lex'
-        # y enviarlo a la VM
-        command = line.replace('.lex ', '') if line != '.lex' else ''
-        
-        # Entrada analizada lexicograficamente por la VM
-        output = self.vm.lextest(command)
+        # Análisis lexicográfico de la entrada por la VM
+        out = self.vm.lextest(command)
+        print_formatted(out)
 
-        print_formatted(output)
-
-    def send_process(self, line: str):
+    def send_process(self, command: str):
         '''Envia un comando al intérprete de Stókhos.
 
         Transforma el comando en un arbol abstracto, evalúa expresiones y las
@@ -76,10 +72,8 @@ class StokhosCMD(Cmd):
         '''
 
         # Entrada procesada de la VM
-        output = self.vm.process(line)
-
-        # Se imprime al usuario el resultado final
-        print_formatted(output)
+        out = self.vm.process(command)
+        print_formatted(out)
 
     # ---------- DOCUMENTACION DE COMANDOS ----------
     def help_lexer(self):
@@ -149,7 +143,8 @@ class StokhosCMD(Cmd):
         '''
         if line == ".":
             return self.do_exit(line)
-        elif line.startswith('.lex ') or line == '.lex':
-            return self.send_lexer(line)
+        elif re.match(r'\.lex+($| )', line.strip()):
+            # Corta de la entrada '.lex' y envía el comando a la VM
+            return self.send_lexer(line.lstrip('.lex').strip())
         else:
             return self.send_process(line)
