@@ -76,6 +76,12 @@ class StokhosCMD(Cmd):
         out = self.vm.process(command)
         print_formatted(out)
 
+    def send_failed(self):
+        print_formatted('ERROR: ".failed" no implementado.')
+
+    def send_reset(self):
+        print_formatted('ERROR: ".reset" no implementado.')
+
     # ---------- DOCUMENTACION DE COMANDOS ----------
     def help_lexer(self):
         print(dedent('''
@@ -89,6 +95,30 @@ class StokhosCMD(Cmd):
 
             Su ejecucion se realiza mediante:
             >>> .lex <comando>'''))
+
+    def help_load(self):
+        print(dedent('''
+            Carga un archivo de instrucciones para Stókhos y las pasa al procesador
+            de entrada por defecto
+
+            Su ejecucion se realiza mediante:
+            >>> .load <ruta_de_archivo>'''))
+
+    def help_failed(self):
+        print(dedent('''
+            Imprime la lista de errores de la VM, uno por línea.
+
+            Su ejecucion se realiza mediante:
+            >>> .failed'''))
+
+    def help_reset(self):
+        print(dedent('''
+            Limpia la lista de errores de la VM.
+
+            En futuras iteraciones tendra mas responsabilidades.
+
+            Su ejecucion se realiza mediante:
+            >>> .reset'''))
 
     # -------------- MÉTODOS BÁSICOS --------------
     def cmdloop(self, intro=None):
@@ -152,6 +182,10 @@ class StokhosCMD(Cmd):
             # Corta '.load' y carga el archivos
             path = line.lstrip('.load').strip()
             self.load(path)
+        elif line == '.failed':
+            self.send_failed()
+        elif line == '.reset':
+            self.send_reset()
         else:
             return self.send_process(line.strip())
     
