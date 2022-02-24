@@ -42,14 +42,22 @@ class StokhosCMD(Cmd):
         Cmd.__init__(self)
         self.vm = SVM()
 
+        # Directorio desde el que se corre el REPL y conjunto con archivos
+        # cargados hasta el momento,
+        self.context = os.getcwd()
+        self.loaded = set()
+
+        # True si hay una condición de error urgente
+        self.exit = False 
+
     # Mensajes de la REPL
     prompt = f'{RESET}< Stókhos > {BOLD}'
     intro = (f'¡Bienvenido a Stókhos v{VERSION}!\n'
         'Utiliza "?" para mostrar los comandos disponibles.')
-    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' para '''
-        'informacion detallada)')
-    misc_header = ('''Lista de funciones disponibles (escribe 'help <nombre>' '''
+    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' '''
         'para informacion detallada)')
+    misc_header = ('''Lista de funciones disponibles (escribe 'help '''
+        '''<nombre>' para informacion detallada)''')
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
@@ -168,9 +176,42 @@ class StokhosCMD(Cmd):
                 Qué archivos se han cargado hasta el momento (para no permitir
                 que se referencien entre ellos)
         '''
+        full_path = os.path.join(self.context, path)
+        dir = os.path.dirname(full_path)
+        filename = os.path.basename(full_path)
+
+        if filename in self.loaded:
+            self.exit = True
+            return print_formatted(f'{RED}ERROR: el archivo {filename} ya se '
+                f'encuentra cargado (dependencias circulares en {path}).{RESET}')
+
+        temp = self.context
         try:
-            with open(path) as fi:
+            with open(full_path) as fi:
+                # Configura el nuevo contexto y actualiza conjunto de cargados
+                self.context = dir
+                self.loaded.add(filename)
+                print(f'cargado archivo a loaded : {self.loaded}')
+
                 for line in fi.readlines():
-                    self.default(line.strip())
+                    # Salta líneas vacías
+                    _input = line.strip()
+                    if _input:
+                        self.default(_input)
+
+                    # Deshace todo el contexto si se ha detectado un error
+                    if self.exit:
+                        self.context = os.getcwd()
+                        return self.loaded.clear()
+
+            # Se terminó de cargar el archivo, deshace el contexto                
+            self.loaded.remove(filename)
+            self.context = temp
+            print(f'descargado archivo de loaded : {self.loaded}')
+
         except FileNotFoundError:
-            print_formatted(f'ERROR: no se encuentra el archivo {path}')
+            self.exit = True
+            return print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+        except IsADirectoryError:
+            self.exit = True
+            return print_formatted(f'ERROR: no ha indicado ningún directorio')
