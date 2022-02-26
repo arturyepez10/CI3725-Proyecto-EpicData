@@ -4,7 +4,7 @@
 .lex if .1=.2: num y:=.1; else: num j:=-.0
 .lex ñero ñero
 
-.load test_lexer_all.txt
+
 
 .lex {fast} [Alfa] (reto)
 .lex ra Ra RA aR

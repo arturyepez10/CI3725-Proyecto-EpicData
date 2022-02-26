@@ -1,4 +1,0 @@
-.load test_lexer_1.txt
-.load test_lexer_2.txt
-.load test_lexer_3.txt
-.load test_lexer_4.txt

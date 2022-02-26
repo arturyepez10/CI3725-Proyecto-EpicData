@@ -11,6 +11,9 @@
 .lex +12 -12
 .lex +1.a
 .lex -a.2
+
+.load 4.txt
+
 .lex 0.-4
 .lex 0+4
 .lex 0-4

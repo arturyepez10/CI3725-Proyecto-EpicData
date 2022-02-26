@@ -43,9 +43,10 @@ class StokhosCMD(Cmd):
         self.vm = SVM()
 
         # Directorio desde el que se corre el REPL y conjunto con archivos
-        # cargados hasta el momento,
+        # cargados hasta el momento.
         self.context = os.getcwd()
         self.loaded = set()
+        self.current_file = ''
 
         # True si hay una condición de error urgente
         self.exit = False 
@@ -169,8 +170,8 @@ class StokhosCMD(Cmd):
         TODO:
             No implementado por completo todavía
             Llevar cuenta del contexto para eliminar el riesgo de dependencias
-            circulares.
-            Contexto debe tener:
+            circulares.             LISTO
+            Contexto debe tener:    LISTO
                 En qué directorio estás actualmente (para permitir rutas
                 absolutas y relativas)
                 Qué archivos se han cargado hasta el momento (para no permitir
@@ -179,19 +180,22 @@ class StokhosCMD(Cmd):
         full_path = os.path.join(self.context, path)
         dir = os.path.dirname(full_path)
         filename = os.path.basename(full_path)
+        self.exit = False
 
         if filename in self.loaded:
             self.exit = True
             return print_formatted(f'{RED}ERROR: el archivo {filename} ya se '
-                f'encuentra cargado (dependencias circulares en {path}).{RESET}')
+                f'encuentra cargado (dependencias circulares en '
+                f'{os.path.join(self.context, self.current_file)}).{RESET}')
 
-        temp = self.context
+        temp1 = self.context
+        temp2 = self.current_file
         try:
             with open(full_path) as fi:
                 # Configura el nuevo contexto y actualiza conjunto de cargados
                 self.context = dir
                 self.loaded.add(filename)
-                print(f'cargado archivo a loaded : {self.loaded}')
+                self.current_file = filename
 
                 for line in fi.readlines():
                     # Salta líneas vacías
@@ -202,12 +206,14 @@ class StokhosCMD(Cmd):
                     # Deshace todo el contexto si se ha detectado un error
                     if self.exit:
                         self.context = os.getcwd()
+                        self.current_file = ''
+
                         return self.loaded.clear()
 
-            # Se terminó de cargar el archivo, deshace el contexto                
+            # Terminó la carga del archivo, deshace el contexto                
             self.loaded.remove(filename)
-            self.context = temp
-            print(f'descargado archivo de loaded : {self.loaded}')
+            self.context = temp1
+            self.current_file = temp2
 
         except FileNotFoundError:
             self.exit = True
