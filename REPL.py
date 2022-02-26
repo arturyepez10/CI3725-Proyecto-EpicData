@@ -217,7 +217,9 @@ class StokhosCMD(Cmd):
 
         except FileNotFoundError:
             self.exit = True
-            return print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+            print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+            return
         except IsADirectoryError:
             self.exit = True
-            return print_formatted(f'ERROR: no ha indicado ningún directorio')
+            print_formatted(f'ERROR: no ha indicado ningún directorio')
+            return
