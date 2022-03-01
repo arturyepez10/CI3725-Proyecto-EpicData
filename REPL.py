@@ -175,7 +175,7 @@ class StokhosCMD(Cmd):
                 En qué directorio estás actualmente (para permitir rutas
                 absolutas y relativas)
                 Qué archivos se han cargado hasta el momento (para no permitir
-                que se referencien entre ellos)
+                que se referencien entre ellos).
         '''
         full_path = os.path.join(self.context, path)
         dir = os.path.dirname(full_path)
@@ -210,7 +210,7 @@ class StokhosCMD(Cmd):
 
                         return self.loaded.clear()
 
-            # Terminó la carga del archivo, deshace el contexto                
+            # Terminó la carga del archivo, deshace el contexto
             self.loaded.remove(filename)
             self.context = temp1
             self.current_file = temp2
