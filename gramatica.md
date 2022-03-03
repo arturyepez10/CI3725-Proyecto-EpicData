@@ -45,7 +45,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | '<expresión>'
     | <numExpr>
     | <boolExpr>
-    | <función>(<listaElems>)
+
 
 <numExpr> -> <número>
     | <identificador>
@@ -58,6 +58,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <numExpr> / <numExpr>
     | <numExpr> % <numExpr>
     | <numExpr> ^ <numExpr>
+    | <Funcion>
 
 
 <boolExpr> -> <booleano>
@@ -67,6 +68,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | !<boolExpr>
     | <boolExpr> && <boolExpr>
     | <boolExpr> || <boolExpr>
+    | <Funcion>
 
 <comparación> -> <numExpr> < <numExpr>
     | <numExpr> <= <numExpr>
@@ -74,21 +76,23 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <numExpr> >= <numExpr>
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
+
+
+<Funcion> -> <Identificador> (<listaElems>)
 ```
 
 ## Terminales
 ```
 <Identificador>  ->  <primer caracter> <IdentificadorTail>
-    <primer caracter> -> (Todos los caracteres posibles excepto un numero)
+    <primer caracter> -> (Todos los caracteres posibles excepto un número)
     <IdentificadorTail> ->  <Caracter> <IdentificadorTail> | (lambda)
     <caracter> -> (Todos los caracteres posibles)
 
 
-<numero>  ->  <entero> | <entero> <punto> <entero> | <punto> <entero> | <entero> <punto>
+<número>  ->  <entero> | <entero> . <entero> | . <entero> | <entero> .
     <entero> -> <digito> <EnteroTail>
     <digito> -> 0|1|2|3|4|5|6|7|8|9
-    <punto> -> .
 
-<booleano> -> True | False
+<booleano> -> true | false
 
 ```
