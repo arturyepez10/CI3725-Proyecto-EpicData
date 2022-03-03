@@ -75,3 +75,20 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
 ```
+
+## Terminales
+```
+<Identificador>  ->  <primer caracter> <IdentificadorTail>
+    <primer caracter> -> (Todos los caracteres posibles excepto un numero)
+    <IdentificadorTail> ->  <Caracter> <IdentificadorTail> | (lambda)
+    <caracter> -> (Todos los caracteres posibles)
+
+
+<numero>  ->  <entero> | <entero> <punto> <entero> | <punto> <entero> | <entero> <punto>
+    <entero> -> <digito> <EnteroTail>
+    <digito> -> 0|1|2|3|4|5|6|7|8|9
+    <punto> -> .
+
+<booleano> -> True | False
+
+```
