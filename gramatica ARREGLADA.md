@@ -25,7 +25,8 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
 <definición> -> <tipo> <identificador> := <expresión>;
     | [<tipo>] <identificador> := [<listaElems>];
 
-<listaElems> -> <expresión>
+<listaElems> -> (lambda)
+    | <expresión>
     | <listaElems>, <expresión>
 
 <asignación>  -> <identificador> := <expresión>;
@@ -58,7 +59,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <numExpr> / <numExpr>
     | <numExpr> % <numExpr>
     | <numExpr> ^ <numExpr>
-    | <Funcion>
+    | <función>
 
 
 <boolExpr> -> <booleano>
@@ -68,7 +69,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | !<boolExpr>
     | <boolExpr> && <boolExpr>
     | <boolExpr> || <boolExpr>
-    | <Funcion>
+    | <función>
 
 <comparación> -> <numExpr> < <numExpr>
     | <numExpr> <= <numExpr>
@@ -77,24 +78,28 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
 
-
-<Funcion> -> <identificador> (<listaElems>)
+<función> -> <identificador> (<listaElems>)
 ```
 
 ## Terminales
 
 ```_
-<identificador>  ->  <primer caracter> <identificadorTail>
-    <primer caracter> -> (Todos los caracteres posibles excepto un número)
-    <identificadorTail> ->  <Caracter> <identificadorTail> | (lambda)
-    <caracter> -> (Todos los caracteres posibles)
+<identificador>  ->  <primCaracter> <idCola>
 
+<primCaracter> -> (todos los caracteres posibles excepto un número)
 
-<número>  ->  <entero> | <entero> . <entero> | . <entero> | <entero> .
-    <entero> -> <digito> <EnteroTail>
-    <digito> -> 0|1|2|3|4|5|6|7|8|9
+<idCola> ->  <caracter> <idCola>
+    | (lambda)
 
-<booleano> -> true | false
+<caracter> -> (todos los caracteres posibles)
 
-<tipo> -> num | bool
+<número>  ->  <entero>
+    | <entero> . <entero>
+    | . <entero>
+    | <entero> .
+    
+<digito> -> 0|1|2|3|4|5|6|7|8|9
+
+<booleano> -> true
+    | false
 ```
