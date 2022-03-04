@@ -23,7 +23,8 @@ precedence = (
 def p_instruccion(p):
     '''instruccion : definicion TkSemicolon
         | asignacion TkSemicolon
-        | indefinido TkSemicolon'''
+        | indefinido TkSemicolon
+        | expresion'''
     print('instruccion')
     p[0] = p[1]
 
