@@ -232,5 +232,5 @@ while True:
     except EOFError:
         break
     if not s: continue
-    result = parser.parse(s)
+    result = parser.parse(s, debug=True, lexer=vm.lex)
     print(result)
