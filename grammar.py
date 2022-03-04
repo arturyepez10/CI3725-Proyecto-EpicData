@@ -18,44 +18,51 @@ precedence = (
 
 # -------- INSTRUCCIONES --------
 
-# <instrucción> -> <definición> 
-#     | <asignación>
+# <instruccion> -> <definicion> 
+#     | <asignacion>
 def p_instruccion(p):
     '''instruccion : definicion TkSemicolon
         | asignacion TkSemicolon
-        | indefinido TkSemicolon'''
-    print('instrucción')
+        | indefinido TkSemicolon
+        | expresion'''
+    print('instruccion')
     p[0] = p[1]
 
 # -------- DEFINICIONES --------
 
-# <definición> -> <tipo> <identificador> := <expresión>;
+# <definicion> -> <tipo> <identificador> := <expresion>;
 def p_definicion_var(p):
     'definicion : tipo TkId TkAssign expresion'
     p[0] = ('def', p[1], p[2], p[4])
 
-# <definición> -> [<tipo>] <identificador> := [<listaElems>];
+# <definicion> -> [<tipo>] <identificador> := [<listaElems>];
 def p_definicion_arr(p):
     'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
     p[0] = ('def', p[2], p[4], p[7])
 
 # -------- ASIGNACIONES --------
 
-# <asignación>  -> <identificador> := <expresión>;
+# <asignacion>  -> <identificador> := <expresion>;
 def p_asignacion_var(p):
     'asignacion : TkId TkAssign expresion'
-    p  
+    p[0] = ('asignacion', p[1], p[3])
+    print(p[0])
 
-# <identificador>[<numExpr>] := <expresión>;
+# <identificador>[<expresion>] := <expresion>;
+def p_asignacion_elemento_arr(p):
+    'asignacion : TkId TkOpenBracket expresion TkCloseBracket TkAssign expresion'
+    p
+
+# <identificador> := [<listaElems>]
 def p_asignacion_arr(p):
-    'asignacion : TkId TkOpenBracket numExpr TkCloseBracket TkAssign expresion'
+    'asignacion : TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
     p
 
 # -------- LISTAS --------
 
 # <listaElems> -> (lambda) 
-#     | <expresión>
-#     | <listaElems> , <expresión>
+#     | <expresion>
+#     | <listaElems> , <expresion>
 def p_lista(p):
     '''listaElems : lambda
         | expresion
@@ -64,134 +71,116 @@ def p_lista(p):
 
 # -------- EXPRESIONES --------
 
-# <expresión> -> (<expresión>)
-#     | '<expresión>'
-#     | <numExpr>
-#     | <boolExpr>
+# <expresion> -> (<expresion>)
+#     | '<expresion>'
 def p_expresion(p):
     '''expresion : TkOpenPar expresion TkClosePar
-        | TkQuote expresion TkQuote
-        | numExpr
-        | boolExpr'''
-    p
+        | TkQuote expresion TkQuote'''
+    p[0] = p[2]
 
 # -------- EXPRESIONES NUMÉRICAS --------
 
-# <numExpr> -> <número>
+# <expresion> -> <numero>
+#     | <booleano>
 #     | <identificador>
-def p_numExpr_terminales(p):
-    '''numExpr : TkNumber
+def p_expresion_terminales(p):
+    '''expresion : TkNumber
+        | booleano
         | TkId'''
+    p[0] = p[1]
+
+# <expresion> -> -<expresion>
+#     | +<expresion>
+def p_expresion_parentesis(p):
+    '''expresion : TkMinus expresion %prec UNARY
+        | TkPlus expresion %prec UNARY'''
     p
 
-# <numExpr> -> -<numExpr>
-#     | +<numExpr>
-def p_numExpr_parentesis(p):
-    '''numExpr : TkMinus numExpr %prec UNARY
-        | TkPlus numExpr %prec UNARY'''
-    p
-
-# <numExpr> -> <numExpr> + <numExpr>
-#     | <numExpr> - <numExpr>
-def p_numExpr_suma_resta(p):
-    '''numExpr : numExpr TkPlus numExpr
-        | numExpr TkMinus numExpr'''
+# <expresion> -> <expresion> + <expresion>
+#     | <expresion> - <expresion>
+def p_expresion_suma_resta(p):
+    '''expresion : expresion TkPlus expresion
+        | expresion TkMinus expresion'''
     if p[1] == '+':
         p
     else:
         p
 
-# <numExpr> -> <numExpr> * <numExpr>
-#     | <numExpr> / <numExpr>
-def p_numExpr_mult_div(p):
-    '''numExpr : numExpr TkMult numExpr
-        | numExpr TkDiv numExpr'''
+# <expresion> -> <expresion> * <expresion>
+#     | <expresion> / <expresion>
+def p_expresion_mult_div(p):
+    '''expresion : expresion TkMult expresion
+        | expresion TkDiv expresion'''
     if p[1] == '*':
         p
     else:
         p
 
-# <numExpr> -> <numExpr> * <numExpr>
-#     | <numExpr> / <numExpr>
-def p_numExpr_mod_exp(p):
-    '''numExpr : numExpr TkMod numExpr
-        | numExpr TkPower numExpr'''
+# <expresion> -> <expresion> * <expresion>
+#     | <expresion> / <expresion>
+def p_expresion_mod_exp(p):
+    '''expresion : expresion TkMod expresion
+        | expresion TkPower expresion'''
     if p[1] == '%':
         p
     else:
         p
 
-# <numExpr> -> funcion
-def p_numExpr_funcion(p):
-    'numExpr : funcion'
-    p
-
 # -------- EXPRESIONES BOOLEANAS --------
 
-# <boolExpr> -> <booleano>
-#     | <identificador>
-def p_boolExpr_terminales(p):
-    '''boolExpr : booleano
-        | TkId'''
+
+# <expresion> -> !<expresion>
+def p_expresion_negacion(p):
+    'expresion : TkNot expresion %prec UNARY'
     p
 
-# <boolExpr> -> <comparación>
-def p_boolExpr_comparacion(p):
-    'boolExpr : comparacion'
-    p
-
-# <boolExpr> -> (<boolExpr>)
-def p_boolExpr_parentesis(p):
-    'boolExpr : TkOpenPar boolExpr TkClosePar'
-    p
-
-# <boolExpr> -> !<boolExpr>
-def p_boolExpr_negacion(p):
-    'boolExpr : TkNot boolExpr %prec UNARY'
-    p
-
-# <boolExpr> -> <boolExpr> && <boolExpr>
-#     | <boolExpr> || <boolExpr>
-def p_boolExpr_conj_disy(p):
-    '''boolExpr : boolExpr TkAnd boolExpr
-        | boolExpr TkOr boolExpr'''
+# <expresion> -> <expresion> && <expresion>
+#     | <expresion> || <expresion>
+def p_expresion_conj_disy(p):
+    '''expresion : expresion TkAnd expresion
+        | expresion TkOr expresion'''
     if p[2] == '&&':
         p
     else:
         p
 
-# <boolExpr> -> <función>
-def p_boolExpr_funcion(p):
-    'boolExpr : funcion'
+# <expresion> -> <comparacion>
+def p_expresion_comparacion(p):
+    'expresion : comparacion'
+    p
+
+# <expresion> -> <funcion>
+def p_expresion_funcion(p):
+    'expresion : funcion'
     p
 
 # -------- COMPARACIONES (BOOLEANAS) --------
 
-# <comparación> -> <numExpr> < <numExpr>
-#     | <numExpr> <= <numExpr>
+# <comparacion> -> <expresion> < <expresion>
+#     | <expresion> <= <expresion>
 def p_comparacion_menor_que(p):
-    '''comparacion : numExpr TkLT numExpr
-        | numExpr TkLE numExpr'''
+    '''comparacion : expresion TkLT expresion
+        | expresion TkLE expresion'''
     if p[2] == '<':
         p
     else:
         p
     
-# <comparación> -> <numExpr> > <numExpr>
-#     | <numExpr> >= <numExpr>
+# <comparacion> -> <expresion> > <expresion>
+#     | <expresion> >= <expresion>
 def p_comparacion_mayor_que(p):
-    '''comparacion : numExpr TkGT numExpr
-        | numExpr TkGE numExpr'''
+    '''comparacion : expresion TkGT expresion
+        | expresion TkGE expresion'''
     if p[2] == '>':
         p
     else:
         p
 
-# <comparación> -> <expresión> = <expresión>
-#     | <expresión> <> <expresión>
+# <comparacion> -> <expresion> = <expresion>
+#     | <expresion> <> <expresion>
 def p_comparacion_igual_distinto(p):
-    '''comparacion : numExpr TkEq numExpr
-        | numExpr TkNE numExpr'''
+    '''comparacion : expresion TkEq expresion
+        | expresion TkNE expresion'''
     if p[2] == '==':
         p
     else:
@@ -205,7 +194,7 @@ def p_funcion(p):
 
 # -------- TERMINALES --------
 
-# <función> -> <identificador> (<listaElems>)
+# <funcion> -> <identificador> (<listaElems>)
 def p_booleano(p):
     '''booleano : TkTrue
         | TkFalse'''
@@ -248,5 +237,5 @@ while True:
     except EOFError:
         break
     if not s: continue
-    result = parser.parse(s)
+    result = parser.parse(s, lexer=vm.lex)
     print(result)

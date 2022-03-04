@@ -1,16 +1,3 @@
-# Bosquejo gramática de Stókhos
-
-```_
-<entrada> -> <instrucción> | <expresión>
-…
-<expresión>
-    -> <número>
-    …
-    -> <expresión> + <expresión>
-```
-
----
-
 ## Para instrucciones
 
 Una instrucción puede ser una definición o una asignación, diferenciándose en que una definición comienza con un identificador de tipo, al contrario de una asignación.
@@ -20,7 +7,7 @@ La sintaxis permite declarar variables de tipo numérico y booleano, además de 
 Se puede acceder a los elementos de un arreglo colocando una expresión numérica entre corchetes al lado del identificador, cuya evaluación corresponde a un índice del arreglo.
 
 ```_
-<instrucción> -> <definición>;  | <asignación>;
+<instrucción> -> <definición>;  | <asignación>; | <expresión>
 
 <definición> -> <tipo> <identificador> := <expresión>
     | [<tipo>] <identificador> := [<listaElems>]
@@ -30,7 +17,8 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
     | <listaElems>, <expresión>
 
 <asignación>  -> <identificador> := <expresión>
-    | <identificador>[<numExpr>] := <expresión>
+    | <identificador>[<expresion>] := <expresión>
+    | <identificador> := [<listaElems>]
 ```
 
 ## Para expresiones
@@ -44,37 +32,27 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
 ```_
 <expresión> -> (<expresión>)
     | '<expresión>'
-    | <numExpr>
-    | <boolExpr>
-
-
-<numExpr> -> <número>
+    | <número>
+    | <booleano>
     | <identificador>
-    | (<numExpr>)
-    | -<numExpr>
-    | +<numExpr>
-    | <numExpr> + <numExpr>
-    | <numExpr> - <numExpr>
-    | <numExpr> * <numExpr>
-    | <numExpr> / <numExpr>
-    | <numExpr> % <numExpr>
-    | <numExpr> ^ <numExpr>
-    | <función>
-
-
-<boolExpr> -> <booleano>
-    | <identificador>
+    | -<expresión>
+    | +<expresión>
+    | <expresión> + <expresión>
+    | <expresión> - <expresión>
+    | <expresión> * <expresión>
+    | <expresión> / <expresión>
+    | <expresión> % <expresión>
+    | <expresión> ^ <expresión>
+    | !<expresión>
+    | <expresión> && <expresión>
+    | <expresión> || <expresión>
     | <comparación>
-    | (<boolExpr>)
-    | !<boolExpr>
-    | <boolExpr> && <boolExpr>
-    | <boolExpr> || <boolExpr>
     | <función>
 
-<comparación> -> <numExpr> < <numExpr>
-    | <numExpr> <= <numExpr>
-    | <numExpr> > <numExpr>
-    | <numExpr> >= <numExpr>
+<comparación> -> <expresion> < <expresion>
+    | <expresion> <= <expresion>
+    | <expresion> > <expresion>
+    | <expresion> >= <expresion>
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
 
