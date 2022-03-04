@@ -45,7 +45,6 @@ def p_definicion_arr(p):
 # <asignacion>  -> <identificador> := <expresion>;
 def p_asignacion_var(p):
     'asignacion : TkId TkAssign expresion'
-    print('por aqui')
     p[0] = ('asignacion', p[1], p[3])
     print(p[0])
 
@@ -233,5 +232,5 @@ while True:
     except EOFError:
         break
     if not s: continue
-    result = parser.parse(s, debug=True, lexer=vm.lex)
+    result = parser.parse(s, lexer=vm.lex)
     print(result)
