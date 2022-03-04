@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from ply.lex import LexToken
+from ply.lex import LexToken, lex
 import re
 
 # Palabras reservadas del lenguaje
@@ -68,8 +68,6 @@ t_TkAssign = r':='
 t_TkSemicolon = r';'
 t_TkColon = r':'
 
-
-
 # Regex para los caracteres, digitos y puntos
 def t_TkId(t: LexToken) -> LexToken:
     r'[_0-9a-zA-Z_\.][a-zA-Z_0-9\.]*'
@@ -105,3 +103,5 @@ def t_error(t: LexToken):
     # Salta el caracter ilegal
     t.lexer.skip(1)
     return t
+
+lexer = lex()

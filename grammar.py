@@ -1,25 +1,27 @@
 import ply.yacc as yacc
 from tokenrules import tokens
+from StokhosVM import StokhosVM as SVM
 
 # -------- INSTRUCCIONES --------
 
 # <instrucción> -> <definición> 
 #     | <asignación>
 def p_instruccion(p):
-    '''instruccion : definicion
-        | asignacion'''
+    '''instruccion : definicion TkSemicolon
+        | asignacion TkSemicolon
+        | indefinido TkSemicolon'''
     p
 
 # -------- DEFINICIONES --------
 
 # <definición> -> <tipo> <identificador> := <expresión>;
 def p_definicion_var(p):
-    'definicion : tipo TkId TkAssign expresion TkSemicolon'
+    'definicion : tipo TkId TkAssign expresion'
     p
 
 # <definición> -> [<tipo>] <identificador> := [<listaElems>];
 def p_definicion_arr(p):
-    'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket TkSemicolon'''
+    'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
     p
 
 # -------- ASIGNACIONES --------
@@ -52,7 +54,7 @@ def p_lista(p):
 #     | <numExpr>
 #     | <boolExpr>
 def p_expresion(p):
-    '''TkOpenPar expresion TkClosePar
+    '''expresion : TkOpenPar expresion TkClosePar
         | TkQuote expresion TkQuote
         | numExpr
         | boolExpr'''
@@ -76,7 +78,7 @@ def p_numExpr_parentesis(p):
 
 # <numExpr> -> <numExpr> + <numExpr>
 #     | <numExpr> - <numExpr>
-def p_numExpr_suma_resta(p)
+def p_numExpr_suma_resta(p):
     '''numExpr : numExpr TkPlus numExpr
         | numExpr TkMinus numExpr'''
     if p[1] == '+':
@@ -98,7 +100,7 @@ def p_numExpr_mult_div(p):
 #     | <numExpr> / <numExpr>
 def p_numExpr_mod_exp(p):
     '''numExpr : numExpr TkMod numExpr
-        | numExpr TkExp numExpr'''
+        | numExpr TkPower numExpr'''
     if p[1] == '%':
         p
     else:
@@ -173,7 +175,7 @@ def p_comparacion_mayor_que(p):
 # <comparación> -> <expresión> = <expresión>
 #     | <expresión> <> <expresión>
 def p_comparacion_igual_distinto(p):
-    '''comparacion : numExpr TkEQ numExpr
+    '''comparacion : numExpr TkEq numExpr
         | numExpr TkNE numExpr'''
     if p[2] == '==':
         p
@@ -186,23 +188,48 @@ def p_funcion(p):
     'funcion : TkId TkOpenPar listaElems TkClosePar'
     p
 
+# -------- TERMINALES --------
+
+# <función> -> <identificador> (<listaElems>)
+def p_booleano(p):
+    '''booleano : TkTrue
+        | TkFalse'''
+    p
+
+# <tipo> -> num
+#     | bool
+def p_tipo(p):
+    '''tipo : TkNum
+        | TkBool'''
+    p
+
 # -------- PALABRA VACÍA --------
 
 def p_lambda(p):
     'lambda :'
     p
 
+# -------- ???????? --------
+
+def p_indefinido(p):
+    '''indefinido : TkOpenBrace listaElems TkCloseBrace
+        | TkNumber TkColon TkNumber'''
+    p
+
 # -------- ERROR --------
 
 def p_error(p):
     print("Syntax error in input!")
+    print(p)
+
+vm = SVM()
 
 # Build the parser
 parser = yacc.yacc()
 
 while True:
     try:
-        s = raw_input('calc > ')
+        s = input('calc > ')
     except EOFError:
         break
     if not s: continue

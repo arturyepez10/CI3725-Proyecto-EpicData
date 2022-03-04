@@ -20,17 +20,17 @@ La sintaxis permite declarar variables de tipo numérico y booleano, además de 
 Se puede acceder a los elementos de un arreglo colocando una expresión numérica entre corchetes al lado del identificador, cuya evaluación corresponde a un índice del arreglo.
 
 ```_
-<instrucción> -> <definición>  | <asignación>
+<instrucción> -> <definición>;  | <asignación>;
 
-<definición> -> <tipo> <identificador> := <expresión>;
-    | [<tipo>] <identificador> := [<listaElems>];
+<definición> -> <tipo> <identificador> := <expresión>
+    | [<tipo>] <identificador> := [<listaElems>]
 
 <listaElems> -> (lambda)
     | <expresión>
     | <listaElems>, <expresión>
 
-<asignación>  -> <identificador> := <expresión>;
-    | <identificador>[<numExpr>] := <expresión>;
+<asignación>  -> <identificador> := <expresión>
+    | <identificador>[<numExpr>] := <expresión>
 ```
 
 ## Para expresiones
@@ -102,4 +102,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
 
 <booleano> -> true
     | false
+
+<tipo> -> num
+    | bool
 ```
