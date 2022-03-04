@@ -43,12 +43,12 @@ def p_definicion_arr(p):
 
 # <asignación>  -> <identificador> := <expresión>;
 def p_asignacion_var(p):
-    'asignacion : TkId TkAssign expresion TkSemicolon'
+    'asignacion : TkId TkAssign expresion'
     p  
 
 # <identificador>[<numExpr>] := <expresión>;
 def p_asignacion_arr(p):
-    'asignacion : TkId TkOpenBracket numExpr TkCloseBracket TkAssign expresion TkSemicolon'
+    'asignacion : TkId TkOpenBracket numExpr TkCloseBracket TkAssign expresion'
     p
 
 # -------- LISTAS --------

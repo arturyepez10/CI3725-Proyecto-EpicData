@@ -30,7 +30,7 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
     | <listaElems>, <expresión>
 
 <asignación>  -> <identificador> := <expresión>
-    | <identificador>[<numExpr>] := <expresión>
+    | <identificador>[<expresion>] := <expresión>
 ```
 
 ## Para expresiones
@@ -44,37 +44,27 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
 ```_
 <expresión> -> (<expresión>)
     | '<expresión>'
-    | <numExpr>
-    | <boolExpr>
-
-
-<numExpr> -> <número>
+    | <número>
+    | <booleano>
     | <identificador>
-    | (<numExpr>)
-    | -<numExpr>
-    | +<numExpr>
-    | <numExpr> + <numExpr>
-    | <numExpr> - <numExpr>
-    | <numExpr> * <numExpr>
-    | <numExpr> / <numExpr>
-    | <numExpr> % <numExpr>
-    | <numExpr> ^ <numExpr>
-    | <función>
-
-
-<boolExpr> -> <booleano>
-    | <identificador>
+    | -<expresión>
+    | +<expresión>
+    | <expresión> + <expresión>
+    | <expresión> - <expresión>
+    | <expresión> * <expresión>
+    | <expresión> / <expresión>
+    | <expresión> % <expresión>
+    | <expresión> ^ <expresión>
+    | !<expresión>
+    | <expresión> && <expresión>
+    | <expresión> || <expresión>
     | <comparación>
-    | (<boolExpr>)
-    | !<boolExpr>
-    | <boolExpr> && <boolExpr>
-    | <boolExpr> || <boolExpr>
     | <función>
 
-<comparación> -> <numExpr> < <numExpr>
-    | <numExpr> <= <numExpr>
-    | <numExpr> > <numExpr>
-    | <numExpr> >= <numExpr>
+<comparación> -> <expresion> < <expresion>
+    | <expresion> <= <expresion>
+    | <expresion> > <expresion>
+    | <expresion> >= <expresion>
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
 
