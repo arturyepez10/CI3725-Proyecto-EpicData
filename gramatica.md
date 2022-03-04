@@ -64,19 +64,15 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
 ```_
 <identificador>  ->  <primCaracter> <idCola>
 
-<primCaracter> -> (todos los caracteres posibles excepto un número)
-
-<idCola> ->  <caracter> <idCola>
-    | (lambda)
-
-<caracter> -> (todos los caracteres posibles)
+<primCaracter> -> [A-za-z_] <idCola>
+<idCola> ->  [A-za-z_0-9]*
 
 <número>  ->  <entero>
     | <entero> . <entero>
     | . <entero>
     | <entero> .
     
-<digito> -> 0|1|2|3|4|5|6|7|8|9
+<entero> -> [0-9]+
 
 <booleano> -> true
     | false
