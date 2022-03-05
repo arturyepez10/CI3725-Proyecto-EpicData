@@ -30,15 +30,16 @@ precedence = (
     ('nonassoc', 'TkLT', 'TkGT', 'TkLE', 'TkGE'),
     ('left', 'TkPlus', 'TkMinus'),
     ('left', 'TkMult', 'TkDiv', 'TkMod'),
-    ('left', 'UNARY'),
+    ('nonassoc', 'UNARY'),
     ('right', 'TkPower'),
     ('nonassoc', 'TkOpenPar', 'TkClosePar', 'TkQuote', 'TkOpenBracket', 'TkCloseBracket'),
 )
 
 # -------- INSTRUCCIONES --------
 
-# <instruccion> -> <definicion> 
-#     | <asignacion>
+# <instruccion> -> <definicion>;
+#     | <asignacion>;
+#     | <expresion>
 def p_instruccion(p):
     '''instruccion : definicion TkSemicolon
         | asignacion TkSemicolon
@@ -49,25 +50,25 @@ def p_instruccion(p):
 
 # -------- DEFINICIONES --------
 
-# <definicion> -> <tipo> <identificador> := <expresion>;
+# <definicion> -> <tipo> <identificador> := <expresion>
 def p_definicion_var(p):
     'definicion : tipo TkId TkAssign expresion'
     p[0] = ('def', p[1], p[2], p[4])
 
-# <definicion> -> [<tipo>] <identificador> := [<listaElems>];
+# <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
     'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
     p[0] = ('def', p[2], p[4], p[7])
 
 # -------- ASIGNACIONES --------
 
-# <asignacion>  -> <identificador> := <expresion>;
+# <asignacion>  -> <identificador> := <expresion>
 def p_asignacion_var(p):
     'asignacion : TkId TkAssign expresion'
     p[0] = ('asignacion', p[1], p[3])
     print(p[0])
 
-# <identificador>[<expresion>] := <expresion>;
+# <identificador>[<expresion>] := <expresion>
 def p_asignacion_elemento_arr(p):
     'asignacion : TkId TkOpenBracket expresion TkCloseBracket TkAssign expresion'
     p
@@ -146,7 +147,6 @@ def p_expresion_mod_exp(p):
         p
 
 # -------- EXPRESIONES BOOLEANAS --------
-
 
 # <expresion> -> !<expresion>
 def p_expresion_negacion(p):
