@@ -85,6 +85,60 @@ class StokhosCMD(Cmd):
         out = self.vm.process(command)
         print_formatted(out)
 
+    def send_load(self, path: str):
+        '''Carga un archivo lleno de instrucciones para la VM, y los envia
+        al reconocedor de instrucciones deL REPL.
+        '''
+        # Encuentra path de archivo completo, directorio y nombre de archivo
+        full_path = os.path.join(self.context, path)
+        dir = os.path.dirname(full_path)
+        filename = os.path.basename(full_path)
+        self.exit = False
+
+        if filename in self.loaded:
+            self.exit = True
+            return print_error(f'ERROR: se identifico una dependencial circular '
+                f'al cargar una instruccion. El archivo "{filename}"'
+                f'({os.path.join(self.context, self.current_file)}) ya se encuentra cargado.')
+
+        temp1 = self.context
+        temp2 = self.current_file
+        try:
+            with open(full_path) as fi:
+                # Configura el nuevo contexto y actualiza conjunto de cargados
+                self.context = dir
+                self.loaded.add(filename)
+                self.current_file = filename
+
+                for line in fi.readlines():
+                    # Salta líneas vacías
+                    _input = line.strip()
+                    if _input:
+                        self.default(_input)
+
+                    # Deshace todo el contexto si se ha detectado un error
+                    if self.exit:
+                        self.context = os.getcwd()
+                        self.current_file = ''
+
+                        return self.loaded.clear()
+
+            # Terminó la carga del archivo, deshace el contexto
+            self.loaded.remove(filename)
+            self.context = temp1
+            self.current_file = temp2
+
+        except FileNotFoundError:
+            self.exit = True
+            return print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+        except IsADirectoryError:
+            self.exit = True
+            return print_formatted(f'ERROR: no ha indicado ningún directorio')
+
+
+    def send_ast(self, command: str):
+        print_formatted('ERROR: ".ast" no implementado.')
+
     def send_failed(self):
         print_formatted('ERROR: ".failed" no implementado.')
 
@@ -112,6 +166,17 @@ class StokhosCMD(Cmd):
 
             Su ejecucion se realiza mediante:
             >>> .load <ruta_de_archivo>'''))
+    
+    def help_ast(self):
+        print(dedent('''
+            Ejecuta el analizador sintáctico (parser) con la entrada.
+
+            El parser construye un arbol abstracto con la entrada y una funcion 
+            especial retorna el arbol en formato de string, para que el usuario
+            vea la construccion de este y pueda validar su correcto funcionamiento.
+
+            Su ejecucion se realiza mediante:
+            >>> .ast <entrada>'''))
 
     def help_failed(self):
         print(dedent('''
@@ -163,7 +228,7 @@ class StokhosCMD(Cmd):
         
         El comportamiendo por defecto es no hacer nada.
         '''
-        return False
+        return False        
 
     def default(self, line: str) -> Union[bool, None]:
         '''Procesador de entrada por defecto.
@@ -190,70 +255,14 @@ class StokhosCMD(Cmd):
         elif re.match(r'\.load+($| )', line.strip()):
             # Corta '.load' y carga el archivos
             path = line.lstrip('.load').strip()
-            self.load(path)
+            self.send_load(path)
+        elif re.match(r'\.ast+($| )', line.strip()):
+            # Corta de la entrada '.ast' e invoca al parse (entrega 2)
+            path = line.lstrip('.ast').strip()
+            print_formatted(path)
         elif line == '.failed':
             self.send_failed()
         elif line == '.reset':
             self.send_reset()
         else:
             return self.send_process(line.strip())
-    
-    def load(self, path: str):
-        '''Carga un archivo
-        
-        TODO:
-            No implementado por completo todavía
-            Llevar cuenta del contexto para eliminar el riesgo de dependencias
-            circulares.             LISTO
-            Contexto debe tener:    LISTO
-                En qué directorio estás actualmente (para permitir rutas
-                absolutas y relativas)
-                Qué archivos se han cargado hasta el momento (para no permitir
-                que se referencien entre ellos).
-        '''
-        full_path = os.path.join(self.context, path)
-        dir = os.path.dirname(full_path)
-        filename = os.path.basename(full_path)
-        self.exit = False
-
-        if filename in self.loaded:
-            self.exit = True
-            return print_formatted(f'{RED}ERROR: el archivo {filename} ya se '
-                f'encuentra cargado (dependencias circulares en '
-                f'{os.path.join(self.context, self.current_file)}).{RESET}')
-
-        temp1 = self.context
-        temp2 = self.current_file
-        try:
-            with open(full_path) as fi:
-                # Configura el nuevo contexto y actualiza conjunto de cargados
-                self.context = dir
-                self.loaded.add(filename)
-                self.current_file = filename
-
-                for line in fi.readlines():
-                    # Salta líneas vacías
-                    _input = line.strip()
-                    if _input:
-                        self.default(_input)
-
-                    # Deshace todo el contexto si se ha detectado un error
-                    if self.exit:
-                        self.context = os.getcwd()
-                        self.current_file = ''
-
-                        return self.loaded.clear()
-
-            # Terminó la carga del archivo, deshace el contexto
-            self.loaded.remove(filename)
-            self.context = temp1
-            self.current_file = temp2
-
-        except FileNotFoundError:
-            self.exit = True
-            print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
-            return
-        except IsADirectoryError:
-            self.exit = True
-            print_formatted(f'ERROR: no ha indicado ningún directorio')
-            return

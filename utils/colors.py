@@ -31,3 +31,6 @@ def print_formatted(line: str) -> None:
             Nada, dado que los resultados se imprimen al usuario.
     '''
     print(f'{RESET}{BLUE}{line}{RESET}')
+
+def print_error(line: str) -> None:
+    print(f'{RED}{line}{RESET}')
