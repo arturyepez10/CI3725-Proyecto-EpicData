@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from ctypes import Array
 import ply.yacc as yacc
 from tokenrules import tokens
 from VM import StokhosVM as SVM
@@ -54,8 +55,8 @@ def p_definicion_var(p):
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
-    'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
-    print('TODO')
+    'definicion : tipoArreglo TkId TkAssign arreglo'
+    p[0] = AST.SymDef(p[1], p[2], p[5])
 
 # -------- ASIGNACIONES --------
 # <asignacion>  -> <identificador> := <expresion>
@@ -74,13 +75,18 @@ def p_asignacion_arr(p):
     print('TODO')
 
 # -------- LISTAS --------
+# <arreglo> -> [listaElems]
+def p_arreglo(p):
+    'arreglo : TkOpenBracket listaElems TkCloseBracket'
+    print('TODO')
+
 # <listaElems> -> (lambda)
 #     | <expresion>
 #     | <listaElems> , <expresion>
 def p_lista(p):
     '''listaElems : lambda
         | expresion
-        | listaElems TkComma expresion'''
+        | expresion TkComma listaElems'''
     print('TODO')
 
 # -------- EXPRESIONES --------
@@ -178,6 +184,11 @@ def p_booleano(p):
     '''booleano : TkTrue
         | TkFalse'''
     p[0] = AST.Boolean(p[1])
+
+# <tipoArreglo> -> [<tipo>]
+def p_tipo_arreglo(p):
+    'tipoArreglo : TkOpenBracket tipo TkCloseBracket'
+    p[0] = AST.Type(AST.Array(p[2]))
 
 # <tipo> -> num
 #     | bool

@@ -70,11 +70,11 @@ class Boolean(Number):
 
 # -------- TIPOS --------
 class Type(AST):
-    def __init__(self, _id: str):
+    def __init__(self, _id: object):
         self.id = _id
 
     def __str__(self) -> str:
-        return f'Type({self.value})'
+        return f'Type({self.id.__str__()})'
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -115,5 +115,6 @@ class Array:
     def __init__(self, el: object):
         self.elements = []
         if (el): self.elements.append(el)
-        
-    def __str__()
+
+    def __str__(self) -> str:
+        return f'[{", ".join([str(el) for el in self.elements])}]'
