@@ -110,7 +110,7 @@ class StokhosVM:
             if token.type == 'IllegalCharacter':                
                 # Crea una entrada de error por token de tipo caracter ilegal
                 error_tokens.append({
-                    "type": 'Caracter invalido',
+                    "type": 'Caracter inválido',
                     "token": token,
                     "line": line
                 })
