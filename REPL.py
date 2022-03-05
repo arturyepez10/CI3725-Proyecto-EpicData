@@ -23,7 +23,7 @@ from cmd import Cmd
 from textwrap import dedent
 from typing import Union
 
-from StokhosVM import StokhosVM as SVM
+from VM import StokhosVM as SVM
 from utils.colors import *
 from utils.constants import VERSION
 

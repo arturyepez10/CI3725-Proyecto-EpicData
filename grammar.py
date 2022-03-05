@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from tokenrules import tokens
-from StokhosVM import StokhosVM as SVM
+from VM import StokhosVM as SVM
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (

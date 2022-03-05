@@ -4,7 +4,7 @@ Se supone que debe estar en tests pero falta refactorizar cosas para convertir
 el código en un paquete de Python
 '''
 
-from StokhosVM import StokhosVM as SVM
+from VM import StokhosVM as SVM
 from utils.colors import BLUE, RESET, BOLD
 
 def main():
