@@ -103,17 +103,20 @@ class StokhosVM:
 
         # Lista vacia que recolecta todos los tokens encontrados en el comando
         tokens = []
+
+        # Lista vacia que recolecta todos los tokens de error encontrados en el comando
+        error_tokens = []
         for token in self.lex:
             if token.type == 'IllegalCharacter':                
                 # Crea una entrada de error por token de tipo caracter ilegal
-                self.errors.append({
+                error_tokens.append({
                     "type": 'Caracter invalido',
                     "token": token,
                     "line": line
                 })
             elif token.type == 'IllegalID':
                 # Crea una entrada de error por token de tipo ID ilegal
-                self.errors.append({
+                error_tokens.append({
                     "type": 'ID ilegal',
                     "token": token,
                     "line": line
@@ -124,21 +127,38 @@ class StokhosVM:
 
         # Formatea la salida
         output = []
-        if (len(self.errors)):
-            for error in self.errors:
-                output.append(self.error2str(error))
+        if (len(error_tokens)):
+            output = self.getErrors(error_tokens)
+
+            # Agregamos los errores analizados a la lista global de errores
+            self.errors += error_tokens
         else :
             output = [f'OK: lex("{command}") ==> {tokens}']
 
         return output
 
-    def reset_errors(self):
+    def resetErrors(self):
         """Reinicia el contador de errores general de la VM
         """
         self.errors = []
 
     # -------------- MÉTODOS BÁSICOS --------------
+    def getErrors(self, error_list = None) -> list[str]:
+        '''Recorre la lista de errores de la VM de Stókhos y convierte sus tokens en strings.
+
+        En caso de que se pase por parametro una lista, se itera sobre los elementos de esa lista.
+        '''
+        # Lista de errores sobre la que se va a iterar
+        lookup = self.errors if error_list == None else error_list
+
+        output = []
+        for error in lookup:
+            output.append(self.error2str(error))
+        return output
+
     def error2str(self, error) -> str:
+        '''Funcion encargada de convertir un token de error a un str
+        '''
         output = f'ERROR: {error["type"]} ("{error["token"].value}")'
 
         if (error["line"] != -1):

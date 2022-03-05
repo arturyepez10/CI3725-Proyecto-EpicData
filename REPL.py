@@ -142,10 +142,22 @@ class StokhosCMD(Cmd):
         print_formatted('ERROR: ".ast" no implementado.')
 
     def send_failed(self):
-        print_formatted('ERROR: ".failed" no implementado.')
+        '''Le pide la lista de errores a la VM de Stókhos y luego imprime
+        los tokens de error almacenados hasta el momento de ejecucion en 
+        la salida estándar.
+        '''
+        output = self.vm.getErrors()
+
+        print_formatted('[')
+        for line in output:
+            print_formatted('    ' + line)
+        print_formatted(']')
 
     def send_reset(self):
-        print_formatted('ERROR: ".reset" no implementado.')
+        '''Llama a la VM de Stókhos y le pide vaciar su lista de errores.
+        '''
+        self.vm.resetErrors()
+        print_formatted('Se vacio la lista de errores.')
 
     # ---------- DOCUMENTACION DE COMANDOS ----------
     def help_lexer(self):
