@@ -30,11 +30,12 @@ class StokhosVM:
             Instancia de Lexer con el analizador lexicográfico
             generado por la librería ply.
         errors:
-            Lista de errores generados en el análisis del último comando.
+            Lista de errores generados en el análisis del último comando/archivo.
     """
 
     def __init__(self):
         self.lex = lex.lex(module=tokenrules)
+        self.errors = []
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -79,7 +80,7 @@ class StokhosVM:
         
         return f'{prefix}: {suffix}'
 
-    def lextest(self, command: str) -> str:
+    def lextest(self, command: str, line = -1) -> list[str]:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
 
         Retorna:
@@ -104,23 +105,47 @@ class StokhosVM:
         tokens = []
         for token in self.lex:
             if token.type == 'IllegalCharacter':                
-                # Arrojar error por token de tipo caracter ilegal
-                return f'ERROR: caracter inválido ("{token.value}")'
-
+                # Crea una entrada de error por token de tipo caracter ilegal
+                self.errors.append({
+                    "type": 'Caracter invalido',
+                    "token": token,
+                    "line": line
+                })
             elif token.type == 'IllegalID':
-                 # Arrojar error por token de tipo ID ilegal
-                return f'ERROR: ID ilegal ("{token.value}")'
+                # Crea una entrada de error por token de tipo ID ilegal
+                self.errors.append({
+                    "type": 'ID ilegal',
+                    "token": token,
+                    "line": line
+                })
             
             else:
                 tokens.append(token)
 
-        # La lista "errorTokens" no necesariamente sera siempre vacia. Esta se llena
-        # de tokens de error en caso de haberlos al momento de ejecutar el metodo:
-        # "lexer.input(comando)". Luego, se le agregan los otros tokens conseguidos. 
-        # Por tanto, se retorna una lista que contiene todos los tokens conseguidos con
-        # los tokens de caracteres ilegales estando de primero
+        # Formatea la salida
+        output = []
+        if (len(self.errors)):
+            for error in self.errors:
+                output.append(self.error2str(error))
+        else :
+            output = [f'OK: lex("{command}") ==> {tokens}']
 
-        return f'OK: lex("{command}") ==> {tokens}'
+        return output
+
+    def reset_errors(self):
+        """Reinicia el contador de errores general de la VM
+        """
+        self.errors = []
+
+    # -------------- MÉTODOS BÁSICOS --------------
+    def error2str(self, error) -> str:
+        output = f'ERROR: {error["type"]} ("{error["token"].value}")'
+
+        if (error["line"] != -1):
+            output = f'ERROR: {error["type"]} ("{error["token"].value}") en la linea {error["line"]}'
+
+        return output
+
 
 # Sobreescritura del método __repr__ de los tokens de ply
 

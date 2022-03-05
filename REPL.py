@@ -70,7 +70,9 @@ class StokhosCMD(Cmd):
 
         # Análisis lexicográfico de la entrada por la VM
         out = self.vm.lextest(command)
-        print_formatted(out)
+
+        for line in out:
+            print_formatted(line)
 
     def send_process(self, command: str):
         '''Envia un comando al intérprete de Stókhos.
