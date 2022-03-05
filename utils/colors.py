@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 BOLD = '\033[1m'
 BLUE = '\033[94m'
 RESET = '\033[0m'
+RED = '\033[91m'
 
 def print_formatted(line: str) -> None:
     '''Imprime con un color en especifico los resultados de la REPL al usuario.

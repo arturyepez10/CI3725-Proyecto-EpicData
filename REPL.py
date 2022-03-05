@@ -42,14 +42,23 @@ class StokhosCMD(Cmd):
         Cmd.__init__(self)
         self.vm = SVM()
 
+        # Directorio desde el que se corre el REPL y conjunto con archivos
+        # cargados hasta el momento.
+        self.context = os.getcwd()
+        self.loaded = set()
+        self.current_file = ''
+
+        # True si hay una condición de error urgente
+        self.exit = False 
+
     # Mensajes de la REPL
     prompt = f'{RESET}< Stókhos > {BOLD}'
     intro = (f'¡Bienvenido a Stókhos v{VERSION}!\n'
         'Utiliza "?" para mostrar los comandos disponibles.')
-    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' para '''
-        'informacion detallada)')
-    misc_header = ('''Lista de funciones disponibles (escribe 'help <nombre>' '''
+    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' '''
         'para informacion detallada)')
+    misc_header = ('''Lista de funciones disponibles (escribe 'help '''
+        '''<nombre>' para informacion detallada)''')
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
@@ -195,16 +204,56 @@ class StokhosCMD(Cmd):
         TODO:
             No implementado por completo todavía
             Llevar cuenta del contexto para eliminar el riesgo de dependencias
-            circulares.
-            Contexto debe tener:
+            circulares.             LISTO
+            Contexto debe tener:    LISTO
                 En qué directorio estás actualmente (para permitir rutas
                 absolutas y relativas)
                 Qué archivos se han cargado hasta el momento (para no permitir
-                que se referencien entre ellos)
+                que se referencien entre ellos).
         '''
+        full_path = os.path.join(self.context, path)
+        dir = os.path.dirname(full_path)
+        filename = os.path.basename(full_path)
+        self.exit = False
+
+        if filename in self.loaded:
+            self.exit = True
+            return print_formatted(f'{RED}ERROR: el archivo {filename} ya se '
+                f'encuentra cargado (dependencias circulares en '
+                f'{os.path.join(self.context, self.current_file)}).{RESET}')
+
+        temp1 = self.context
+        temp2 = self.current_file
         try:
-            with open(path) as fi:
+            with open(full_path) as fi:
+                # Configura el nuevo contexto y actualiza conjunto de cargados
+                self.context = dir
+                self.loaded.add(filename)
+                self.current_file = filename
+
                 for line in fi.readlines():
-                    self.default(line.strip())
+                    # Salta líneas vacías
+                    _input = line.strip()
+                    if _input:
+                        self.default(_input)
+
+                    # Deshace todo el contexto si se ha detectado un error
+                    if self.exit:
+                        self.context = os.getcwd()
+                        self.current_file = ''
+
+                        return self.loaded.clear()
+
+            # Terminó la carga del archivo, deshace el contexto
+            self.loaded.remove(filename)
+            self.context = temp1
+            self.current_file = temp2
+
         except FileNotFoundError:
-            print_formatted(f'ERROR: no se encuentra el archivo {path}')
+            self.exit = True
+            print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+            return
+        except IsADirectoryError:
+            self.exit = True
+            print_formatted(f'ERROR: no ha indicado ningún directorio')
+            return
