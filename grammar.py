@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import ply.yacc as yacc
 from tokenrules import tokens
 from VM import StokhosVM as SVM
+import AST
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (
@@ -36,70 +37,64 @@ precedence = (
 )
 
 # -------- INSTRUCCIONES --------
-
 # <instruccion> -> <definicion>;
 #     | <asignacion>;
 #     | <expresion>
 def p_instruccion(p):
     '''instruccion : definicion TkSemicolon
         | asignacion TkSemicolon
-        | indefinido TkSemicolon
         | expresion'''
-    print('instruccion')
     p[0] = p[1]
 
 # -------- DEFINICIONES --------
-
 # <definicion> -> <tipo> <identificador> := <expresion>
 def p_definicion_var(p):
     'definicion : tipo TkId TkAssign expresion'
-    p[0] = ('def', p[1], p[2], p[4])
+    p[0] = AST.SymDef(p[1], p[2], p[4])
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
     'definicion : TkOpenBracket tipo TkCloseBracket TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
-    p[0] = ('def', p[2], p[4], p[7])
+    print('TODO')
 
 # -------- ASIGNACIONES --------
-
 # <asignacion>  -> <identificador> := <expresion>
 def p_asignacion_var(p):
     'asignacion : TkId TkAssign expresion'
-    p[0] = ('asignacion', p[1], p[3])
-    print(p[0])
+    p[0] = AST.Assign(p[1], p[3])
 
 # <identificador>[<expresion>] := <expresion>
 def p_asignacion_elemento_arr(p):
     'asignacion : TkId TkOpenBracket expresion TkCloseBracket TkAssign expresion'
-    p
+    print('TODO')
 
 # <identificador> := [<listaElems>]
 def p_asignacion_arr(p):
     'asignacion : TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
-    p
+    print('TODO')
 
 # -------- LISTAS --------
-
-# <listaElems> -> (lambda) 
+# <listaElems> -> (lambda)
 #     | <expresion>
 #     | <listaElems> , <expresion>
 def p_lista(p):
     '''listaElems : lambda
         | expresion
         | listaElems TkComma expresion'''
-    p
+    print('TODO')
 
 # -------- EXPRESIONES --------
-
 # <expresion> -> (<expresion>)
 #     | '<expresion>'
 def p_expresion(p):
     '''expresion : TkOpenPar expresion TkClosePar
         | TkQuote expresion TkQuote'''
-    p[0] = p[2]
+    if p[1] == '(':
+        p[0] = AST.Parentheses(p[2])
+    else:
+        p[0] = AST.Quoted(p[2])
 
-# -------- EXPRESIONES NUMÉRICAS --------
-
+# -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
 #     | <booleano>
 #     | <identificador>
@@ -107,137 +102,94 @@ def p_expresion_terminales(p):
     '''expresion : TkNumber
         | booleano
         | TkId'''
-    p[0] = p[1]
+    if type(p[1]) in [int, float]:
+        p[0] = AST.Number(p[1])
+    elif type(p[1]) == AST.Boolean:
+        p[0] = p[1]
+    else:
+        p[0] = AST.Id(p[1])
 
+# -------- EXPRESIONES CON OPERACIONES UNARIAS --------
 # <expresion> -> -<expresion>
 #     | +<expresion>
-def p_expresion_parentesis(p):
+#     | !<expresion>
+def p_expresion_unarias(p):
     '''expresion : TkMinus expresion %prec UNARY
-        | TkPlus expresion %prec UNARY'''
-    p
+        | TkPlus expresion %prec UNARY
+        | TkNot expresion %prec UNARY'''
+    p[0] = AST.UnOp(p[1], p[2])
 
+# -------- EXPRESIONES CON OPERACIONES BINARIAS --------
 # <expresion> -> <expresion> + <expresion>
 #     | <expresion> - <expresion>
-def p_expresion_suma_resta(p):
-    '''expresion : expresion TkPlus expresion
-        | expresion TkMinus expresion'''
-    if p[1] == '+':
-        p
-    else:
-        p
-
-# <expresion> -> <expresion> * <expresion>
+#     | <expresion> * <expresion>
 #     | <expresion> / <expresion>
-def p_expresion_mult_div(p):
-    '''expresion : expresion TkMult expresion
-        | expresion TkDiv expresion'''
-    if p[1] == '*':
-        p
-    else:
-        p
-
-# <expresion> -> <expresion> * <expresion>
-#     | <expresion> / <expresion>
-def p_expresion_mod_exp(p):
-    '''expresion : expresion TkMod expresion
-        | expresion TkPower expresion'''
-    if p[1] == '%':
-        p
-    else:
-        p
-
-# -------- EXPRESIONES BOOLEANAS --------
-
-# <expresion> -> !<expresion>
-def p_expresion_negacion(p):
-    'expresion : TkNot expresion %prec UNARY'
-    p
-
-# <expresion> -> <expresion> && <expresion>
+#     | <expresion> % <expresion>
+#     | <expresion> ^ <expresion>
+#     | <expresion> && <expresion>
 #     | <expresion> || <expresion>
-def p_expresion_conj_disy(p):
-    '''expresion : expresion TkAnd expresion
+def p_expresion_binarias(p):
+    '''expresion : expresion TkPlus expresion
+        | expresion TkMinus expresion
+        | expresion TkMult expresion
+        | expresion TkDiv expresion
+        | expresion TkMod expresion
+        | expresion TkPower expresion
+        | expresion TkAnd expresion
         | expresion TkOr expresion'''
-    if p[2] == '&&':
-        p
-    else:
-        p
+    p[0] = AST.BinOp(p[2], p[1], p[3])
 
+# -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>
 def p_expresion_comparacion(p):
     'expresion : comparacion'
-    p
+    p[0] = p[1]
 
 # <expresion> -> <funcion>
 def p_expresion_funcion(p):
     'expresion : funcion'
-    p
+    print('TODO')
 
-# -------- COMPARACIONES (BOOLEANAS) --------
-
+# -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>
 #     | <expresion> <= <expresion>
+#     | <expresion> > <expresion>
+#     | <expresion> >= <expresion>
+#     | <expresion> = <expresion>
+#     | <expresion> <> <expresion>
 def p_comparacion_menor_que(p):
     '''comparacion : expresion TkLT expresion
-        | expresion TkLE expresion'''
-    if p[2] == '<':
-        p
-    else:
-        p
-    
-# <comparacion> -> <expresion> > <expresion>
-#     | <expresion> >= <expresion>
-def p_comparacion_mayor_que(p):
-    '''comparacion : expresion TkGT expresion
-        | expresion TkGE expresion'''
-    if p[2] == '>':
-        p
-    else:
-        p
-
-# <comparacion> -> <expresion> = <expresion>
-#     | <expresion> <> <expresion>
-def p_comparacion_igual_distinto(p):
-    '''comparacion : expresion TkEq expresion
+        | expresion TkLE expresion
+        | expresion TkGT expresion
+        | expresion TkGE expresion
+        | expresion TkEq expresion
         | expresion TkNE expresion'''
-    if p[2] == '==':
-        p
-    else:
-        p
+    p[0] = AST.Comparison(p[2], p[1], p[3])
 
 # -------- FUNCIONES --------
-
 def p_funcion(p):
     'funcion : TkId TkOpenPar listaElems TkClosePar'
-    p
+    print('TODO')
 
 # -------- TERMINALES --------
-
-# <funcion> -> <identificador> (<listaElems>)
+# <booleano> -> true
+#     | false
 def p_booleano(p):
     '''booleano : TkTrue
         | TkFalse'''
-    p
+    p[0] = AST.Boolean(p[1])
 
 # <tipo> -> num
 #     | bool
 def p_tipo(p):
     '''tipo : TkNum
         | TkBool'''
-    p[0] = p[1]
+    p[0] = AST.Type(p[1])
 
 # -------- PALABRA VACÍA --------
-
 def p_lambda(p):
     'lambda :'
-    p
-
-# -------- ???????? --------
-
-def p_indefinido(p):
-    '''indefinido : TkOpenBrace listaElems TkCloseBrace
-        | TkNumber TkColon TkNumber'''
-    p
+    pass
 
 # -------- ERROR --------
 
