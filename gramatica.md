@@ -1,3 +1,5 @@
+# Gramática de Stókhos
+
 ## Para instrucciones
 
 Una instrucción puede ser una definición o una asignación, diferenciándose en que una definición comienza con un identificador de tipo, al contrario de una asignación.
