@@ -122,7 +122,7 @@ class StokhosVM:
 
         return f'OK: lex("{command}") ==> {tokens}'
 
-# Sobreescritura del método _repr__ de los tokens de ply
+# Sobreescritura del método __repr__ de los tokens de ply
 
 def custom_repr(t: lex.LexToken):
     val = ''
