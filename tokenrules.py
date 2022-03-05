@@ -103,5 +103,3 @@ def t_error(t: LexToken):
     # Salta el caracter ilegal
     t.lexer.skip(1)
     return t
-
-lexer = lex()
