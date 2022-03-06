@@ -90,10 +90,28 @@ class SymDef(AST):
 class Assign(AST):
     def __init__(self, _id: object, value: object):
         self.id = _id
-        self. value = value
+        self.value = value
 
     def __str__(self) -> str:
         return f'Assign({self.id}, {self.value})'
+
+class AssignArrayElement:
+    def __init__(self, arrayAccess: object, value: object):
+        self.id = arrayAccess.id
+        self.index = arrayAccess.index
+        self.value = value
+
+    def __str__(self) -> str:
+        return f'AssignArrayElement({self.id}, {self.index} , {self.value})'
+
+class AssignArray:
+    def __init__(self, _id: object, elements: object):
+        self.id = _id
+        self.elements = elements
+
+    def __str__(self) -> str:
+        return f'AssignArray({self.id}, {self.elements})'
+
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -118,3 +136,30 @@ class Array:
 
     def __str__(self) -> str:
         return f'[{", ".join([str(el) for el in self.elements])}]'
+
+class ArrayAccess:
+    def __init__(self, _id:object, _index:object) -> None:
+        self.id = _id
+        self.index = _index
+
+    def __str__(self) -> str:
+        return f'ArrayAcces({self.id}, {self.index})'
+
+class Function:
+    def __init__(self, _id:object, _args:object) -> None:
+        self.id = _id
+        self.args = _args
+
+    def __str__(self) -> str:
+        return f'Function({self.id}, {self.args})'
+
+class ElemList:
+    def __init__(self, el: object):
+        self.elements = [el] if el is not None else []
+
+    def append(self, el:object):
+        return self.elements.insert(0, el)    
+
+    def __str__(self) -> str:
+        return f'ElemList({", ".join([str(el) for el in self.elements])})'
+    

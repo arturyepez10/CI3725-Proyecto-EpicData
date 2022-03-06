@@ -55,7 +55,7 @@ def p_definicion_var(p):
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
-    'definicion : tipoArreglo TkId TkAssign arreglo'
+    'definicion : tipoArreglo TkId TkAssign TkOpenBracket listaElems TkCloseBracket' 
     p[0] = AST.SymDef(p[1], p[2], p[5])
 
 # -------- ASIGNACIONES --------
@@ -66,19 +66,20 @@ def p_asignacion_var(p):
 
 # <identificador>[<expresion>] := <expresion>
 def p_asignacion_elemento_arr(p):
-    'asignacion : TkId TkOpenBracket expresion TkCloseBracket TkAssign expresion'
-    print('TODO')
+    'asignacion : acceso_arreglo TkAssign expresion'
+    p[0] = AST.AssignArrayElement(p[1], p[3])
 
 # <identificador> := [<listaElems>]
 def p_asignacion_arr(p):
     'asignacion : TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
-    print('TODO')
+    p[0] = AST.AssignArray(p[1], p[4])
 
 # -------- LISTAS --------
-# <arreglo> -> [listaElems]
-def p_arreglo(p):
-    'arreglo : TkOpenBracket listaElems TkCloseBracket'
-    print('TODO')
+# <acceso_arreglo> -> <identificador>[<expresión>]
+def p_acceso_arreglo(p):
+    'acceso_arreglo : TkId TkOpenBracket expresion TkCloseBracket'
+    p[0] = AST.ArrayAccess(p[1], p[3])
+    
 
 # <listaElems> -> (lambda)
 #     | <expresion>
@@ -87,7 +88,14 @@ def p_lista(p):
     '''listaElems : lambda
         | expresion
         | expresion TkComma listaElems'''
-    print('TODO')
+    # Caso base
+    if len(p) == 2:
+        p[0] = AST.ElemList(p[1])
+    # Caso recursivo
+    else:
+        p[3].append(p[1])
+        p[0] = p[3]
+
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -154,7 +162,12 @@ def p_expresion_comparacion(p):
 # <expresion> -> <funcion>
 def p_expresion_funcion(p):
     'expresion : funcion'
-    print('TODO')
+    p[0] = p[1]
+
+# <expresion> -> <acceso_arreglo>
+def p_expresion_acceso_arreglo(p):
+    'expresion : acceso_arreglo'
+    p[0] = p[1]
 
 # -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>
@@ -175,7 +188,7 @@ def p_comparacion_menor_que(p):
 # -------- FUNCIONES --------
 def p_funcion(p):
     'funcion : TkId TkOpenPar listaElems TkClosePar'
-    print('TODO')
+    p[0] = AST.Function(p[1], p[3])
 
 # -------- TERMINALES --------
 # <booleano> -> true

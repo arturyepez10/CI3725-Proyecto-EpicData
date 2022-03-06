@@ -19,8 +19,9 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
     | <listaElems>, <expresión>
 
 <asignación>  -> <identificador> := <expresión>
-    | <identificador>[<expresion>] := <expresión>
+    | <acceso_arreglo> := <expresión>
     | <identificador> := [<listaElems>]
+
 ```
 
 ## Para expresiones
@@ -50,6 +51,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <expresión> || <expresión>
     | <comparación>
     | <función>
+    | <acceso_arreglo>
 
 <comparación> -> <expresion> < <expresion>
     | <expresion> <= <expresion>
@@ -59,6 +61,7 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
     | <expresión> <> <expresión>
 
 <función> -> <identificador> (<listaElems>)
+<acceso_arreglo> -> <identificador> [<expresión>]
 ```
 
 ## Terminales
