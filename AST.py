@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+
+
+
 class AST:
     pass
 
@@ -30,12 +33,26 @@ class BinOp(AST):
     def __str__(self) -> str:
         return f'({self.lhs_term} {self.op} {self.rhs_term})'
 
-class Comparison(BinOp):
-    def __init__(self, op: str, lhs_term: object, rhs_term: object):
-        super().__init__(op, lhs_term, rhs_term)
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return (self.op == other.op 
+                and self.lhs_term == other.lhs_term 
+                and self.rhs_term == other.rhs_term)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __str__(self) -> str:
-        return super().__str__()
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+class Comparison(BinOp):
+    pass
+
+class NumberBinOp(BinOp):
+    pass
+
+class BooleanBinOp(BinOp):
+    pass
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -46,27 +63,45 @@ class UnOp(AST):
     def __str__(self) -> str:
         return f'({self.op}{self.term})'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.op == other.op 
+                and self.term == other.term)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+class BooleanUnOp(UnOp):
+    pass
+
+class NumberUnOp(UnOp):
+    pass
+
+
 # -------- TERMINALES --------
-class Number(AST):
+class Terminal(AST):
     def __init__(self, value: object):
         self.value = value
 
     def __str__(self) -> str:
-        return f'Number({self.value})'
+        return f'{type(self).__name__}({self.value})'
 
-class Id(Number):
-    def __init__(self, value: object):
-        super().__init__(value)
-    
-    def __str__(self) -> str:
-        return f'Id({self.value})'
+    def __eq__(self, other) -> str:
+        if isinstance(other, type(self)):
+            return self.value == other.value
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-class Boolean(Number):
-    def __init__(self, value: object):
-        super().__init__(value)
-    
-    def __str__(self) -> str:
-        return f'Boolean({self.value})'
+    def __repr__(self) -> str:
+        return self.__str__()
+
+class Number(Terminal):
+    pass        
+
+class Id(Terminal):
+    pass
+
+class Boolean(Terminal):
+    pass
 
 # -------- TIPOS --------
 class Type(AST):
@@ -75,6 +110,16 @@ class Type(AST):
 
     def __str__(self) -> str:
         return f'Type({self.id.__str__()})'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.id == other.id
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+    
+    def __repr__(self) -> str:
+        return self.__str__()
+        
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -86,6 +131,17 @@ class SymDef(AST):
     def __str__(self) -> str:
         return f'SymDef({self.type}, {self.id}, {self.value})'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.type == other.type
+                and self.id == other.id
+                and self.value == other.value)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+    
+    def __repr__(self) -> str:
+        return self.__str__()
+
 # -------- ASIGNACIONES --------
 class Assign(AST):
     def __init__(self, _id: object, value: object):
@@ -94,6 +150,16 @@ class Assign(AST):
 
     def __str__(self) -> str:
         return f'Assign({self.id}, {self.value})'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.id == other.id
+                and self.value == other.value)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 class AssignArrayElement:
     def __init__(self, arrayAccess: object, value: object):
@@ -129,13 +195,12 @@ class Quoted(AST):
         return f"'{self.expr}'"
 
 # -------- ARREGLOS --------
-class Array:
-    def __init__(self, el: object):
-        self.elements = []
-        if (el): self.elements.append(el)
+class TypeArray:
+    def __init__(self, type: object):
+        self.type = type        
 
     def __str__(self) -> str:
-        return f'[{", ".join([str(el) for el in self.elements])}]'
+        return f'[{self.type}]'
 
 class ArrayAccess:
     def __init__(self, _id:object, _index:object) -> None:

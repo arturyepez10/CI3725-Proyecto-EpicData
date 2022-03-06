@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from ctypes import Array
+
 import ply.yacc as yacc
 from tokenrules import tokens
 from VM import StokhosVM as SVM
@@ -50,18 +51,18 @@ def p_instruccion(p):
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
 def p_definicion_var(p):
-    'definicion : tipo TkId TkAssign expresion'
+    'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
-    'definicion : tipoArreglo TkId TkAssign TkOpenBracket listaElems TkCloseBracket' 
+    'definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems TkCloseBracket' 
     p[0] = AST.SymDef(p[1], p[2], p[5])
 
 # -------- ASIGNACIONES --------
 # <asignacion>  -> <identificador> := <expresion>
 def p_asignacion_var(p):
-    'asignacion : TkId TkAssign expresion'
+    'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
 
 # <identificador>[<expresion>] := <expresion>
@@ -71,13 +72,13 @@ def p_asignacion_elemento_arr(p):
 
 # <identificador> := [<listaElems>]
 def p_asignacion_arr(p):
-    'asignacion : TkId TkAssign TkOpenBracket listaElems TkCloseBracket'
+    'asignacion : identificador TkAssign TkOpenBracket listaElems TkCloseBracket'
     p[0] = AST.AssignArray(p[1], p[4])
 
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
-    'acceso_arreglo : TkId TkOpenBracket expresion TkCloseBracket'
+    'acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket'
     p[0] = AST.ArrayAccess(p[1], p[3])
     
 
@@ -115,23 +116,26 @@ def p_expresion(p):
 def p_expresion_terminales(p):
     '''expresion : TkNumber
         | booleano
-        | TkId'''
+        | identificador'''
     if type(p[1]) in [int, float]:
         p[0] = AST.Number(p[1])
     elif type(p[1]) == AST.Boolean:
         p[0] = p[1]
     else:
-        p[0] = AST.Id(p[1])
+        p[0] = p[1]
 
 # -------- EXPRESIONES CON OPERACIONES UNARIAS --------
 # <expresion> -> -<expresion>
 #     | +<expresion>
 #     | !<expresion>
-def p_expresion_unarias(p):
+def p_expresion_unarias_Numerica(p):
     '''expresion : TkMinus expresion %prec UNARY
-        | TkPlus expresion %prec UNARY
-        | TkNot expresion %prec UNARY'''
-    p[0] = AST.UnOp(p[1], p[2])
+        | TkPlus expresion %prec UNARY'''
+    p[0] = AST.NumberUnOp(p[1], p[2])
+
+def p_expresion_unarias_Booleana(p):
+    '''expresion : TkNot expresion %prec UNARY'''
+    p[0] = AST.BooleanUnOp(p[1], p[2])
 
 # -------- EXPRESIONES CON OPERACIONES BINARIAS --------
 # <expresion> -> <expresion> + <expresion>
@@ -142,16 +146,21 @@ def p_expresion_unarias(p):
 #     | <expresion> ^ <expresion>
 #     | <expresion> && <expresion>
 #     | <expresion> || <expresion>
-def p_expresion_binarias(p):
+def p_expresion_binarias_numericas(p):
     '''expresion : expresion TkPlus expresion
         | expresion TkMinus expresion
         | expresion TkMult expresion
         | expresion TkDiv expresion
         | expresion TkMod expresion
         | expresion TkPower expresion
-        | expresion TkAnd expresion
-        | expresion TkOr expresion'''
-    p[0] = AST.BinOp(p[2], p[1], p[3])
+        '''    
+   
+    p[0] = AST.NumberBinOp(p[2], p[1], p[3])        
+
+def p_expresion_binarias_booleanas(p):
+    '''expresion : expresion TkAnd expresion
+    | expresion TkOr expresion'''
+    p[0] = AST.BooleanBinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>
@@ -168,6 +177,11 @@ def p_expresion_funcion(p):
 def p_expresion_acceso_arreglo(p):
     'expresion : acceso_arreglo'
     p[0] = p[1]
+
+# <identificador> -> TkId
+def p_identificador_tkId(p):
+    'identificador : TkId'
+    p[0] = AST.Id(p[1])
 
 # -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>
@@ -187,7 +201,7 @@ def p_comparacion_menor_que(p):
 
 # -------- FUNCIONES --------
 def p_funcion(p):
-    'funcion : TkId TkOpenPar listaElems TkClosePar'
+    'funcion : identificador TkOpenPar listaElems TkClosePar'
     p[0] = AST.Function(p[1], p[3])
 
 # -------- TERMINALES --------
@@ -201,7 +215,7 @@ def p_booleano(p):
 # <tipoArreglo> -> [<tipo>]
 def p_tipo_arreglo(p):
     'tipoArreglo : TkOpenBracket tipo TkCloseBracket'
-    p[0] = AST.Type(AST.Array(p[2]))
+    p[0] = AST.Type(AST.TypeArray(p[2]))
 
 # <tipo> -> num
 #     | bool
@@ -223,14 +237,16 @@ def p_error(p):
 
 vm = SVM()
 
-# Build the parser
-parser = yacc.yacc(debug=True)
+if __name__ == '__main__':
+    
+    # Build the parser
+    parser = yacc.yacc(debug=True)
 
-while True:
-    try:
-        s = input('calc > ')
-    except EOFError:
-        break
-    if not s: continue
-    result = parser.parse(s, lexer=vm.lex)
-    print(result)
+    while True:
+        try:
+            s = input('calc > ')
+        except EOFError:
+            break
+        if not s: continue
+        result = parser.parse(s, lexer=vm.lex, debug=True)
+        print(result)
