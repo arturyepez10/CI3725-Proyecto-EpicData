@@ -1,5 +1,4 @@
-"""Modulos de pruebas para grammar.py"""
-
+"""Modulos de pruebas para las reglas en grammar.py. Se prueban las reglas de manera individual""" 
 
 import os, sys, pytest
 
@@ -15,7 +14,7 @@ import AST
 parser = yacc.yacc(debug=True, module=grammar)
 vm = SVM()
 
-NUM_BIN_OPS = ['^', '+', '-', '*', '%']
+NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
 BOOL_BIN_OPS = ['&&', '||']
 COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
 BOOL_UN_OPS = ['!']
@@ -128,6 +127,8 @@ test_sol.append(AST.Quoted(AST.Id('y')))
 
 # Parentesis
 test_sol.append(AST.Parentheses(AST.Id('y')))
+
+
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
 def test_individual_rules(test_case:str, test_sol:object):

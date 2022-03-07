@@ -70,6 +70,9 @@ class UnOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
 class BooleanUnOp(UnOp):
     pass
 
