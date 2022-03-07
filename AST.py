@@ -170,6 +170,18 @@ class AssignArrayElement:
     def __str__(self) -> str:
         return f'AssignArrayElement({self.id}, {self.index} , {self.value})'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.id == other.id
+                and self.index == other.index
+                and self.value == other.value)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
 class AssignArray:
     def __init__(self, _id: object, elements: object):
         self.id = _id
@@ -177,6 +189,16 @@ class AssignArray:
 
     def __str__(self) -> str:
         return f'AssignArray({self.id}, {self.elements})'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.id == other.id
+                and self.elements == other.elements)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 # -------- AGRUPACIONES --------
@@ -187,12 +209,29 @@ class Parentheses(AST):
     def __str__(self) -> str:
         return f'{self.expr}'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.expr == other.expr
+               
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 class Quoted(AST):
     def __init__(self, expr: object):
         self.expr = expr
 
     def __str__(self) -> str:
         return f"'{self.expr}'"
+        
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.expr == other.expr
+               
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 # -------- ARREGLOS --------
 class TypeArray:
@@ -202,6 +241,15 @@ class TypeArray:
     def __str__(self) -> str:
         return f'[{self.type}]'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.type == other.type
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 class ArrayAccess:
     def __init__(self, _id:object, _index:object) -> None:
         self.id = _id
@@ -209,6 +257,16 @@ class ArrayAccess:
 
     def __str__(self) -> str:
         return f'ArrayAcces({self.id}, {self.index})'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.id == other.id
+                and self.index == other.index)
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 class Function:
     def __init__(self, _id:object, _args:object) -> None:
@@ -218,13 +276,39 @@ class Function:
     def __str__(self) -> str:
         return f'Function({self.id}, {self.args})'
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return (self.id == other.id
+                and self.args == other.args)
+             
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 class ElemList:
     def __init__(self, el: object):
-        self.elements = [el] if el is not None else []
+        self.elements = [el] if el else []
 
     def append(self, el:object):
-        return self.elements.insert(0, el)    
+        return self.elements.insert(0, el)
 
     def __str__(self) -> str:
         return f'ElemList({", ".join([str(el) for el in self.elements])})'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.elements == other.elements
+             
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    # Metodo usado para debug
+    def __debug_Init__(self, elements:object):
+        self.elements = elements
+        return self
     
