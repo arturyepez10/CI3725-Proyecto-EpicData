@@ -59,6 +59,19 @@ test_sol.extend(list(NumberBinOp(binOp, NumberUnOp('+', Number(3)), Number(4)) f
 test_cases.extend(list(f'2 {binOp} 3 {comparison} 4' for comparison in COMPARISONS for binOp in NUM_BIN_OPS))
 test_sol.extend(list(Comparison(comparison, NumberBinOp(binOp, Number(2), Number(3)), Number(4)) for comparison in COMPARISONS for binOp in NUM_BIN_OPS))
 
+# Operaciones Booleanas 
+# && vs ||
+test_cases.append('P && Q || R')
+test_sol.append(BooleanBinOp('||', BooleanBinOp('&&', Id('P'), Id('Q')), Id('R')))
+
+# Negacion
+test_cases.append('!P && Q || !R')
+test_sol.append(BooleanBinOp('||', BooleanBinOp('&&', BooleanUnOp('!',Id('P')), Id('Q')), BooleanUnOp('!', Id('R'))))
+
+# Comparaciones
+test_cases.extend(list((f'P {binBoolOp} 4 {comparison} 5' for binBoolOp in BOOL_BIN_OPS for comparison in COMPARISONS)))
+test_sol.extend(list(( BooleanBinOp(binBoolOp, Id('P'), Comparison(comparison, Number(4), Number(5))) for binBoolOp in BOOL_BIN_OPS for comparison in COMPARISONS)))
+
 
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))

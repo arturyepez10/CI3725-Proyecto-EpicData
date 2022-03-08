@@ -232,8 +232,8 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    print("Syntax error in input!")
-    print(p)
+    
+    raise Exception(f'Syntaxis Error: {p}. Did you miss ";"?')
 
 vm = SVM()
 
