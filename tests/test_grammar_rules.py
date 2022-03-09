@@ -103,7 +103,7 @@ test_sol.extend([
     AST.SymDef(AST.Type(AST.TypeArray(AST.Type('bool'))), AST.Id('F'), AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')]))
     ])
 
-############# Faltan las variaciones con arreglos
+
 # Asignaciones
 test_sol.extend([
     AST.Assign(AST.Id('x'), AST.Number(2)),
