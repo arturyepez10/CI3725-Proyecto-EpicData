@@ -128,14 +128,12 @@ def p_expresion_terminales(p):
 # <expresion> -> -<expresion>
 #     | +<expresion>
 #     | !<expresion>
-def p_expresion_unarias_Numerica(p):
+def p_expresion_unarias(p):
     '''expresion : TkMinus expresion %prec UNARY
-        | TkPlus expresion %prec UNARY'''
-    p[0] = AST.NumberUnOp(p[1], p[2])
+        | TkPlus expresion %prec UNARY
+        | TkNot expresion %prec UNARY'''
+    p[0] = AST.UnOp(p[1], p[2])
 
-def p_expresion_unarias_Booleana(p):
-    '''expresion : TkNot expresion %prec UNARY'''
-    p[0] = AST.BooleanUnOp(p[1], p[2])
 
 # -------- EXPRESIONES CON OPERACIONES BINARIAS --------
 # <expresion> -> <expresion> + <expresion>
@@ -146,21 +144,19 @@ def p_expresion_unarias_Booleana(p):
 #     | <expresion> ^ <expresion>
 #     | <expresion> && <expresion>
 #     | <expresion> || <expresion>
-def p_expresion_binarias_numericas(p):
+def p_expresion_binarias(p):
     '''expresion : expresion TkPlus expresion
         | expresion TkMinus expresion
         | expresion TkMult expresion
         | expresion TkDiv expresion
         | expresion TkMod expresion
         | expresion TkPower expresion
+        | expresion TkAnd expresion
+        | expresion TkOr expresion
         '''    
    
-    p[0] = AST.NumberBinOp(p[2], p[1], p[3])        
+    p[0] = AST.BinOp(p[2], p[1], p[3])        
 
-def p_expresion_binarias_booleanas(p):
-    '''expresion : expresion TkAnd expresion
-    | expresion TkOr expresion'''
-    p[0] = AST.BooleanBinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>

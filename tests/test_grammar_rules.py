@@ -82,17 +82,17 @@ test_sol = [
 ]
 
 # Operaciones Binarias numericas
-test_sol.extend(list(AST.NumberBinOp(op, AST.Number(3), AST.Number(3)) for op in NUM_BIN_OPS))
+test_sol.extend(list(AST.BinOp(op, AST.Number(3), AST.Number(3)) for op in NUM_BIN_OPS))
 
 # Operaciones Binarias Booleanas
-test_sol.extend(list(AST.BooleanBinOp(op, AST.Boolean('true'), AST.Boolean('false')) for op in BOOL_BIN_OPS))
+test_sol.extend(list(AST.BinOp(op, AST.Boolean('true'), AST.Boolean('false')) for op in BOOL_BIN_OPS))
 
 # Comparaciones
 test_sol.extend(list(AST.Comparison(op, AST.Id('epa'), AST.Id('caballero')) for op in COMPARISONS))
 
 # Unarias
-test_sol.extend(list(AST.BooleanUnOp(op, AST.Id('xNoNecesariamenteBooleana')) for op in BOOL_UN_OPS))
-test_sol.extend(list(AST.NumberUnOp(op, AST.Id('soulCalibur')) for op in NUM_UN_OPS))
+test_sol.extend(list(AST.UnOp(op, AST.Id('xNoNecesariamenteBooleana')) for op in BOOL_UN_OPS))
+test_sol.extend(list(AST.UnOp(op, AST.Id('soulCalibur')) for op in NUM_UN_OPS))
 
 
 # Definiciones

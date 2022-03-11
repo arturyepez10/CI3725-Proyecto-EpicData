@@ -48,11 +48,6 @@ class BinOp(AST):
 class Comparison(BinOp):
     pass
 
-class NumberBinOp(BinOp):
-    pass
-
-class BooleanBinOp(BinOp):
-    pass
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -72,12 +67,6 @@ class UnOp(AST):
 
     def __repr__(self) -> str:
         return self.__str__()
-
-class BooleanUnOp(UnOp):
-    pass
-
-class NumberUnOp(UnOp):
-    pass
 
 
 # -------- TERMINALES --------
