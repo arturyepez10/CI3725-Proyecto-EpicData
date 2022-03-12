@@ -62,11 +62,11 @@ class StokhosCMD(Cmd):
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
-        '''Envía un comando al analizador lexicográfico de Stókhos.
+        """Envía un comando al analizador lexicográfico de Stókhos.
 
         El analizador procesa la entrada y construye un arreglo con los tokens
         hallados. Imprime el retorno de la VM en la salida estándar.
-        '''
+        """
 
         # Análisis lexicográfico de la entrada por la VM
         out = self.vm.lextest(command)
@@ -75,22 +75,22 @@ class StokhosCMD(Cmd):
             print_formatted(line)
 
     def send_process(self, command: str):
-        '''Envia un comando al intérprete de Stókhos.
+        """Envia un comando al intérprete de Stókhos.
 
         Transforma el comando en un arbol abstracto, evalúa expresiones y las
         ejecuta en el contexto de las variables existentes en memoria.
         
         Imprime el retorno de la VM en la salida estándar.
-        '''
+        """
 
         # Entrada procesada de la VM
         out = self.vm.process(command)
         print_formatted(out)
 
     def send_load(self, path: str):
-        '''Carga un archivo lleno de instrucciones para la VM, y los envia
+        """Carga un archivo lleno de instrucciones para la VM, y los envia
         al reconocedor de instrucciones deL REPL.
-        '''
+        """
         full_path = os.path.join(self.context, path)
         _dir = os.path.dirname(full_path)
         filename = os.path.basename(full_path)
@@ -142,10 +142,10 @@ class StokhosCMD(Cmd):
         print_formatted('ERROR: ".ast" no implementado.')
 
     def send_failed(self):
-        '''Le pide la lista de errores a la VM de Stókhos y luego imprime
+        """Le pide la lista de errores a la VM de Stókhos y luego imprime
         los tokens de error almacenados hasta el momento de ejecucion en 
         la salida estándar.
-        '''
+        """
         output = self.vm.getErrors()
 
         print_formatted('[')
@@ -154,8 +154,8 @@ class StokhosCMD(Cmd):
         print_formatted(']')
 
     def send_reset(self):
-        '''Llama a la VM de Stókhos y le pide vaciar su lista de errores.
-        '''
+        """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
+        """
         self.vm.resetErrors()
         print_formatted('Se vacio la lista de errores.')
 
@@ -210,7 +210,7 @@ class StokhosCMD(Cmd):
 
     # -------------- MÉTODOS BÁSICOS --------------
     def cmdloop(self, intro=None):
-        '''Ver clase base. Agrega manejo de interrupciones del teclado.'''
+        """Ver clase base. Agrega manejo de interrupciones del teclado."""
         print(self.intro)
         while True:
             try:
@@ -220,16 +220,16 @@ class StokhosCMD(Cmd):
                 print_formatted(f'\n(Para salir, utiliza el comando . o escribe exit)')
 
     def do_exit(self, line: str) -> bool:
-        '''Finaliza el CMD/REPL de Stókhos. Retorna True.
+        """Finaliza el CMD/REPL de Stókhos. Retorna True.
         
         Se puede ejecutar de dos maneras:
             >>> exit
             >>> .
-        '''
+        """
         return True
 
     def do_clear(self, line: str):
-        '''Limpia la pantalla de la terminal de los comandos anteriores.'''
+        """Limpia la pantalla de la terminal de los comandos anteriores."""
         command = 'clear'
 
         # Si el SO es Windows, cambia el comando
@@ -238,14 +238,14 @@ class StokhosCMD(Cmd):
         os.system(command)
 
     def emptyline(self) -> bool:
-        '''Procesador de lineas en blanco. Retorna False.
+        """Procesador de lineas en blanco. Retorna False.
         
         El comportamiendo por defecto es no hacer nada.
-        '''
+        """
         return False        
 
     def default(self, line: str) -> Union[bool, None]:
-        '''Procesador de entrada por defecto.
+        """Procesador de entrada por defecto.
 
         Si la entrada posee alguno de los comandos reservados o funciones
         mágicas, pide su ejecucion especial a la VM. Estos comandos tienen la forma de:
@@ -259,7 +259,7 @@ class StokhosCMD(Cmd):
         Retorna:
             True si se termina la ejecucion de la VM.
             None cuando se interpreta un comando e imprime su salida.
-        '''
+        """
 
         if line == ".":
             return self.do_exit(line)
@@ -277,10 +277,11 @@ class StokhosCMD(Cmd):
             else:
                 print_formatted('ERROR: No se ha indicado ningún directorio.', RED)
 
-        elif re.match(r'\.ast($| )', line.strip()):
+        elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
-            path = line.lstrip('.ast').strip()
-            print_formatted(path)
+            command = line.lstrip('.ast').strip()
+            print_formatted(command)
+
         elif line == '.failed':
             self.send_failed()
 

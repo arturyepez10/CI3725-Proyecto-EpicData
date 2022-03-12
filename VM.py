@@ -144,10 +144,10 @@ class StokhosVM:
 
     # -------------- MÉTODOS BÁSICOS --------------
     def getErrors(self, error_list = None) -> list[str]:
-        '''Recorre la lista de errores de la VM de Stókhos y convierte sus tokens en strings.
+        """Recorre la lista de errores de la VM de Stókhos y convierte sus tokens en strings.
 
         En caso de que se pase por parametro una lista, se itera sobre los elementos de esa lista.
-        '''
+        """
         # Lista de errores sobre la que se va a iterar
         lookup = self.errors if error_list == None else error_list
 
@@ -157,7 +157,7 @@ class StokhosVM:
         return output
 
     def error2str(self, error) -> str:
-        '''Convierte un token de error a una string'''
+        """Convierte un token de error a una string"""
         output = f'ERROR: {error["type"]} ("{error["token"].value}")'
 
         if (error["line"] != -1):
