@@ -1,7 +1,9 @@
 # Stókhos by EpicData
+
 ## CI3725 - Traductores e Interpretadores | Enero - Marzo 2022
 
 ### Arturo Yepez - Jesus Bandez - Christopher Gómez
+
 ### Copyright (C) 2022
 
 ## Descripcion general 📃
@@ -19,12 +21,14 @@ Para comenzar a programar en Stókhos:
 1. Clona el repositorio.
 2. Abre la linea de comandos y navega hasta la raiz del proyecto.
 3. Utiliza el shell interactivo del lenguaje, escribe:
-```
-python Stokhos.py
-```
+
+    ```_
+    python Stokhos.py
+    ```
+
 4. ¡Listo! Disfruta programar en Stókhos.
 
-## Implementación 
+## Implementación
 
 La implementación corresponde a una versión simplificada de un lenguaje, en la que principalmente se puede notar que no se permiten definiciones de funciones, dado que es un tópico propio de otra cadena de asignaturas.
 
@@ -33,7 +37,7 @@ La estructura principal del proyecto opta por modularizar las distintas funciona
 La implementación actual está basada en Python. Las librerias que dan soporte a la construcción del interpretador corresponden a:
 
 - [**PLY (Python Lex-Yacc)**](https://github.com/dabeaz/ply): Lexer y parser de utilidad para el interpretador.
-- [**cmd**](https://docs.python.org/3/library/cmd.html): Soporte para intérpretes de línea de comandos, usada para la implementacion del REPL. 
+- [**cmd**](https://docs.python.org/3/library/cmd.html): Soporte para intérpretes de línea de comandos, usada para la implementacion del REPL.
 
 Actualmente, la estructura de proyecto es la siguiente:
 
@@ -43,4 +47,4 @@ Actualmente, la estructura de proyecto es la siguiente:
 - **tokenrules.py**: Módulo que define las reglas para el tokenizer de Stókhos.
 - **lexer.test.py**: Archivo con pruebas unitarias para el analizador lexicográfico de Stókhos.
 - **utils** (directorio): Distintas funciones de objetivos misceláneos para el contexto del proyecto.
-    - **colors.py**: Módulo con métodos y variables para el formateo de strings en la salida estándar.
+  - **colors.py**: Módulo con métodos y variables para el formateo de strings en la salida estándar.
