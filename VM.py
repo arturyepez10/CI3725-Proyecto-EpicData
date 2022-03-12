@@ -157,8 +157,7 @@ class StokhosVM:
         return output
 
     def error2str(self, error) -> str:
-        '''Funcion encargada de convertir un token de error a un str
-        '''
+        '''Convierte un token de error a una string'''
         output = f'ERROR: {error["type"]} ("{error["token"].value}")'
 
         if (error["line"] != -1):
