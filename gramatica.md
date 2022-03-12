@@ -9,7 +9,7 @@ La sintaxis permite declarar variables de tipo numérico y booleano, además de 
 Se puede acceder a los elementos de un arreglo colocando una expresión numérica entre corchetes al lado del identificador, cuya evaluación corresponde a un índice del arreglo.
 
 ```_
-<instrucción> -> <definición>;  | <asignación>; | <expresión>
+<instrucción> -> <definición>; | <asignación>; | <expresión>
 
 <definición> -> <tipo> <identificador> := <expresión>
     | [<tipo>] <identificador> := [<listaElems>]
@@ -18,7 +18,7 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
     | <expresión>
     | <listaElems>, <expresión>
 
-<asignación>  -> <identificador> := <expresión>
+<asignación> -> <identificador> := <expresión>
     | <acceso_arreglo> := <expresión>
     | <identificador> := [<listaElems>]
 
@@ -31,6 +31,21 @@ Una expresión puede estar parentizada, acotada, ser numérica, booleana o una l
 Como expresiones numéricas, es posible hacer operaciones entre expresiones que involucren literales y variables, estando permitidas la suma, resta, multiplicación, división, módulo y potenciación. Se incluyen también los operadores + y - prefijos.
 
 Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparaciones, además de la negación de expresiones enteras.
+
+La tabla de precedencia de las operaciones es la siguiente, listada desde los operadores de mayor precedencia hasta los de menor:
+
+| Operador(es) | Descripción | Asociatividad |
+| --- | --- | --- |
+| ( ), ' ', [ ], { } | Agrupación, acotación y acceso a arreglos | no asociativo |
+| ^ | Elevación a potencia | Derecha |
+| !, +, - | Negación lógica, más y menos unarios | no asociativo |
+| *, /, % | Multiplicación, división y módulo | izquierda |
+| +, - | Suma y resta | izquierda |
+| <, >, <=, >=, | Desigualdad numérica | no asociativo |
+| ==, <> | Comparación | no asociativo |
+| && | Conjunción lógica | izquierda |
+| || | Disyunción lógica | izquierda |
+| := | Asignación | no asociativo |
 
 ```_
 <expresión> -> (<expresión>)
@@ -67,12 +82,12 @@ Como expresiones booleanas, se permiten las disyuciones, conjunciones y comparac
 ## Terminales
 
 ```_
-<identificador>  ->  <primCaracter> <idCola>
+<identificador> -> <primCaracter> <idCola>
 
 <primCaracter> -> [A-za-z_] <idCola>
-<idCola> ->  [A-za-z_0-9]*
+<idCola> -> [A-za-z_0-9]*
 
-<número>  ->  <entero>
+<número> -> <entero>
     | <entero> . <entero>
     | . <entero>
     | <entero> .
