@@ -150,7 +150,7 @@ class StokhosCMD(Cmd):
 
         print_formatted('[')
         for line in output:
-            print_formatted('    ' + line)
+            print_formatted(f'    {line}')
         print_formatted(']')
 
     def send_reset(self):
