@@ -4,3 +4,4 @@ __pycache__/
 .coverage
 parser.out
 .vscode
+.pytest_cache
