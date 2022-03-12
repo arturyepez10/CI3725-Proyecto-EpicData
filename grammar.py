@@ -32,7 +32,8 @@ precedence = (
     ('left', 'TkMult', 'TkDiv', 'TkMod'),
     ('nonassoc', 'UNARY'),
     ('right', 'TkPower'),
-    ('nonassoc', 'TkOpenPar', 'TkClosePar', 'TkQuote', 'TkOpenBracket', 'TkCloseBracket'),
+    ('nonassoc', 'TkOpenPar', 'TkClosePar', 'TkQuote',
+    'TkOpenBracket', 'TkCloseBracket'),
 )
 
 # -------- INSTRUCCIONES --------
