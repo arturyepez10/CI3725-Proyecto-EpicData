@@ -44,7 +44,7 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
 | <, >, <=, >=, | Desigualdad numérica | no asociativo |
 | ==, <> | Comparación | no asociativo |
 | && | Conjunción lógica | izquierda |
-| || | Disyunción lógica | izquierda |
+| \|\| | Disyunción lógica | izquierda |
 | := | Asignación | no asociativo |
 
 ```_
