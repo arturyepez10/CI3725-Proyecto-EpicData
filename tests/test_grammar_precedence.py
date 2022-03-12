@@ -11,7 +11,8 @@ from tokenrules import tokens
 from VM import StokhosVM as SVM
 import grammar
 from AST import *
-# Build the parser
+
+# Inicializar el parser
 parser = yacc.yacc(debug=True, module=grammar)
 vm = SVM()
 
@@ -47,12 +48,12 @@ test_sol.extend(list(BinOp('-', Number(2), BinOp(binOp, Number(3), Number(4))) f
 test_cases.extend(list(f'x ^ y {op} 1' for op in ['*', '%', '/']))
 test_sol.extend(list(BinOp(op, BinOp('^', Id('x'), Id('y')), Number(1)) for op in ['*', '%', '/']))
 
-# Modulo vs otras multiplicaciones # Fallan actualmente
-test_cases.extend(list(f'x % y {op} 1' for op in ['*', '^', '/']))
-test_sol.extend(list(BinOp('%', Id('x'), BinOp(op, Id('y'), Number(1))) for op in ['*', '^', '/']))
+# Modulo vs otras multiplicaciones 
+test_cases.extend(list(f'x % y {op} 1' for op in ['*', '/']))
+test_sol.extend(list( BinOp(op, BinOp('%', Id('x'), Id('y')), Number(1)) for op in ['*', '/']))
 
 
-# Operaciones binarias numericas vs comparaciones
+# Operaciones binarias numericas (excepto '^') vs comparaciones
 test_cases.extend(list(f'+ 3 {binOp} 4' for binOp in NUM_BIN_OPS[1:])) 
 test_sol.extend(list(BinOp(binOp, UnOp('+', Number(3)), Number(4)) for binOp in NUM_BIN_OPS[1:]))
 
@@ -72,9 +73,26 @@ test_sol.append(BinOp('||', BinOp('&&', UnOp('!',Id('P')), Id('Q')), UnOp('!', I
 test_cases.extend(list((f'P {binBoolOp} 4 {comparison} 5' for binBoolOp in BOOL_BIN_OPS for comparison in COMPARISONS)))
 test_sol.extend(list(( BinOp(binBoolOp, Id('P'), Comparison(comparison, Number(4), Number(5))) for binBoolOp in BOOL_BIN_OPS for comparison in COMPARISONS)))
 
+# Operaciones de mismo operador con asosiacion de izquierda a derecha binarias
+ops = ['*', '%', '/', '+', '-', '&&', '||']
+test_cases.extend(list(( f'x {binOp} y {binOp} z {binOp} w {binOp} v' for binOp in ops )))
+test_sol.extend(list((BinOp(binOp, BinOp(binOp, BinOp(binOp, BinOp(binOp, Id('x'), Id('y')), Id('z')), Id('w')), Id('v')) for binOp in ops )))
 
-# ------------ Ejecucion de pruebas ---------------
+# Operaciones con combiancion de operadores de izquierda a derecha de misma precedencia
+ops = ['*', '%', '/']
+test_cases.extend(list(( f'x {binOp0} y {binOp1} z {binOp2} w'  for binOp0 in ops for binOp1 in ops for binOp2 in ops )))
+test_sol.extend(list((BinOp(binOp2, BinOp(binOp1, BinOp(binOp0, Id('x'), Id('y')), Id('z')), Id('w')) for binOp0 in ops for binOp1 in ops for binOp2 in ops )))
+
+ops = ['+', '-']
+test_cases.extend(list(( f'x {binOp0} y {binOp1} z'  for binOp0 in ops for binOp1 in ops)))
+test_sol.extend(list((BinOp(binOp1, BinOp(binOp0, Id('x'), Id('y')), Id('z'))) for binOp0 in ops for binOp1 in ops))
+
+# Asociacion del '^'
+test_cases.append('x ^ y ^ z ^ w ^ v')
+test_sol.append(BinOp('^', Id('x'), BinOp('^', Id('y'), BinOp('^', Id('z'), BinOp('^', Id('w'), Id('v'))))))
+
+# ------------ Ejecucion de pruebas -------------------------#
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
-def test_individual_rules(test_case:str, test_sol:object):
+def test_precedence_rules(test_case:str, test_sol:object):
     assert parser.parse(test_case) == test_sol

@@ -1,8 +1,6 @@
 """Modulo de pruebas para la precedencia de los operadores de las reglas definidas en grammar.py"""
 
-
 import os, sys, pytest
-
 
 sys.path.insert(1, os.path.abspath('.'))
 
@@ -39,7 +37,6 @@ test_cases.extend(list(( f'array := [2 {binNumOp} {unOp}3, z {comparison} false 
 test_sol.extend(list((AssignArray(Id('array'), ElemList(None).__debug_Init__([BinOp(binNumOp, Number(2), UnOp(unOp, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean('false')), Id('x') ), ArrayAccess(Id('h'),BinOp(binNumOp, Number(2), UnOp(unOp, Number(3))) )])) for binNumOp in NUM_BIN_OPS for unOp in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS)))
 
 # Definiciones de arreglos
-# Asignaciones de arreglos
 test_cases.extend(list((f'[{arr_type}] array := [2 {binNumOp} {unOp}3, z {comparison} false {bool_bin_op} x, h[2 {binNumOp} {unOp}3]];' for binNumOp in NUM_BIN_OPS for unOp in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE )))
 test_sol.extend(list((SymDef(Type(TypeArray(Type(arr_type))), Id('array'), ElemList(None).__debug_Init__([BinOp(binNumOp, Number(2), UnOp(unOp, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean('false')), Id('x') ), ArrayAccess(Id('h'),BinOp(binNumOp, Number(2), UnOp(unOp, Number(3))) )])) for binNumOp in NUM_BIN_OPS for unOp in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE)))
 
@@ -48,5 +45,5 @@ test_sol.extend(list((SymDef(Type(TypeArray(Type(arr_type))), Id('array'), ElemL
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
-def test_individual_rules(test_case:str, test_sol:object):
+def test_complex_expresions(test_case:str, test_sol:object):
     assert parser.parse(test_case) == test_sol
