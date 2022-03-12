@@ -22,28 +22,28 @@ test_cases = [
 ]
 
 def test_lexer0():
-    assert vm.lextest(test_cases[0]) == 'OK: lex("56 _1a25") ==> [TkNumber(56), TkId("_1a25")]'
+    assert vm.lextest(test_cases[0])[0] == 'OK: lex("56 _1a25") ==> [TkNumber(56), TkId("_1a25")]'
 
 def test_lexer1():
-    assert vm.lextest(test_cases[1]) == '''OK: lex("( ) [ ] { } ! ^ * / % - < <= > >= = <> && || ' , := ; :") ==> [TkOpenPar, TkClosePar, TkOpenBracket, TkCloseBracket, TkOpenBrace, TkCloseBrace, TkNot, TkPower, TkMult, TkDiv, TkMod, TkMinus, TkLT, TkLE, TkGT, TkGE, TkEq, TkNE, TkAnd, TkOr, TkQuote, TkComma, TkAssign, TkSemicolon, TkColon]'''
+    assert vm.lextest(test_cases[1])[0] == '''OK: lex("( ) [ ] { } ! ^ * / % - < <= > >= = <> && || ' , := ; :") ==> [TkOpenPar, TkClosePar, TkOpenBracket, TkCloseBracket, TkOpenBrace, TkCloseBrace, TkNot, TkPower, TkMult, TkDiv, TkMod, TkMinus, TkLT, TkLE, TkGT, TkGE, TkEq, TkNE, TkAnd, TkOr, TkQuote, TkComma, TkAssign, TkSemicolon, TkColon]'''
 
 def test_lexer2():
-    assert vm.lextest(test_cases[2]) == '''OK: lex("()[]{}!^*/%-<<=>>==<>&&||',:=;:") ==> [TkOpenPar, TkClosePar, TkOpenBracket, TkCloseBracket, TkOpenBrace, TkCloseBrace, TkNot, TkPower, TkMult, TkDiv, TkMod, TkMinus, TkLT, TkLE, TkGT, TkGE, TkEq, TkNE, TkAnd, TkOr, TkQuote, TkComma, TkAssign, TkSemicolon, TkColon]'''
+    assert vm.lextest(test_cases[2])[0] == '''OK: lex("()[]{}!^*/%-<<=>>==<>&&||',:=;:") ==> [TkOpenPar, TkClosePar, TkOpenBracket, TkCloseBracket, TkOpenBrace, TkCloseBrace, TkNot, TkPower, TkMult, TkDiv, TkMod, TkMinus, TkLT, TkLE, TkGT, TkGE, TkEq, TkNE, TkAnd, TkOr, TkQuote, TkComma, TkAssign, TkSemicolon, TkColon]'''
 
 def test_lexer3():
-    assert vm.lextest(test_cases[3]) == 'OK: lex("num _sum := 25") ==> [TkNum, TkId("_sum"), TkAssign, TkNumber(25)]'
+    assert vm.lextest(test_cases[3])[0] == 'OK: lex("num _sum := 25") ==> [TkNum, TkId("_sum"), TkAssign, TkNumber(25)]'
 
 def test_lexer4():
-    assert vm.lextest(test_cases[4]) == 'OK: lex("bool ci3725 := true || false") ==> [TkBool, TkId("ci3725"), TkAssign, TkTrue, TkOr, TkFalse]'
+    assert vm.lextest(test_cases[4])[0] == 'OK: lex("bool ci3725 := true || false") ==> [TkBool, TkId("ci3725"), TkAssign, TkTrue, TkOr, TkFalse]'
 
 def test_lexer5():
-    assert vm.lextest(test_cases[5]) == '''OK: lex(" z = 'x+y' ") ==> [TkId("z"), TkEq, TkQuote, TkId("x"), TkPlus, TkId("y"), TkQuote]'''
+    assert vm.lextest(test_cases[5])[0] == '''OK: lex(" z = 'x+y' ") ==> [TkId("z"), TkEq, TkQuote, TkId("x"), TkPlus, TkId("y"), TkQuote]'''
 
 def test_lexer6():
-    assert vm.lextest(test_cases[6]) == 'ERROR: caracter inválido ("@")'
+    assert vm.lextest(test_cases[6])[0] == 'ERROR: Caracter inválido ("@")'
 
 def test_lexer7():
-    assert vm.lextest(test_cases[7]) == 'OK: lex(".2 2.1 1.") ==> [TkNumber(0.2), TkNumber(2.1), TkNumber(1.0)]'
+    assert vm.lextest(test_cases[7])[0] == 'OK: lex(".2 2.1 1.") ==> [TkNumber(0.2), TkNumber(2.1), TkNumber(1.0)]'
 
 def test_lexer8():
-    assert vm.lextest(test_cases[8]) == 'ERROR: ID ilegal ("2Hola")'
+    assert vm.lextest(test_cases[8])[0] == 'ERROR: ID ilegal ("2Hola")'
