@@ -36,6 +36,14 @@ class StokhosCMD(Cmd):
     Atributos:
         vm: Instancia de la máquina virtual que interpreta Stókhos.
     """
+    # Mensajes de la REPL
+    prompt = f'{RESET}< Stókhos > {BOLD}'
+    intro = (f'¡Bienvenido a Stókhos v{VERSION}!\n'
+        'Utiliza "?" para mostrar los comandos disponibles.')
+    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' '''
+        'para informacion detallada)')
+    misc_header = ('''Lista de funciones disponibles (escribe 'help '''
+        '''<nombre>' para informacion detallada)''')
 
     def __init__(self):
         # Llama el constructor de la superclase e inicializa la máquina virtual
@@ -51,14 +59,6 @@ class StokhosCMD(Cmd):
         # True si hay una condición de error urgente
         self.exit = False 
 
-    # Mensajes de la REPL
-    prompt = f'{RESET}< Stókhos > {BOLD}'
-    intro = (f'¡Bienvenido a Stókhos v{VERSION}!\n'
-        'Utiliza "?" para mostrar los comandos disponibles.')
-    doc_header = ('''Lista de comandos basicos (escribe 'help <nombre>' '''
-        'para informacion detallada)')
-    misc_header = ('''Lista de funciones disponibles (escribe 'help '''
-        '''<nombre>' para informacion detallada)''')
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
@@ -86,10 +86,10 @@ class StokhosCMD(Cmd):
         print_formatted(out)
 
     def send_failed(self):
-        print_formatted('ERROR: ".failed" no implementado.')
+        print_formatted('ERROR: ".failed" no implementado.', RED)
 
     def send_reset(self):
-        print_formatted('ERROR: ".reset" no implementado.')
+        print_formatted('ERROR: ".reset" no implementado.', RED)
 
     # ---------- DOCUMENTACION DE COMANDOS ----------
     def help_lexer(self):
@@ -138,7 +138,7 @@ class StokhosCMD(Cmd):
                 super(StokhosCMD, self).cmdloop(intro='')
                 break
             except KeyboardInterrupt:
-                print_formatted(f'\n{BLUE}(Para salir, utiliza el comando . o escribe exit){RESET}')
+                print_formatted(f'\n(Para salir, utiliza el comando . o escribe exit)')
 
     def do_exit(self, line: str) -> bool:
         '''Finaliza el CMD/REPL de Stókhos. Retorna True.
@@ -181,20 +181,30 @@ class StokhosCMD(Cmd):
             True si se termina la ejecucion de la VM.
             None cuando se interpreta un comando e imprime su salida.
         '''
+
         if line == ".":
             return self.do_exit(line)
-        elif re.match(r'\.lex+($| )', line.strip()):
+
+        elif re.match(r'\.lex($| )', line):
             # Corta de la entrada '.lex' y envía el comando a la VM
             command = line.lstrip('.lex').strip()
             return self.send_lexer(command)
-        elif re.match(r'\.load+($| )', line.strip()):
-            # Corta '.load' y carga el archivos
+
+        elif re.match(r'\.load($| )', line):
+            # Corta '.load' y carga el archivo
             path = line.lstrip('.load').strip()
-            self.load(path)
+
+            if path:
+                self.load(path)
+            else:
+                print_formatted('ERROR: No se ha indicado ningún directorio.', RED)
+
         elif line == '.failed':
             self.send_failed()
+
         elif line == '.reset':
             self.send_reset()
+
         else:
             return self.send_process(line.strip())
     
@@ -218,9 +228,9 @@ class StokhosCMD(Cmd):
 
         if filename in self.loaded:
             self.exit = True
-            return print_formatted(f'{RED}ERROR: el archivo {filename} ya se '
+            return print_formatted(f'ERROR: el archivo {filename} ya se '
                 f'encuentra cargado (dependencias circulares en '
-                f'{os.path.join(self.context, self.current_file)}).{RESET}')
+                f'{os.path.join(self.context, self.current_file)}).')
 
         temp1 = self.context
         temp2 = self.current_file
@@ -251,9 +261,9 @@ class StokhosCMD(Cmd):
 
         except FileNotFoundError:
             self.exit = True
-            print_formatted(f'ERROR: no se encuentra el archivo {full_path}')
+            print_formatted(f'ERROR: no se encuentra el archivo {full_path}', RED)
             return
         except IsADirectoryError:
             self.exit = True
-            print_formatted(f'ERROR: no ha indicado ningún directorio')
+            print_formatted(f'ERROR: ha indicado un directorio', RED)
             return

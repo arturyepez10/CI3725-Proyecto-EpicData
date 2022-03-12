@@ -17,9 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
-
-
 class AST:
     pass
 
@@ -44,10 +41,8 @@ class BinOp(AST):
     def __repr__(self) -> str:
         return self.__str__()
 
-
 class Comparison(BinOp):
     pass
-
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -67,7 +62,6 @@ class UnOp(AST):
 
     def __repr__(self) -> str:
         return self.__str__()
-
 
 # -------- TERMINALES --------
 class Terminal(AST):
@@ -111,7 +105,6 @@ class Type(AST):
     
     def __repr__(self) -> str:
         return self.__str__()
-        
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -173,7 +166,6 @@ class AssignArrayElement:
     def __repr__(self) -> str:
         return self.__str__()
 
-
 class AssignArray:
     def __init__(self, _id: object, elements: object):
         self.id = _id
@@ -191,7 +183,6 @@ class AssignArray:
 
     def __repr__(self) -> str:
         return self.__str__()
-
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -303,4 +294,3 @@ class ElemList:
     def __debug_Init__(self, elements:object):
         self.elements = elements
         return self
-    

@@ -22,7 +22,7 @@ BLUE = '\033[94m'
 RESET = '\033[0m'
 RED = '\033[91m'
 
-def print_formatted(line: str) -> None:
+def print_formatted(line: str, color: str = BLUE) -> None:
     '''Imprime con un color en especifico los resultados de la REPL al usuario.
 
         Segun el enunciado, la salida standard de las respuestas de Stókhos debe ser en color azul.
@@ -30,4 +30,4 @@ def print_formatted(line: str) -> None:
         Retorna:
             Nada, dado que los resultados se imprimen al usuario.
     '''
-    print(f'{RESET}{BLUE}{line}{RESET}')
+    print(f'{RESET}{color}{line}{RESET}')
