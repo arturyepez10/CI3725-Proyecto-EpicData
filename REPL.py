@@ -24,8 +24,7 @@ from textwrap import dedent
 from typing import Union
 
 from VM import StokhosVM as SVM
-from utils.colors import *
-from utils.constants import VERSION
+from utils.constants import *
 
 class StokhosCMD(Cmd):
     """Intérprete de línea de comandos para la REPL cliente de Stókhos.
@@ -59,6 +58,9 @@ class StokhosCMD(Cmd):
 
         # True si hay una condición de error urgente
         self.exit = False 
+
+        # Lista de tripletas de errores
+        self.errors = []
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
@@ -72,7 +74,7 @@ class StokhosCMD(Cmd):
         out = self.vm.lextest(command)
 
         for line in out:
-            print_formatted(line)
+            self.handle_output(line)
 
     def send_process(self, command: str):
         """Envia un comando al intérprete de Stókhos.
@@ -85,7 +87,8 @@ class StokhosCMD(Cmd):
 
         # Entrada procesada de la VM
         out = self.vm.process(command)
-        print_formatted(out)
+
+        self.handle_output(out)
 
     def send_load(self, path: str):
         """Carga un archivo lleno de instrucciones para la VM, y los envia
@@ -98,10 +101,9 @@ class StokhosCMD(Cmd):
 
         if filename in self.loaded:
             self.exit = True
-            return print_formatted(f'ERROR: el archivo {filename} ya se '
-                f'encuentra cargado (dependencias circulares en '
-                f'{os.path.join(self.context, self.current_file)}, '
-                f'línea {self.line_no}).', RED)
+            self.handle_output(f'ERROR: Detectadas dependencias circulares, '
+                f'el archivo {filename} ya se encuentra cargado')
+            return
 
         temp1 = self.context
         temp2 = self.current_file
@@ -136,15 +138,15 @@ class StokhosCMD(Cmd):
 
         except FileNotFoundError:
             self.exit = True
-            print_formatted(f'ERROR: no se encuentra el archivo {full_path}', RED)
+            self.handle_output(f'ERROR: No se encuentra el archivo {full_path}')
             return
         except IsADirectoryError:
             self.exit = True
-            print_formatted(f'ERROR: ha indicado un directorio', RED)
+            self.handle_output(f'ERROR: Ha indicado un directorio')
             return
 
     def send_ast(self, command: str):
-        print_formatted('ERROR: ".ast" no implementado.')
+        self.handle_output('ERROR: ".ast" no implementado')
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime
@@ -153,16 +155,16 @@ class StokhosCMD(Cmd):
         """
         output = self.vm.getErrors()
 
-        print_formatted('[')
+        self.handle_output('[')
         for line in output:
-            print_formatted(f'    {line}')
-        print_formatted(']')
+            self.handle_output(f'    {line}')
+        self.handle_output(']')
 
     def send_reset(self):
         """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
         """
         self.vm.resetErrors()
-        print_formatted('Se vacio la lista de errores.')
+        self.handle_output('Se vació la lista de errores')
 
     # ---------- DOCUMENTACION DE COMANDOS ----------
     def help_lexer(self):
@@ -222,7 +224,7 @@ class StokhosCMD(Cmd):
                 super(StokhosCMD, self).cmdloop(intro='')
                 break
             except KeyboardInterrupt:
-                print_formatted(f'\n(Para salir, utiliza el comando . o escribe exit)')
+                self.handle_output(f'\n(Para salir, utiliza el comando . o escribe exit)')
 
     def do_exit(self, line: str) -> bool:
         """Finaliza el CMD/REPL de Stókhos. Retorna True.
@@ -280,14 +282,15 @@ class StokhosCMD(Cmd):
             if path:
                 self.send_load(path)
             else:
-                print_formatted('ERROR: No se ha indicado ningún directorio.', RED)
+                self.handle_output('ERROR: No se ha indicado ninguna ruta')
 
         elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
             command = line.lstrip('.ast').strip()
-            print_formatted(command)
+            self.handle_output(command)
 
         elif line == '.failed':
+            print(self.errors)
             self.send_failed()
 
         elif line == '.reset':
@@ -295,3 +298,20 @@ class StokhosCMD(Cmd):
 
         else:
             return self.send_process(line.strip())
+
+    # -------- FUNCIONES HELPER --------
+
+    def handle_output(self, line: str, color: str = BLUE) -> None:
+        """Imprime con un color en especifico los resultados de la REPL al usuario.
+
+            Segun el enunciado, la salida standard de las respuestas de Stókhos debe ser en color azul.
+            
+            Retorna:
+                Nada, dado que los resultados se imprimen al usuario.
+        """
+        if line.startswith('ERROR'):
+            print('TODO: Hay un error')
+            self.errors.append((self.current_file, line[7:], self.line_no))
+            color = RED
+
+        print(f'{RESET}{color}{line}{RESET}')

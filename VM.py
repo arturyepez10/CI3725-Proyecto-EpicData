@@ -95,7 +95,7 @@ class StokhosVM:
             'OK: lex("  ") ==> []'
 
             >>> lextest("entrada mal@")
-            'ERROR: caracter inválido (“@”) en la entrada'
+            'ERROR: Caracter inválido (“@”) en la entrada'
         """
 
         # Analiza el comando con el lexer de la instancia

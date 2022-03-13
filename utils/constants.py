@@ -17,3 +17,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 VERSION = '0.1.2'
+
+# Lista de colores a utilizar para la impresion
+BOLD = '\033[1m'
+BLUE = '\033[94m'
+RESET = '\033[0m'
+RED = '\033[91m'
