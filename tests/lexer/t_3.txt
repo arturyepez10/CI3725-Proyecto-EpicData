@@ -1,1 +1,1 @@
-.load tests\lexer\t_1.txt
+.load t_1.txt
