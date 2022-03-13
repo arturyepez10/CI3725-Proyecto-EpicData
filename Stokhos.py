@@ -18,9 +18,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from REPL import StokhosCMD
+from sys import argv
+
+repl = StokhosCMD()
 
 def main():
-    StokhosCMD().cmdloop()
+    repl.cmdloop()
 
 if __name__ == '__main__':
-    main()
+    enter = True
+
+    if len(argv) != 1:
+        for path in argv[1:]:
+            repl.send_load(path)
+
+        print('¿Quieres acceder al REPL de Stokhos? [y/n]: ')
+        while True:
+            answer = input().strip().lower()
+            if answer in ['yes', 'y']:
+                break
+            elif answer in ['no', 'n']:
+                enter = False
+                break
+    if enter:
+        main()
