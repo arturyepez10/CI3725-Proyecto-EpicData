@@ -55,10 +55,10 @@ class StokhosCMD(Cmd):
         self.context = os.getcwd()
         self.loaded = set()
         self.current_file = ''
+        self.line_no = -1
 
         # True si hay una condición de error urgente
         self.exit = False 
-
     
     # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
     def send_lexer(self, command: str):
@@ -100,23 +100,27 @@ class StokhosCMD(Cmd):
             self.exit = True
             return print_formatted(f'ERROR: el archivo {filename} ya se '
                 f'encuentra cargado (dependencias circulares en '
-                f'{os.path.join(self.context, self.current_file)}).', RED)
+                f'{os.path.join(self.context, self.current_file)}, '
+                f'línea {self.line_no}).', RED)
 
         temp1 = self.context
         temp2 = self.current_file
+        temp3 = self.line_no
         try:
             with open(full_path) as fi:
                 # Configura el nuevo contexto y actualiza conjunto de cargados
                 self.context = _dir
                 self.loaded.add(filename)
                 self.current_file = filename
+                self.line_no = 1
 
                 for line in fi.readlines():
                     # Salta líneas vacías
                     _input = line.strip()
                     if _input:
                         self.default(_input)
-
+                    
+                    self.line_no += 1
                     # Deshace todo el contexto si se ha detectado un error
                     if self.exit:
                         self.context = os.getcwd()
@@ -128,6 +132,7 @@ class StokhosCMD(Cmd):
             self.loaded.remove(filename)
             self.context = temp1
             self.current_file = temp2
+            self.line_no = temp3
 
         except FileNotFoundError:
             self.exit = True
