@@ -35,7 +35,6 @@ class StokhosVM:
 
     def __init__(self):
         self.lex = lex.lex(module=tokenrules)
-        self.errors = []
 
     def process(self, command: str, line = -1) -> str:
         """Procesa y ejecuta un comando de Stókhos.
