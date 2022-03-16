@@ -99,7 +99,7 @@ class StokhosVM:
         # Lista vacia que recolecta todos los tokens de error encontrados en el comando
         error_tokens = []
         for token in self.lex:
-            if token.type == 'IllegalCharacter':                
+            if token.type == 'IllegalCharacter':
                 # Crea una entrada de error por token de tipo caracter ilegal
                 error_tokens.append({
                     "type": 'Caracter inválido',
@@ -123,7 +123,7 @@ class StokhosVM:
 
         # Formatea la salida
         output = []
-        if (len(error_tokens)):
+        if len(error_tokens):
             output = error_tokens
         else :
             output = [f'OK: lex("{command}") ==> {tokens}']
