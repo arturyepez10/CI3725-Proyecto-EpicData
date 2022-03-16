@@ -309,8 +309,7 @@ class StokhosCMD(Cmd):
             Retorna:
                 Nada, dado que los resultados se imprimen al usuario.
         """
-        if line.startswith('ERROR'):
-            print('TODO: Hay un error')
+        if line.startswith('ERROR'):   
             self.errors.append((self.current_file, line[7:], self.line_no))
             color = RED
 

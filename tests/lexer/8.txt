@@ -1,3 +1,0 @@
-.lex probando load recursivo
-
-.load all.txt
