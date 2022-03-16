@@ -59,7 +59,7 @@ class StokhosCMD(Cmd):
         # cargados hasta el momento.
         self.context = os.getcwd()
         self.loaded = set()
-        self.current_file = ''
+        self.current_file = '<consola>'
         self.line_no = -1
 
         # True si hay una condición de error urgente
@@ -315,6 +315,9 @@ class StokhosCMD(Cmd):
         elif line == '.reset':
             self.send_reset()
 
+        elif line.startswith('.'):
+            self.handle_output('ERROR: Comando especial inexistente.')
+            
         else:
             return self.send_process(line.strip())
 
