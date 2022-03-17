@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import ply.yacc as yacc
 from tokenrules import tokens
-from VM import StokhosVM as SVM
 import AST
 
 # -------- REGLAS DE PRECEDENCIA --------
@@ -227,19 +226,3 @@ def p_lambda(p):
 def p_error(p):
     
     raise Exception(f'Syntaxis Error: {p}. Did you miss ";"?')
-
-vm = SVM()
-
-if __name__ == '__main__':
-    
-    # Build the parser
-    parser = yacc.yacc(debug=True)
-
-    while True:
-        try:
-            s = input('calc > ')
-        except EOFError:
-            break
-        if not s: continue
-        result = parser.parse(s, lexer=vm.lex, debug=True)
-        print(result)

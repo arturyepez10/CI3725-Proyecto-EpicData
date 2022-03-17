@@ -17,8 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from AST import AST
 import ply.lex as lex
+import ply.yacc as yacc
 import tokenrules
+import grammar
 
 from typing import Union
 
@@ -35,6 +38,7 @@ class StokhosVM:
 
     def __init__(self):
         self.lex = lex.lex(module=tokenrules)
+        self.parser = yacc.yacc(module=grammar)
 
     def process(self, command: str, line = -1) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -129,6 +133,14 @@ class StokhosVM:
             output = [f'OK: lex("{command}") ==> {tokens}']
 
         return output
+
+    def parse(self, command: str) -> AST:
+        return self.parser.parse(command, lexer=self.lex)
+
+    def testparser(self, command: str) -> str:
+        out = self.parse(command).__str__()
+        
+        return f'OK: ast("{command}") ==> {out}'
 
 # Sobreescritura del método __repr__ de los tokens de ply
 

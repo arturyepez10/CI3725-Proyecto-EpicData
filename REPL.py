@@ -161,7 +161,10 @@ class StokhosCMD(Cmd):
             return
 
     def send_ast(self, command: str):
-        self.handle_output('ERROR: ".ast" no implementado')
+        # Análisis lexicográfico de la entrada por la VM
+        out = self.vm.testparser(command)
+
+        self.handle_output(out)
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime
@@ -307,7 +310,7 @@ class StokhosCMD(Cmd):
         elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
             command = line.lstrip('.ast').strip()
-            self.handle_output(command)
+            self.send_ast(command)
 
         elif line == '.failed':
             self.send_failed()
