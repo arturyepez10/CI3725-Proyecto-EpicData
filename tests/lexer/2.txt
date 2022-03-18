@@ -1,3 +1,0 @@
-.lex num _sum := 25
-.lex bool ci3725 := true || false
-.lex  z = x+y 
