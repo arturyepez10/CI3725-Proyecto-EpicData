@@ -1,6 +1,0 @@
-.load 1.txt
-.load 2.txt
-.load 3.txt
-.load recursivo/6.txt
-
-.load 8.txt

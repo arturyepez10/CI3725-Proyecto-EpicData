@@ -39,11 +39,6 @@ def test_lexer4():
 def test_lexer5():
     assert vm.lextest(test_cases[5])[0] == '''OK: lex(" z = 'x+y' ") ==> [TkId("z"), TkEq, TkQuote, TkId("x"), TkPlus, TkId("y"), TkQuote]'''
 
-def test_lexer6():
-    assert vm.lextest(test_cases[6])[0] == 'ERROR: Caracter inválido ("@")'
-
 def test_lexer7():
     assert vm.lextest(test_cases[7])[0] == 'OK: lex(".2 2.1 1.") ==> [TkNumber(0.2), TkNumber(2.1), TkNumber(1.0)]'
 
-def test_lexer8():
-    assert vm.lextest(test_cases[8])[0] == 'ERROR: ID ilegal ("2Hola")'
