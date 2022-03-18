@@ -171,7 +171,7 @@ class StokhosCMD(Cmd):
 
         self.handle_output('[', RED)
         for line in self.errors:
-            output = f'    ( {line["type"]}({line["token"].value})'
+            output = f'    ( {line["type"]}("{line["token"].value}")'
 
             if line["file"] and line["line"] != -1:
                 output += f', archivo "{line["file"]}", linea {line["line"]}'
