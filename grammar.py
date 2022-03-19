@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import ply.yacc as yacc
-from tokenrules import tokens
+
 import AST
+from tokenrules import tokens
+from utils.custom_exceptions import ParseError
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (
@@ -44,11 +46,25 @@ def p_instruccion(p):
         | expresion'''
     p[0] = p[1]
 
+def p_instruccion_errores(p):
+    '''instruccion : definicion 
+        | asignacion'''
+    raise ParseError('ERROR: Punto y coma faltante al final.')
+
+
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
 def p_definicion_var(p):
     'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
+
+def p_definicion_var_error1(p):
+    'definicion : tipo TkAssign expresion'
+    raise ParseError('ERROR: Se esperaba un identificador.')
+
+def p_definicion_var_error2(p):
+    'definicion : tipo identificador TkAssign'
+    raise ParseError('ERROR: Se esperaba una expresión.')
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
@@ -224,5 +240,4 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    
     raise Exception(f'Syntaxis Error: {p}. Did you miss ";"?')

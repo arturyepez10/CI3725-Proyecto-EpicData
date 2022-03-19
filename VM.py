@@ -17,13 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from AST import AST
+from typing import Union
+
 import ply.lex as lex
 import ply.yacc as yacc
+
+from AST import AST
 import tokenrules
 import grammar
-
-from typing import Union
+from utils.custom_exceptions import ParseError
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -136,9 +138,14 @@ class StokhosVM:
 
     def parse(self, command: str) -> AST:
         return self.parser.parse(command, lexer=self.lex)
-
+        
     def testparser(self, command: str) -> str:
-        out = self.parse(command).__str__()
+        try:
+            out = self.parse(command).__str__()
+        except ParseError as e:
+            return e.message
+        except:
+            return 'TODO: Error sin handler'
         
         return f'OK: ast("{command}") ==> {out}'
 
