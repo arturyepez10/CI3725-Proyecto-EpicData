@@ -1,0 +1,3 @@
+.load t_1.txt
+
+.load t_2.txt

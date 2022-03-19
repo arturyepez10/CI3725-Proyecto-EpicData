@@ -1,0 +1,3 @@
+.lex 3 * 2
+.lex 2add
+.lex y && true

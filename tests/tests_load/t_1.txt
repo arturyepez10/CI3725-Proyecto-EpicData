@@ -1,0 +1,3 @@
+.lex x
+.lex true + 2
+.lex x ^ 2
