@@ -46,12 +46,11 @@ def p_instruccion(p):
         | expresion'''
     p[0] = p[1]
 
-# errores
+# ---- errores en instrucciones ----
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
-    raise ParseError('ERROR: Punto y coma faltante al final.')
-
+    raise ParseError('Punto y coma faltante al final')
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -59,14 +58,6 @@ def p_definicion_var(p):
     'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
 
-# errores
-def p_definicion_var_error1(p):
-    'definicion : tipo TkAssign expresion'
-    raise ParseError('ERROR: Se esperaba un identificador.')
-
-def p_definicion_var_error2(p):
-    'definicion : tipo identificador TkAssign'
-    raise ParseError('ERROR: Se esperaba una expresión.')
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
@@ -79,15 +70,6 @@ def p_asignacion_var(p):
     'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
 
-# errores
-def p_asignacion_var_error1(p):
-    'asignacion : TkAssign expresion'
-    raise ParseError('ERROR: Se esperaba un identificador.')
-
-def p_asignacion_var_error2(p):
-    'asignacion : identificador TkAssign'
-    raise ParseError('ERROR: Se esperaba una expresión.')
-
 # <identificador>[<expresion>] := <expresion>
 def p_asignacion_elemento_arr(p):
     'asignacion : acceso_arreglo TkAssign expresion'
@@ -98,12 +80,42 @@ def p_asignacion_arr(p):
     'asignacion : identificador TkAssign TkOpenBracket listaElems TkCloseBracket'
     p[0] = AST.AssignArray(p[1], p[4])
 
+# ---- errores en asignaciones y definiciones ----
+def p_assign_def_err1(p):
+    '''definicion : tipo TkAssign expresion
+        | tipoArreglo TkAssign TkOpenBracket listaElems TkCloseBracket
+    asignacion : TkAssign expresion
+        | TkAssign TkOpenBracket listaElems TkCloseBracket'''
+    raise ParseError(f'Se esperaba un identificador')
+
+def p_assign_def_err2(p):
+    '''definicion : tipo identificador TkAssign
+    asignacion : identificador TkAssign'''
+    raise ParseError(f'Se esperaba una expresión')
+
+def p_assign_def_err3(p):
+    'definicion : tipoArreglo identificador TkAssign listaElems'
+    raise ParseError(f'Constructor de arreglo faltante del lado derecho')
+
+def p_arr_desbalanceado_err1(p):
+    '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
+    asignacion : identificador TkAssign TkOpenBracket listaElems'''
+    raise ParseError(f'Constructor de arreglo sin cerrar (corchetes desbalanceados)')
+
+def p_arr_desbalanceado_err2(p):
+    '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
+    asignacion : identificador TkAssign listaElems TkCloseBracket'''
+    raise ParseError(f'Constructor de arreglo sin abrir (corchetes desbalanceados)')
+
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
     'acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket'
     p[0] = AST.ArrayAccess(p[1], p[3])
-    
+
+def p_acceso_arreglo_error(p):
+    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
+    raise ParseError('Acceso inválido a expresión')
 
 # <listaElems> -> (lambda)
 #     | <expresion>
@@ -251,4 +263,9 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    raise ParseError(f'ERROR: Sintaxis inválida en {p.value} (columna {p.lexpos}).')
+    if p.type == 'IllegalCharacter':
+        raise ParseError(f'Caracter inválido ("{p.value}")')
+    elif p.type == 'IllegalID':
+        raise ParseError(f'ID ilegal ("{p.value}")')
+
+    raise ParseError(f'Sintaxis inválida en {p.value} (columna {p.lexpos + 1})')

@@ -22,7 +22,7 @@ from typing import Union
 import ply.lex as lex
 import ply.yacc as yacc
 
-from AST import AST
+import AST
 import tokenrules
 import grammar
 from utils.custom_exceptions import ParseError
@@ -137,13 +137,16 @@ class StokhosVM:
         return output
 
     def parse(self, command: str) -> AST:
-        return self.parser.parse(command, lexer=self.lex)
+        try:
+            return self.parser.parse(command, lexer=self.lex)
+        except ParseError as e:
+            return AST.Error(e.message)
         
     def testparser(self, command: str) -> str:
         try:
-            out = self.parse(command).__str__()
-        except ParseError as e:
-            return e.message
+            out = self.parse(command)
+            if isinstance(out, AST.Error):
+                return f'ERROR: {out.cause}'
         except Exception as e:
             print(e)
             return 'TODO: Error sin handler'
