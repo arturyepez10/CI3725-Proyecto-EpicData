@@ -138,7 +138,7 @@ class StokhosVM:
 
     def parse(self, command: str) -> AST:
         try:
-            return self.parser.parse(command, lexer=self.lex)
+            return self.parser.parse(command, lexer=self.lex, tracking=True)
         except ParseError as e:
             return AST.Error(e.message)
         

@@ -50,14 +50,14 @@ def p_instruccion(p):
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
-    raise ParseError('Punto y coma faltante al final')
+    col = p.lexspan(1)[1] + 1
+    raise ParseError(f'Punto y coma faltante al final (columna {col})')
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
 def p_definicion_var(p):
     'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
-
 
 # <definicion> -> [<tipo>] <identificador> := [<listaElems>]
 def p_definicion_arr(p):
@@ -86,36 +86,52 @@ def p_assign_def_err1(p):
         | tipoArreglo TkAssign TkOpenBracket listaElems TkCloseBracket
     asignacion : TkAssign expresion
         | TkAssign TkOpenBracket listaElems TkCloseBracket'''
-    raise ParseError(f'Se esperaba un identificador')
+    col = p.lexpos(2)
+    if isinstance(p[1], str) and p[1] == ':=':
+        col = p.lexpos(1) + 1
+
+    raise ParseError(f'Se esperaba un identificador (columna {col})')
 
 def p_assign_def_err2(p):
     '''definicion : tipo identificador TkAssign
     asignacion : identificador TkAssign'''
-    raise ParseError(f'Se esperaba una expresión')
+    col = p.lexspan(2)[1] + 3
+    if len(p) == 4:
+        col = p.lexspan(3)[1] + 3
+    raise ParseError(f'Se esperaba una expresión (columna {col})')
 
 def p_assign_def_err3(p):
     'definicion : tipoArreglo identificador TkAssign listaElems'
-    raise ParseError(f'Constructor de arreglo faltante del lado derecho')
+    raise ParseError('Constructor de arreglo faltante del lado derecho de '
+     f'la asignación (columna {p.lexpos(3) + 2})')
 
 def p_arr_desbalanceado_err1(p):
     '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
     asignacion : identificador TkAssign TkOpenBracket listaElems'''
-    raise ParseError(f'Constructor de arreglo sin cerrar (corchetes desbalanceados)')
+    col = p.lexspan(4)[1] + 1
+    if len(p) == 6:
+        col = p.lexspan(5)[1] + 1
+
+    raise ParseError('Constructor de arreglo sin cerrar (corchetes '
+        f'desbalanceados) (columna {col})')
 
 def p_arr_desbalanceado_err2(p):
     '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
     asignacion : identificador TkAssign listaElems TkCloseBracket'''
-    raise ParseError(f'Constructor de arreglo sin abrir (corchetes desbalanceados)')
+    col = p.lexpos(2) + 2
+    if len(p) == 6:
+        col = p.lexpos(3) + 2
+
+    raise ParseError('Constructor de arreglo sin abrir (corchetes '
+        f'desbalanceados) (columna {col})')
 
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
-    'acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket'
+    '''acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket
+        | funcion TkOpenBracket expresion TkCloseBracket'''
     p[0] = AST.ArrayAccess(p[1], p[3])
 
-def p_acceso_arreglo_error(p):
-    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
-    raise ParseError('Acceso inválido a expresión')
 
 # <listaElems> -> (lambda)
 #     | <expresion>
@@ -132,6 +148,10 @@ def p_lista(p):
         p[3].append(p[1])
         p[0] = p[3]
 
+# ---- errores de arreglos ----
+def p_acceso_arreglo_err(p):
+    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
+    raise ParseError(f'Acceso inválido a expresión (columna {p.lexpos(2)})')
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -143,6 +163,8 @@ def p_expresion(p):
         p[0] = AST.Parentheses(p[2])
     else:
         p[0] = AST.Quoted(p[2])
+
+# No se pueden reportar errores de aquí en adelante de esta manera
 
 # -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
@@ -169,7 +191,6 @@ def p_expresion_unarias(p):
         | TkNot expresion %prec UNARY'''
     p[0] = AST.UnOp(p[1], p[2])
 
-
 # -------- EXPRESIONES CON OPERACIONES BINARIAS --------
 # <expresion> -> <expresion> + <expresion>
 #     | <expresion> - <expresion>
@@ -189,9 +210,7 @@ def p_expresion_binarias(p):
         | expresion TkAnd expresion
         | expresion TkOr expresion
         '''    
-   
-    p[0] = AST.BinOp(p[2], p[1], p[3])        
-
+    p[0] = AST.BinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>

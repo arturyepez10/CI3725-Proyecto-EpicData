@@ -41,5 +41,15 @@
 .ast $ caracter ilegal
 .ast .id _ilegal;
 
+# ------ Errores array-related (kinda) ------
+
 # Intento de acceder a algo que no es un arreglo
 .ast num x := x[4][p^2 + 1] + 6;
+
+# Falta una coma entre dos elementos de un arreglo
+.ast arr := [1, 2, 3 ,4 5 6, 7];
+.ast [bool] arr := [p && !p || h !p];
+
+# ------ Paréntesis desbalanceados ------
+.ast x + y - ((25 + 1) * 7 ^ (6 + 5 -8)
+.ast x + y - (25 + 1) * 7 ^ (6 + 5 -8))
