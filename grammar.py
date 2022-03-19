@@ -46,6 +46,7 @@ def p_instruccion(p):
         | expresion'''
     p[0] = p[1]
 
+# errores
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
@@ -58,6 +59,7 @@ def p_definicion_var(p):
     'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
 
+# errores
 def p_definicion_var_error1(p):
     'definicion : tipo TkAssign expresion'
     raise ParseError('ERROR: Se esperaba un identificador.')
@@ -76,6 +78,15 @@ def p_definicion_arr(p):
 def p_asignacion_var(p):
     'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
+
+# errores
+def p_asignacion_var_error1(p):
+    'asignacion : TkAssign expresion'
+    raise ParseError('ERROR: Se esperaba un identificador.')
+
+def p_asignacion_var_error2(p):
+    'asignacion : identificador TkAssign'
+    raise ParseError('ERROR: Se esperaba una expresión.')
 
 # <identificador>[<expresion>] := <expresion>
 def p_asignacion_elemento_arr(p):
@@ -240,4 +251,4 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    raise Exception(f'Syntaxis Error: {p}. Did you miss ";"?')
+    raise ParseError(f'ERROR: Sintaxis inválida en {p.value} (columna {p.lexpos}).')

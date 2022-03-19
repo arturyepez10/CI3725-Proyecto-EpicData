@@ -144,7 +144,8 @@ class StokhosVM:
             out = self.parse(command).__str__()
         except ParseError as e:
             return e.message
-        except:
+        except Exception as e:
+            print(e)
             return 'TODO: Error sin handler'
         
         return f'OK: ast("{command}") ==> {out}'
