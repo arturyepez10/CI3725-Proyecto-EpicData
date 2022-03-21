@@ -21,6 +21,13 @@ def error_file_not_found(file_full_patch: str) -> str:
 def error_is_a_directory() -> str:
     return 'Ha indicado un directorio'
 
+def error_circular_dependence(file_name:str=None) -> str:
+    if file_name:
+        return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
+    else:
+        return 'Detectadas dependencias circulares'
+
+
 def error_circular_dependence(file_name: str = None) -> str:
     if file_name:
         return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
