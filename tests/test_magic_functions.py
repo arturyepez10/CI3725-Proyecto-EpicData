@@ -5,8 +5,6 @@ from REPL import StokhosCMD
 from utils.constants import *
 from utils.err_strings import *
 
-
-
 def lex_error_invalid_char(char:str) -> str:
     return f'Caracter inválido ("{char}")'
 
