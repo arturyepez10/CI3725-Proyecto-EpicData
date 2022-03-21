@@ -50,7 +50,7 @@ def p_instruccion(p):
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
-    col = p.lexspan(1)[1] + 1
+    col = p.lexspan(1)[1] + 2
     raise ParseError(f'Punto y coma faltante al final (columna {col})')
 
 # -------- DEFINICIONES --------
@@ -164,8 +164,13 @@ def p_expresion(p):
     else:
         p[0] = AST.Quoted(p[2])
 
-# No se pueden reportar errores de aquí en adelante de esta manera
+# No se pueden reportar errores de aquí en adelante de la manera anterior
 
+def p_expresion_err1(p):
+    '''expresion : TkOpenPar error
+        | TkQuote error '''
+    raise ParseError('Paréntesis desbalanceados')
+    
 # -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
 #     | <booleano>
@@ -282,9 +287,12 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    if p.type == 'IllegalCharacter':
-        raise ParseError(f'Caracter inválido ("{p.value}")')
-    elif p.type == 'IllegalID':
-        raise ParseError(f'ID ilegal ("{p.value}")')
+    if p:
+        if p.type == 'IllegalCharacter':
+            raise ParseError(f'Caracter inválido ("{p.value}") (columna {p.lexpos + 1})')
+        elif p.type == 'IllegalID':
+            raise ParseError(f'ID ilegal ("{p.value}") (columna {p.lexpos + 1})')
 
-    raise ParseError(f'Sintaxis inválida en {p.value} (columna {p.lexpos + 1})')
+        raise ParseError(f'Sintaxis inválida en {p.value} (columna {p.lexpos + 1})')
+    else:
+        raise ParseError(f'Sintaxis inválida al final de la línea')
