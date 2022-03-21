@@ -106,15 +106,14 @@ class StokhosCMD(Cmd):
         self.exit = False
 
         if filename in self.loaded:
-            self.exit = True
-
+            self.handle_output(prefix_error(error_circular_dependency(filename)))
+            
             # Se deshace al contexto inicial del REPL
+            self.exit = True
             self.context = os.getcwd()
             self.current_file = '<consola>'
             self.line_no = -1
             self.loaded.clear()
-
-            self.handle_output(prefix_error(error_circular_dependency(filename)))
 
             return
 
@@ -139,6 +138,7 @@ class StokhosCMD(Cmd):
                         self.default(_input)
                     
                     if self.exit:
+                        self.loaded.clear()
                         return
 
                     self.line_no += 1
