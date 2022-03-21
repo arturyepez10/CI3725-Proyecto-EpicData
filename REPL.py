@@ -336,7 +336,7 @@ class StokhosCMD(Cmd):
 
     # -------- MISCELÁNEA --------
 
-    def handle_output(self, line: str, color: str = BLUE) -> None:
+    def handle_output(self, line: str, color: str = BLUE):
         """Imprime con un color en especifico los resultados de la REPL al usuario.
 
             Segun el enunciado, la salida standard de las respuestas de Stókhos debe ser en color azul.
