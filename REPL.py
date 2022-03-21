@@ -353,4 +353,15 @@ class StokhosCMD(Cmd):
             error_tuple = (self.current_file, self.line_no, line[7:])
             self.errors.append(error_tuple)
 
+            if self.current_file != '<consola>':
+                additional_info = f'en la línea {self.line_no} del archivo "{self.current_file}" '
+                colum_report = line.find('(columna ') 
+
+                if  colum_report != -1:
+                    line_1 = line[:colum_report]
+                    line_2 = line[colum_report:]
+                    line = f'{line_1}{additional_info}{line_2}'
+                else:
+                    line = f'{line} {additional_info}'
+
         print(f'{RESET}{color}{line}{RESET}')
