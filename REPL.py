@@ -69,7 +69,7 @@ class StokhosCMD(Cmd):
         self.errors = []
     
     # ----------- MÉTODOS QUE ENVIAN A LA VIRTUAL MACHINE -----------
-    def send_lextest(self, command: Union[str, dict]):
+    def send_lextest(self, command: str):
         """Envía un comando al analizador lexicográfico de Stókhos.
 
         El analizador procesa la entrada y construye un arreglo con los tokens
