@@ -35,17 +35,17 @@ test_sol.append(sol1 + sol2)
 # ------------------- Dependencia circular ---------------------------------
 # Cargarse a si mismo
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
-test_sol.append([error_circular_dependence('t_self.txt')])
+test_sol.append([prefix_error(error_circular_dependence('t_self.txt'))])
 
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([error_circular_dependence(file_name)])
+test_sol.append([prefix_error(error_circular_dependence(file_name))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([error_circular_dependence("t_6_1.txt")])
+test_sol.append([prefix_error(error_circular_dependence("t_6_1.txt"))])
 
 # Cargar desde un archivo repeticion de los primeros dos archivos
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
