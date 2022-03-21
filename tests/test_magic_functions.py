@@ -162,7 +162,7 @@ def simulate_error_failed_format(error:str, file:str=None, line:int=None):
 repl_failed_tests = StokhosCMD()
 test_cases, test_sol = [], []
 
-# Pruebas de errores de sintaxis deben complir con el formato en .failed
+# ------ Pruebas de errores de sintaxis deben complir con el formato en .failed ------
 # Error generico
 test_cases.append([r'.ast 2;'])
 test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(';', 2))])
@@ -219,7 +219,37 @@ test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic("2", 
 test_cases.append([r'.ast 2+3]'])
 test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(']', 4))])
 
-# Pruebas de lextest deben cumplit con el fomato en .failed
+# ------ Errores de lextest deben cumplir con el fomato en .failed ------
+
+test_cases.append([r'.lex @'])
+test_sol.append([simulate_error_failed_format(lex_error_invalid_char('@'))])
+
+test_cases.append([r'.lex 1Ramon'])
+test_sol.append([simulate_error_failed_format(lex_error_invalid_id('1Ramon'))])
+
+# ------- Errores de comandos en el formato .failed -----
+test_cases.append([r'.Cabaiero'])
+test_sol.append([simulate_error_failed_format(error_nonexistent_special_command())])
+
+test_cases.append([r'2+2;'])
+test_sol.append([simulate_error_failed_format(error_non_implemented_interpretation())])
+
+# --- Errores derivados por el .load -------
+
+# Dependencia circular
+file_patch = os.path.join('tests', 'tests_load', 't_self.txt')
+test_cases.append([f'.load {file_patch}'])
+test_sol.append([simulate_error_failed_format(error_circular_dependence(), file_patch, 1)])
+
+# Archivo inexistente
+test_cases.append([f'.load 2'])
+test_sol.append([simulate_error_failed_format(error_file_not_found(os.path.abspath('2')))])
+# Cargando directorio
+file_patch = os.path.join('tests')
+test_cases.append([f'.load {file_patch}'])
+test_sol.append([simulate_error_failed_format(error_is_a_directory())])
+
+
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
