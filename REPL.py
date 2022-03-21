@@ -102,6 +102,9 @@ class StokhosCMD(Cmd):
         # Entrada procesada de la VM
         out = self.vm.process(command)
 
+        if out.startswith('ERROR: '):
+            error_message = out.lstrip('ERROR: ')
+            self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
         self.handle_output(out)
 
     def send_load(self, path: str):
