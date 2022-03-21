@@ -21,6 +21,9 @@ def error_file_not_found(file_full_patch: str) -> str:
 def error_is_a_directory() -> str:
     return 'Ha indicado un directorio'
 
+def error_nonspecified_path() -> str:
+    return 'No se ha indicado ninguna ruta'
+
 def error_circular_dependency(filename: str = None) -> str:
     if filename:
         return  f'Detectadas dependencias circulares, el archivo {filename} ya se encuentra cargado'
@@ -67,8 +70,10 @@ def error_nonexistent_special_command():
     return 'Comando especial inexistente'
 
 def error_non_implemented_interpretation():
-    return 'interpretación no implementada'
+    return 'Interpretación no implementada'
+
+def error_invalid_arguments(command: str):
+    return f'{command} no acepta argumentos'
 
 def prefix_error(err) -> str:
     return f"ERROR: {err}"
-

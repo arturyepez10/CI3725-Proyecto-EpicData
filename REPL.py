@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 from cmd import Cmd
+from sys import prefix
 from textwrap import dedent
 from typing import Union
 
@@ -113,7 +114,7 @@ class StokhosCMD(Cmd):
             self.line_no = -1
             self.loaded.clear()
 
-            self.handle_output(f'ERROR: {error_circular_dependency(filename)}')
+            self.handle_output(prefix_error(error_circular_dependency(filename)))
 
             return
 
@@ -150,11 +151,11 @@ class StokhosCMD(Cmd):
 
         except FileNotFoundError:
             self.exit = True
-            self.handle_output(f'ERROR: {error_file_not_found(full_path)}')
+            self.handle_output(prefix_error(error_file_not_found(full_path)))
             return
         except IsADirectoryError:
             self.exit = True
-            self.handle_output(f'ERROR: {error_is_a_directory}')
+            self.handle_output(prefix_error(error_is_a_directory()))
             return
 
     def send_ast(self, command: str):
@@ -302,7 +303,7 @@ class StokhosCMD(Cmd):
             if path:
                 self.send_load(path)
             else:
-                self.handle_output('ERROR: No se ha indicado ninguna ruta')
+                self.handle_output(prefix_error(error_nonspecified_path()))
 
         elif match_magic_command('ast', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
@@ -315,7 +316,7 @@ class StokhosCMD(Cmd):
 
             # Si había en la línea algo más que .failed se usó mal el comando
             if rem:
-                self.handle_output(f'ERROR: .failed no acepta argumentos')
+                self.handle_output(prefix_error(error_invalid_arguments('.failed')))
                 return
             
             self.send_failed()
@@ -326,13 +327,13 @@ class StokhosCMD(Cmd):
 
             # Si había en la línea algo más que .reset se usó mal el comando
             if rem:
-                self.handle_output(f'ERROR: .reset no acepta argumentos')
+                self.handle_output(prefix_error(error_invalid_arguments('.reset')))
                 return
             
             self.send_reset()
 
         elif line.startswith('.'):
-            self.handle_output('ERROR: Comando especial inexistente.')
+            self.handle_output(prefix_error(error_nonexistent_special_command()))
             
         else:
             return self.send_process(line.strip())
