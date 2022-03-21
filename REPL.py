@@ -61,7 +61,7 @@ class StokhosCMD(Cmd):
         self.context = os.getcwd()
         self.loaded = set()
         self.current_file = '<consola>'
-        self.line_no = 1
+        self.line_no = -1
 
         # True si hay una condición de error urgente
         self.exit = False 
@@ -105,6 +105,13 @@ class StokhosCMD(Cmd):
 
         if filename in self.loaded:
             self.exit = True
+
+            # Se deshace al contexto inicial del REPL
+            self.context = os.getcwd()
+            self.current_file = '<consola>'
+            self.line_no = -1
+            self.loaded.clear()
+
             self.handle_output(f'ERROR: Detectadas dependencias circulares, '
                 f'el archivo {filename} ya se encuentra cargado')
 
@@ -127,13 +134,10 @@ class StokhosCMD(Cmd):
                     if _input and not _input.startswith('#'):
                         self.default(_input)
                     
-                    self.line_no += 1
-                    # Deshace todo el contexto si se ha detectado un error
                     if self.exit:
-                        self.context = os.getcwd()
-                        self.current_file = '<consola>'
+                        return
 
-                        return self.loaded.clear()
+                    self.line_no += 1
 
             # Terminó la carga del archivo, deshace el contexto
             self.loaded.remove(filename)
@@ -164,8 +168,9 @@ class StokhosCMD(Cmd):
         """
 
         self.handle_output('[', RED)
-        for error_tuple in self.errors:
-            self.handle_output(f'    {error_tuple}', RED)
+        for err_tuple in self.errors:
+            _str = f'    ({err_tuple[0]}, {err_tuple[1]}, {err_tuple[2]})'
+            self.handle_output(_str, RED)
         self.handle_output(']', RED)
 
     def send_reset(self):

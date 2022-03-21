@@ -105,9 +105,9 @@ class StokhosVM:
 
         for token in self.lex:
             if token.type == 'IllegalCharacter':
-                return f'ERROR: {error_invalid_char(token.value, token.lexpos)}'
+                return f'ERROR: {error_invalid_char(token.value, token.lexpos + 1)}'
             elif token.type == 'IllegalID':
-                return f'ERROR: {error_invalid_id(token.value, token.lexpos)}'
+                return f'ERROR: {error_invalid_id(token.value, token.lexpos + 1)}'
             else:
                 tokens.append(token)
 
