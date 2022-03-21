@@ -1,6 +1,7 @@
 """Modulos de pruebas del lexer"""
 
-import os, sys
+import os
+import sys
 
 p = os.path.abspath('.')
 sys.path.insert(1, p)
@@ -41,4 +42,3 @@ def test_lexer5():
 
 def test_lexer6():
     assert vm.lextest(test_cases[7]) == 'OK: lex(".2 2.1 1.") ==> [TkNumber(0.2), TkNumber(2.1), TkNumber(1.0)]'
-
