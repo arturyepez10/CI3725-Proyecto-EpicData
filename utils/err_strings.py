@@ -21,20 +21,19 @@ def error_file_not_found(file_full_patch: str) -> str:
 def error_is_a_directory() -> str:
     return 'Ha indicado un directorio'
 
-def error_circular_dependence(file_name:str=None) -> str:
+def error_circular_dependence(file_name: str = None) -> str:
     if file_name:
         return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
     else:
         return 'Detectadas dependencias circulares'
 
-
-def error_invalid_char(char:str, column:int) -> str:
+def error_invalid_char(char: str, column: int) -> str:
     return f'Caracter inválido ("{char}") (columna {column})'
 
-def error_invalid_id(Id:str, column:int) -> str:
-    return f'ID ilegal ("{Id}") (columna {column})'
+def error_invalid_id(_id: str, column: int) -> str:
+    return f'ID ilegal ("{_id}") (columna {column})'
 
-def error_missing_semicolon(column:int):
+def error_missing_semicolon(column: int):
     return f'Punto y coma faltante al final (columna {column})'
 
 def error_expression_expected(column: int):
@@ -55,7 +54,7 @@ def error_unopened_array_constructor(column: int):
 def error_invalid_expression_access(column: int):
     return f'Acceso inválido a expresión (columna {column})'
 
-def error_invalid_syntax_generic(offender:str =None , column: int =None):
+def error_invalid_syntax_generic(offender:str = None , column: int = None):
     if not offender and not column:
         return 'Sintaxis inválida al final de la línea'
     else:
