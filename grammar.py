@@ -21,6 +21,7 @@ import ply.yacc as yacc
 import AST
 from tokenrules import tokens
 from utils.custom_exceptions import ParseError
+from utils.err_strings import *
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (
@@ -51,7 +52,7 @@ def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
     col = p.lexspan(1)[1] + 2
-    raise ParseError(f'Punto y coma faltante al final (columna {col})')
+    raise ParseError(error_missing_semicolon(col))
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -90,7 +91,7 @@ def p_assign_def_err1(p):
     if isinstance(p[1], str) and p[1] == ':=':
         col = p.lexpos(1) + 1
 
-    raise ParseError(f'Se esperaba un identificador (columna {col})')
+    raise ParseError(error_id_expected(col))
 
 def p_assign_def_err2(p):
     '''definicion : tipo identificador TkAssign
@@ -98,32 +99,30 @@ def p_assign_def_err2(p):
     col = p.lexspan(2)[1] + 3
     if len(p) == 4:
         col = p.lexspan(3)[1] + 3
-    raise ParseError(f'Se esperaba una expresión (columna {col})')
+    raise ParseError(error_expression_expected(col))
 
 def p_assign_def_err3(p):
     'definicion : tipoArreglo identificador TkAssign listaElems'
-    raise ParseError('Constructor de arreglo faltante del lado derecho de '
-     f'la asignación (columna {p.lexpos(3) + 2})')
+    col = p.lexpos(3) + 3
+    raise ParseError(error_array_constructor_expected(col))
 
 def p_arr_desbalanceado_err1(p):
     '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
     asignacion : identificador TkAssign TkOpenBracket listaElems'''
-    col = p.lexspan(4)[1] + 1
+    col = p.lexspan(4)[1] + 2
     if len(p) == 6:
-        col = p.lexspan(5)[1] + 1
+        col = p.lexspan(5)[1] + 2
 
-    raise ParseError('Constructor de arreglo sin cerrar (corchetes '
-        f'desbalanceados) (columna {col})')
+    raise ParseError(error_unclosed_array_constructor(col))
 
 def p_arr_desbalanceado_err2(p):
     '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
     asignacion : identificador TkAssign listaElems TkCloseBracket'''
-    col = p.lexpos(2) + 2
+    col = p.lexpos(2) + 3
     if len(p) == 6:
-        col = p.lexpos(3) + 2
+        col = p.lexpos(3) + 3
 
-    raise ParseError('Constructor de arreglo sin abrir (corchetes '
-        f'desbalanceados) (columna {col})')
+    raise ParseError(error_unopened_array_constructor(col))
 
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
@@ -151,7 +150,7 @@ def p_lista(p):
 # ---- errores de arreglos ----
 def p_acceso_arreglo_err(p):
     'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
-    raise ParseError(f'Acceso inválido a expresión (columna {p.lexpos(2)})')
+    raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -169,7 +168,7 @@ def p_expresion(p):
 def p_expresion_err1(p):
     '''expresion : TkOpenPar error
         | TkQuote error '''
-    raise ParseError('Paréntesis desbalanceados')
+    raise ParseError(error_unbalance_parentheses())
     
 # -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
@@ -289,10 +288,13 @@ def p_lambda(p):
 def p_error(p):
     if p:
         if p.type == 'IllegalCharacter':
-            raise ParseError(f'Caracter inválido ("{p.value}") (columna {p.lexpos + 1})')
-        elif p.type == 'IllegalID':
-            raise ParseError(f'ID ilegal ("{p.value}") (columna {p.lexpos + 1})')
+            raise ParseError(error_invalid_char(p.value, p.lexpos + 2))
 
-        raise ParseError(f'Sintaxis inválida en {p.value} (columna {p.lexpos + 1})')
+        elif p.type == 'IllegalID':
+            raise ParseError(error_invalid_id(p.value, p.lexpos + 1))
+
+
+        raise ParseError(error_invalid_syntax(p.value, p.lexpos + 1))
+
     else:
-        raise ParseError(f'Sintaxis inválida al final de la línea')
+        raise ParseError(error_invalid_syntax())
