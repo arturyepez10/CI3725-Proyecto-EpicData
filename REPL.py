@@ -128,6 +128,10 @@ class StokhosCMD(Cmd):
         temp2 = self.current_file
         temp3 = self.line_no
         try:
+            # En Windows los directorios no abren con `open(full_path)`
+            if os.path.isdir(full_path):
+                raise IsADirectoryError
+
             with open(full_path) as fi:
                 # Configura el nuevo contexto y actualiza conjunto de cargados
                 self.context = _dir
