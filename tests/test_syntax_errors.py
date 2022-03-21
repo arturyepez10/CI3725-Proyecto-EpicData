@@ -10,7 +10,7 @@ repl = StokhosCMD()
 test_cases, test_sol = [], []
 
 test_cases.append(lambda: repl.default(r'.ast 2;'))
-test_sol.append([prefix_error(error_invalid_syntax(';', 2))])
+test_sol.append([prefix_error(error_invalid_syntax_generic(';', 2))])
 
 test_cases.append(lambda: repl.default(r'.ast @'))
 test_sol.append([prefix_error(error_invalid_char('@', 2))])
@@ -43,16 +43,16 @@ test_cases.append(lambda: repl.default(r'.ast true[2]'))
 test_sol.append([prefix_error(error_invalid_expression_access(5))])
 
 test_cases.append(lambda: repl.default(r'.ast (2+3'))
-test_sol.append([prefix_error(error_invalid_syntax())])
+test_sol.append([prefix_error(error_invalid_syntax_generic())])
 
 test_cases.append(lambda: repl.default(r'.ast 2+3)'))
-test_sol.append([prefix_error(error_invalid_syntax(')', 4))])
+test_sol.append([prefix_error(error_invalid_syntax_generic(')', 4))])
 
 test_cases.append(lambda: repl.default(r'.ast [2+3'))
-test_sol.append([prefix_error(error_invalid_syntax("2", 2))])
+test_sol.append([prefix_error(error_invalid_syntax_generic("2", 2))])
 
 test_cases.append(lambda: repl.default(r'.ast 2+3]'))
-test_sol.append([prefix_error(error_invalid_syntax(']', 4))])
+test_sol.append([prefix_error(error_invalid_syntax_generic(']', 4))])
 
 
 #test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "parser", "1.stk")}'))

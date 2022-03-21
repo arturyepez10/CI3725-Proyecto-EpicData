@@ -294,7 +294,7 @@ def p_error(p):
             raise ParseError(error_invalid_id(p.value, p.lexpos + 1))
 
 
-        raise ParseError(error_invalid_syntax(p.value, p.lexpos + 1))
+        raise ParseError(error_invalid_syntax_generic(p.value, p.lexpos + 1))
 
     else:
-        raise ParseError(error_invalid_syntax())
+        raise ParseError(error_invalid_syntax_generic())
