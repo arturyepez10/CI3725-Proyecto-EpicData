@@ -15,15 +15,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+def error_file_not_found(file_full_patch: str) -> str:
+    return f'No se encuentra el archivo {file_full_patch}'
 
-def error_circular_dependence(file_name:str) -> str:
-    return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
+def error_is_a_directory() -> str:
+    return 'Ha indicado un directorio'
+
+def error_circular_dependence(file_name:str=None) -> str:
+    if file_name:
+        return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
+    else:
+        return 'Detectadas dependencias circulares'
+
 
 def error_invalid_char(char:str, column:int) -> str:
     return f'Caracter inválido ("{char}") (columna {column})'
 
-def error_invalid_id(_id:str, column:int) -> str:
-    return f'ID ilegal ("{_id}") (columna {column})'
+def error_invalid_id(Id:str, column:int) -> str:
+    return f'ID ilegal ("{Id}") (columna {column})'
 
 def error_missing_semicolon(column:int):
     return f'Punto y coma faltante al final (columna {column})'
@@ -54,6 +63,12 @@ def error_invalid_syntax_generic(offender:str =None , column: int =None):
 
 def error_unbalance_parentheses():
     return 'Paréntesis desbalanceados'
+
+def error_nonexistent_special_command():
+    return 'Comando especial inexistente'
+
+def error_non_implemented_interpretation():
+    return 'interpretación no implementada'
 
 def prefix_error(err) -> str:
     return f"ERROR: {err}"
