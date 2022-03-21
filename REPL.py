@@ -308,7 +308,7 @@ class StokhosCMD(Cmd):
         elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
             command = line.lstrip('.ast').strip()
-            self.handle_output(command)
+            self.send_ast(command)
 
         elif line == '.failed':
             self.send_failed()
