@@ -107,8 +107,6 @@ class StokhosCMD(Cmd):
 
         if filename in self.loaded:
             self.handle_output(prefix_error(error_circular_dependency(filename)))
-            
-            # Se deshace al contexto inicial del REPL
             self.exit = True
             self.panic_exit_all_context()
             return
@@ -145,14 +143,14 @@ class StokhosCMD(Cmd):
             self.line_no = temp3
 
         except FileNotFoundError:
+            self.handle_output(prefix_error(error_file_not_found(full_path)))
             self.exit = True
             self.panic_exit_all_context()
-            self.handle_output(prefix_error(error_file_not_found(full_path)))
             return
         except IsADirectoryError:
+            self.handle_output(prefix_error(error_is_a_directory()))
             self.exit = True
             self.panic_exit_all_context()
-            self.handle_output(prefix_error(error_is_a_directory()))
 
     def send_ast(self, command: str):
         # Análisis lexicográfico de la entrada por la VM
@@ -365,7 +363,6 @@ class StokhosCMD(Cmd):
     def panic_exit_all_context(self):
         # Se deshace al contexto inicial del REPL
         self.context = os.getcwd()
-        print(self.context)
         self.current_file = '<consola>'
         self.line_no = -1
         self.loaded.clear()
