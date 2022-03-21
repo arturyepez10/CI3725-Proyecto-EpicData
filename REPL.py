@@ -133,9 +133,9 @@ class StokhosCMD(Cmd):
                 self.line_no = 1
 
                 for line in fi.readlines():
-                    # Salta líneas vacías
+                    # Salta líneas vacías y que comiencen con # (comentarios)
                     _input = line.strip()
-                    if _input:
+                    if _input and not _input.startswith('#'):
                         self.default(_input)
                     
                     self.line_no += 1
@@ -164,8 +164,10 @@ class StokhosCMD(Cmd):
             return
 
     def send_ast(self, command: str):
-        self.handle_output('ERROR: ".ast" no implementado')
-        self.errors += [f'({self.current_file}, {self.line_no}, ".ast" no implementado)']
+        # Análisis lexicográfico de la entrada por la VM
+        out = self.vm.testparser(command)
+
+        self.handle_output(out)
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime

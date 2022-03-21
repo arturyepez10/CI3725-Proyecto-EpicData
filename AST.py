@@ -18,7 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 class AST:
-    pass
+    def __repr__(self) -> str:
+        return self.__str__()
+    
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -38,8 +40,7 @@ class BinOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
+
 
 class Comparison(BinOp):
     pass
@@ -60,8 +61,6 @@ class UnOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 # -------- TERMINALES --------
 class Terminal(AST):
@@ -77,8 +76,6 @@ class Terminal(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 class Number(Terminal):
     pass        
@@ -103,8 +100,6 @@ class Type(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
     
-    def __repr__(self) -> str:
-        return self.__str__()
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -124,8 +119,6 @@ class SymDef(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
     
-    def __repr__(self) -> str:
-        return self.__str__()
 
 # -------- ASIGNACIONES --------
 class Assign(AST):
@@ -143,8 +136,6 @@ class Assign(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 class AssignArrayElement:
     def __init__(self, arrayAccess: object, value: object):
@@ -163,8 +154,6 @@ class AssignArrayElement:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 class AssignArray:
     def __init__(self, _id: object, elements: object):
@@ -181,8 +170,6 @@ class AssignArray:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -199,8 +186,6 @@ class Parentheses(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
 class Quoted(AST):
     def __init__(self, expr: object):
@@ -217,7 +202,7 @@ class Quoted(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 # -------- ARREGLOS --------
-class TypeArray:
+class TypeArray(AST):
     def __init__(self, type: object):
         self.type = type        
 
@@ -230,10 +215,8 @@ class TypeArray:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
-class ArrayAccess:
+class ArrayAccess(AST):
     def __init__(self, _id:object, _index:object) -> None:
         self.id = _id
         self.index = _index
@@ -248,10 +231,8 @@ class ArrayAccess:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
-class Function:
+class Function(AST):
     def __init__(self, _id:object, _args:object) -> None:
         self.id = _id
         self.args = _args
@@ -267,10 +248,8 @@ class Function:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
-class ElemList:
+class ElemList(AST):
     def __init__(self, el: object):
         self.elements = [el] if el else []
 
@@ -287,10 +266,15 @@ class ElemList:
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return self.__str__()
 
     # Metodo usado para debug
     def __debug_Init__(self, elements:object):
         self.elements = elements
         return self
+
+class Error(AST):
+    def __init__(self, cause: str):
+        self.cause = cause
+    
+    def __str__(self) -> str:
+        return f'''Error('{self.cause}')'''

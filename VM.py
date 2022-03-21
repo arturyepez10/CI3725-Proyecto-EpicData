@@ -17,10 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import ply.lex as lex
-import tokenrules
-
 from typing import Union
+
+import ply.lex as lex
+import ply.yacc as yacc
+
+import AST
+import tokenrules
+import grammar
+from utils.custom_exceptions import ParseError
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -35,6 +40,7 @@ class StokhosVM:
 
     def __init__(self):
         self.lex = lex.lex(module=tokenrules)
+        self.parser = yacc.yacc(module=grammar)
 
     def process(self, command: str, line = -1) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -117,6 +123,23 @@ class StokhosVM:
             output = [f'OK: lex("{command}") ==> {tokens}']
 
         return output
+
+    def parse(self, command: str) -> AST:
+        try:
+            return self.parser.parse(command, lexer=self.lex, tracking=True)
+        except ParseError as e:
+            return AST.Error(e.message)
+        
+    def testparser(self, command: str) -> str:
+        try:
+            out = self.parse(command)
+            if isinstance(out, AST.Error):
+                return f'ERROR: {out.cause}'
+        except Exception as e:
+            print(e)
+            return 'TODO: Error sin handler'
+        
+        return f'OK: ast("{command}") ==> {out}'
 
 # Sobreescritura del método __repr__ de los tokens de ply
 
