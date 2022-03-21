@@ -72,7 +72,7 @@ class StokhosVM:
         
         return f'{prefix}: {suffix}'
 
-    def lextest(self, command: str, line = -1) -> Union[list[str], list[dict]]:
+    def lextest(self, command: str) -> list[str]:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
 
         Retorna:
@@ -101,22 +101,10 @@ class StokhosVM:
         for token in self.lex:
             if token.type == 'IllegalCharacter':
                 # Crea una entrada de error por token de tipo caracter ilegal
-                error_tokens.append({
-                    "type": 'Caracter inválido',
-                    "token": token,
-                    "line": -1,
-                    "file": '',
-                    "command": line,
-                })
+                error_tokens.append(f'ERROR: Caracter inválido ("{token.value}")')
             elif token.type == 'IllegalID':
                 # Crea una entrada de error por token de tipo ID ilegal
-                error_tokens.append({
-                    "type": 'ID ilegal',
-                    "token": token,
-                    "line": -1,
-                    "file": '',
-                    "command": line,
-                })
+                error_tokens.append(f'ERROR: ID ilegal ("{token.value}")')
             
             else:
                 tokens.append(token)

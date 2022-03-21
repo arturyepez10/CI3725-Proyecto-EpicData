@@ -80,13 +80,12 @@ class StokhosCMD(Cmd):
         out = self.vm.lextest(command)
 
         for line in out:
-            if isinstance(line, dict):
-                if self.loaded and self.line_no != -1:
-                    line["line"] = self.line_no
-                    line["file"] = self.current_file
+            if line.startswith('ERROR: '):
+                error = self.parseError(line)
 
-                self.errors += [line]
-                self.handle_output(self.error_to_str(line))
+                error_message = line.lstrip('ERROR: ')
+                self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
+                self.handle_output(error)
             else:
                 self.handle_output(line)
 
@@ -118,6 +117,8 @@ class StokhosCMD(Cmd):
             self.exit = True
             self.handle_output(f'ERROR: Detectadas dependencias circulares, '
                 f'el archivo {filename} ya se encuentra cargado')
+
+            self.errors += [f'({self.current_file}, {self.line_no}, Detectadas dependencias circulares)']
             return
 
         temp1 = self.context
@@ -154,14 +155,17 @@ class StokhosCMD(Cmd):
         except FileNotFoundError:
             self.exit = True
             self.handle_output(f'ERROR: No se encuentra el archivo {full_path}')
+            self.errors += [f'({self.current_file}, {self.line_no}, No se encuentra el archivo {full_path})']
             return
         except IsADirectoryError:
             self.exit = True
             self.handle_output(f'ERROR: Ha indicado un directorio')
+            self.errors += [f'({self.current_file}, {self.line_no}, Ha indicado un directorio)']
             return
 
     def send_ast(self, command: str):
         self.handle_output('ERROR: ".ast" no implementado')
+        self.errors += [f'({self.current_file}, {self.line_no}, ".ast" no implementado)']
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime
@@ -171,11 +175,7 @@ class StokhosCMD(Cmd):
 
         self.handle_output('[', RED)
         for line in self.errors:
-            output = f'    ( {line["type"]}("{line["token"].value}")'
-
-            if line["file"] and line["line"] != -1:
-                output += f', archivo "{line["file"]}", linea {line["line"]}'
-            output += ' )'
+            output = f'    {line}'
 
             self.handle_output(output, RED)
         self.handle_output(']', RED)
@@ -303,6 +303,7 @@ class StokhosCMD(Cmd):
                 self.send_load(path)
             else:
                 self.handle_output('ERROR: No se ha indicado ninguna ruta')
+                self.errors += [f'({self.current_file}, {self.line_no}, No se ha indicado ninguna ruta)']
 
         elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
@@ -317,6 +318,7 @@ class StokhosCMD(Cmd):
 
         elif line.startswith('.'):
             self.handle_output('ERROR: Comando especial inexistente.')
+            self.errors += [f'({self.current_file}, {self.line_no}, Comando especial inexistente)']
             
         else:
             return self.send_process(line.strip())
@@ -337,11 +339,11 @@ class StokhosCMD(Cmd):
         print(f'{RESET}{color}{line}{RESET}')
 
 
-    def error_to_str(self, error: dict) -> str:
+    def parseError(self, error: str) -> str:
         """Convierte un token de error a una string"""
-        output = f'ERROR: {error["type"]}("{error["token"].value}")'
+        output = error
 
-        if (error["file"] and error["line"] != -1):
-            output = f'ERROR: {error["type"]} ("{error["token"].value}") en la linea {error["line"]} del archivo "{error["file"]}"'
+        if (self.line_no != -1):
+            output += f' en la linea {self.line_no} del archivo "{self.current_file}"'
 
         return output
