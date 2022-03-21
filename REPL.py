@@ -23,6 +23,7 @@ from textwrap import dedent
 from typing import Union
 
 from utils.constants import *
+from utils.err_strings import *
 from utils.helpers import *
 from VM import StokhosVM as SVM
 
@@ -112,8 +113,7 @@ class StokhosCMD(Cmd):
             self.line_no = -1
             self.loaded.clear()
 
-            self.handle_output(f'ERROR: Detectadas dependencias circulares, '
-                f'el archivo {filename} ya se encuentra cargado')
+            self.handle_output(f'ERROR: {error_circular_dependency(filename)}')
 
             return
 
@@ -121,7 +121,7 @@ class StokhosCMD(Cmd):
         temp2 = self.current_file
         temp3 = self.line_no
         try:
-            # En Windows los directorios no abren con `open(full_path)`
+            # En Windows los directorios no abren con open(full_path)
             if os.path.isdir(full_path):
                 raise IsADirectoryError
 
@@ -150,11 +150,11 @@ class StokhosCMD(Cmd):
 
         except FileNotFoundError:
             self.exit = True
-            self.handle_output(f'ERROR: No se encuentra el archivo {full_path}')
+            self.handle_output(f'ERROR: {error_file_not_found(full_path)}')
             return
         except IsADirectoryError:
             self.exit = True
-            self.handle_output(f'ERROR: Ha indicado un directorio')
+            self.handle_output(f'ERROR: {error_is_a_directory}')
             return
 
     def send_ast(self, command: str):

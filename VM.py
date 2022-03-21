@@ -119,7 +119,7 @@ class StokhosVM:
             return self.parser.parse(command, lexer=self.lex, tracking=True)
         except ParseError as e:
             return AST.Error(e.message)
-        
+
     def testparser(self, command: str) -> str:
         out = self.parse(command)
         if isinstance(out, AST.Error):
@@ -128,7 +128,6 @@ class StokhosVM:
         return f'OK: ast("{command}") ==> {out}'
 
 # Sobreescritura del método __repr__ de los tokens de ply
-
 def custom_repr(t: lex.LexToken):
     val = ''
     if t.type == 'TkId':

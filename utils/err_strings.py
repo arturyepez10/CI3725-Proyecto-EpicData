@@ -21,16 +21,9 @@ def error_file_not_found(file_full_patch: str) -> str:
 def error_is_a_directory() -> str:
     return 'Ha indicado un directorio'
 
-def error_circular_dependence(file_name:str=None) -> str:
-    if file_name:
-        return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
-    else:
-        return 'Detectadas dependencias circulares'
-
-
-def error_circular_dependence(file_name: str = None) -> str:
-    if file_name:
-        return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
+def error_circular_dependency(filename: str = None) -> str:
+    if filename:
+        return  f'Detectadas dependencias circulares, el archivo {filename} ya se encuentra cargado'
     else:
         return 'Detectadas dependencias circulares'
 
@@ -61,7 +54,7 @@ def error_unopened_array_constructor(column: int):
 def error_invalid_expression_access(column: int):
     return f'Acceso inválido a expresión (columna {column})'
 
-def error_invalid_syntax_generic(offender:str = None , column: int = None):
+def error_invalid_syntax_generic(offender:str = None, column: int = None):
     if not offender and not column:
         return 'Sintaxis inválida al final de la línea'
     else:

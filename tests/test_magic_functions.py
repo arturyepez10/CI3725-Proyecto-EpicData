@@ -14,8 +14,6 @@ def lex_error_invalid_id(Id:str) -> str:
 def error_with_line_and_file(error:str, line:int, file:str) -> str:
     return  f'{error} en la linea {line} del archivo "{file}"'
 
-
-
 repl = StokhosCMD()
 test_cases, test_sol = [], []
 
@@ -46,17 +44,17 @@ test_sol.append(sol1 + sol2)
 # ------------------- Dependencia circular ---------------------------------
 # Cargarse a si mismo
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
-test_sol.append([prefix_error(error_circular_dependence('t_self.txt'))])
+test_sol.append([prefix_error(error_circular_dependency('t_self.txt'))])
 
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependence(file_name))])
+test_sol.append([prefix_error(error_circular_dependency(file_name))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependence("t_6_1.txt"))])
+test_sol.append([prefix_error(error_circular_dependency("t_6_1.txt"))])
 
 # Cargar desde un archivo repeticion de los primeros dos archivos
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
@@ -90,17 +88,17 @@ test_sol.append(sol1 + sol2)
 # ------------------- Dependencia circular ---------------------------------
 # Cargarse a si mismo
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
-test_sol.append([prefix_error(error_circular_dependence('t_self.txt'))])
+test_sol.append([prefix_error(error_circular_dependency('t_self.txt'))])
 
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependence(file_name))])
+test_sol.append([prefix_error(error_circular_dependency(file_name))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependence("t_6_1.txt"))])
+test_sol.append([prefix_error(error_circular_dependency("t_6_1.txt"))])
 
 # Cargar desde un archivo repeticion de los primeros dos archivos
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
@@ -157,7 +155,6 @@ def simulate_error_failed_format(error:str, file:str=None, line:int=None):
         return f'({file}, {line}, {error})'
     else:
         return f'(<consola>, -1, {error})'
-
 
 repl_failed_tests = StokhosCMD()
 test_cases, test_sol = [], []
@@ -239,7 +236,7 @@ test_sol.append([simulate_error_failed_format(error_non_implemented_interpretati
 # Dependencia circular
 file_patch = os.path.join('tests', 'tests_load', 't_self.txt')
 test_cases.append([f'.load {file_patch}'])
-test_sol.append([simulate_error_failed_format(error_circular_dependence(), file_patch, 1)])
+test_sol.append([simulate_error_failed_format(error_circular_dependency(), file_patch, 1)])
 
 # Archivo inexistente
 test_cases.append([f'.load 2'])
@@ -295,7 +292,7 @@ test_sol.append(test_lexer_sol)
 # Cargar archivo que lleva a dependencia circular
 file_path = os.path.join('tests', 'tests_load', 't_6_3.txt')
 test_cases.append([f'.load {file_path}'])
-test_sol.append([simulate_error_failed_format(error_circular_dependence(), os.path.join('tests', 'tests_load', 't_6_2.txt'), 1)])
+test_sol.append([simulate_error_failed_format(error_circular_dependency(), os.path.join('tests', 'tests_load', 't_6_2.txt'), 1)])
 
 # Cargar archivo que carga archivo inexistente
 file_path = os.path.join('tests', 'tests_load', 't_load_non_existent.txt')
