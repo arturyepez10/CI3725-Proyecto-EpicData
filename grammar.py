@@ -17,9 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import ply.yacc as yacc
-from tokenrules import tokens
-from VM import StokhosVM as SVM
+
 import AST
+from tokenrules import tokens
+from utils.custom_exceptions import ParseError
+from utils.err_strings import *
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (
@@ -44,6 +46,13 @@ def p_instruccion(p):
         | asignacion TkSemicolon
         | expresion'''
     p[0] = p[1]
+
+# ---- errores en instrucciones ----
+def p_instruccion_errores(p):
+    '''instruccion : definicion 
+        | asignacion'''
+    col = p.lexspan(1)[1] + 2
+    raise ParseError(error_missing_semicolon(col))
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -72,12 +81,56 @@ def p_asignacion_arr(p):
     'asignacion : identificador TkAssign TkOpenBracket listaElems TkCloseBracket'
     p[0] = AST.AssignArray(p[1], p[4])
 
+# ---- errores en asignaciones y definiciones ----
+def p_assign_def_err1(p):
+    '''definicion : tipo TkAssign expresion
+        | tipoArreglo TkAssign TkOpenBracket listaElems TkCloseBracket
+    asignacion : TkAssign expresion
+        | TkAssign TkOpenBracket listaElems TkCloseBracket'''
+    col = p.lexpos(2)
+    if isinstance(p[1], str) and p[1] == ':=':
+        col = p.lexpos(1) + 1
+
+    raise ParseError(error_id_expected(col))
+
+def p_assign_def_err2(p):
+    '''definicion : tipo identificador TkAssign
+    asignacion : identificador TkAssign'''
+    col = p.lexspan(2)[1] + 3
+    if len(p) == 4:
+        col = p.lexspan(3)[1] + 3
+    raise ParseError(error_expression_expected(col))
+
+def p_assign_def_err3(p):
+    'definicion : tipoArreglo identificador TkAssign listaElems'
+    col = p.lexpos(3) + 3
+    raise ParseError(error_array_constructor_expected(col))
+
+def p_arr_desbalanceado_err1(p):
+    '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
+    asignacion : identificador TkAssign TkOpenBracket listaElems'''
+    col = p.lexspan(4)[1] + 2
+    if len(p) == 6:
+        col = p.lexspan(5)[1] + 2
+
+    raise ParseError(error_unclosed_array_constructor(col))
+
+def p_arr_desbalanceado_err2(p):
+    '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
+    asignacion : identificador TkAssign listaElems TkCloseBracket'''
+    col = p.lexpos(2) + 3
+    if len(p) == 6:
+        col = p.lexpos(3) + 3
+
+    raise ParseError(error_unopened_array_constructor(col))
+
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
-    'acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket'
+    '''acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket
+        | funcion TkOpenBracket expresion TkCloseBracket'''
     p[0] = AST.ArrayAccess(p[1], p[3])
-    
+
 
 # <listaElems> -> (lambda)
 #     | <expresion>
@@ -94,6 +147,10 @@ def p_lista(p):
         p[3].append(p[1])
         p[0] = p[3]
 
+# ---- errores de arreglos ----
+def p_acceso_arreglo_err(p):
+    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
+    raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -106,6 +163,13 @@ def p_expresion(p):
     else:
         p[0] = AST.Quoted(p[2])
 
+# No se pueden reportar errores de aquí en adelante de la manera anterior
+
+def p_expresion_err1(p):
+    '''expresion : TkOpenPar error
+        | TkQuote error '''
+    raise ParseError(error_unbalance_parentheses())
+    
 # -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
 #     | <booleano>
@@ -131,7 +195,6 @@ def p_expresion_unarias(p):
         | TkNot expresion %prec UNARY'''
     p[0] = AST.UnOp(p[1], p[2])
 
-
 # -------- EXPRESIONES CON OPERACIONES BINARIAS --------
 # <expresion> -> <expresion> + <expresion>
 #     | <expresion> - <expresion>
@@ -151,9 +214,7 @@ def p_expresion_binarias(p):
         | expresion TkAnd expresion
         | expresion TkOr expresion
         '''    
-   
-    p[0] = AST.BinOp(p[2], p[1], p[3])        
-
+    p[0] = AST.BinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>
@@ -225,21 +286,15 @@ def p_lambda(p):
 # -------- ERROR --------
 
 def p_error(p):
-    
-    raise Exception(f'Syntaxis Error: {p}. Did you miss ";"?')
+    if p:
+        if p.type == 'IllegalCharacter':
+            raise ParseError(error_invalid_char(p.value, p.lexpos + 2))
 
-vm = SVM()
+        elif p.type == 'IllegalID':
+            raise ParseError(error_invalid_id(p.value, p.lexpos + 1))
 
-if __name__ == '__main__':
-    
-    # Build the parser
-    parser = yacc.yacc(debug=True)
 
-    while True:
-        try:
-            s = input('calc > ')
-        except EOFError:
-            break
-        if not s: continue
-        result = parser.parse(s, lexer=vm.lex, debug=True)
-        print(result)
+        raise ParseError(error_invalid_syntax_generic(p.value, p.lexpos + 1))
+
+    else:
+        raise ParseError(error_invalid_syntax_generic())

@@ -1,4 +1,4 @@
-"""Constantes de utilidad para el proyecto.
+"""Excepciones de utilidad para el proyecto.
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
 
@@ -16,10 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-VERSION = '0.1.2'
-
-# Lista de colores a utilizar para la impresion
-BOLD = '\033[1m'
-BLUE = '\033[94m'
-RESET = '\033[0m'
-RED = '\033[91m'
+class ParseError(Exception):
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)

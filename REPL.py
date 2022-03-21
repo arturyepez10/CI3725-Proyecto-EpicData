@@ -32,8 +32,14 @@ class StokhosCMD(Cmd):
     Aplica los métodos principales para la REPL de Stókhos. Utiliza los métodos
     base de Cmd, personalizados para ofrecer las funcionalidades especificadas.
     
-    Atributos:
+    Variables de clase:
         vm: Instancia de la máquina virtual que interpreta Stókhos.
+        context: direccion desde donde se ejecuta la REPL.
+        loaded: conjunto de nombres de archivos que se han cargado al sistema.
+        current_file: direccion del archivo actual que se esta cargando (si aplica).
+        line_no: numero de linea del archivo que se lee (si aplica).
+        exit: variable para salida del metodo para cargar archivos.
+        errors: Lista de errores manejada en la sesion.
     """
     # Mensajes de la REPL
     prompt = f'{RESET}< Stókhos > {BOLD}'
@@ -53,7 +59,7 @@ class StokhosCMD(Cmd):
         # cargados hasta el momento.
         self.context = os.getcwd()
         self.loaded = set()
-        self.current_file = ''
+        self.current_file = '<consola>'
         self.line_no = -1
 
         # True si hay una condición de error urgente
@@ -62,8 +68,8 @@ class StokhosCMD(Cmd):
         # Lista de tripletas de errores
         self.errors = []
     
-    # ----------- MÉTODOS DE LA VIRTUAL MACHINE -----------
-    def send_lexer(self, command: str):
+    # ----------- MÉTODOS QUE ENVIAN A LA VIRTUAL MACHINE -----------
+    def send_lextest(self, command: Union[str, dict]):
         """Envía un comando al analizador lexicográfico de Stókhos.
 
         El analizador procesa la entrada y construye un arreglo con los tokens
@@ -74,7 +80,16 @@ class StokhosCMD(Cmd):
         out = self.vm.lextest(command)
 
         for line in out:
-            self.handle_output(line)
+            if isinstance(line, dict):
+                if self.loaded and self.line_no != -1:
+                    line["line"] = self.line_no
+                    line["file"] = self.current_file
+
+                self.errors += [line]
+                self.handle_output(self.error_to_str(line))
+            else:
+                self.handle_output(line)
+
 
     def send_process(self, command: str):
         """Envia un comando al intérprete de Stókhos.
@@ -117,9 +132,9 @@ class StokhosCMD(Cmd):
                 self.line_no = 1
 
                 for line in fi.readlines():
-                    # Salta líneas vacías
+                    # Salta líneas vacías y que comiencen con # (comentarios)
                     _input = line.strip()
-                    if _input:
+                    if _input and not _input.startswith('#'):
                         self.default(_input)
                     
                     self.line_no += 1
@@ -146,27 +161,35 @@ class StokhosCMD(Cmd):
             return
 
     def send_ast(self, command: str):
-        self.handle_output('ERROR: ".ast" no implementado')
+        # Análisis lexicográfico de la entrada por la VM
+        out = self.vm.testparser(command)
+
+        self.handle_output(out)
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime
         los tokens de error almacenados hasta el momento de ejecucion en 
         la salida estándar.
         """
-        output = self.vm.getErrors()
 
-        self.handle_output('[')
-        for line in output:
-            self.handle_output(f'    {line}')
-        self.handle_output(']')
+        self.handle_output('[', RED)
+        for line in self.errors:
+            output = f'    ( {line["type"]}({line["token"].value})'
+
+            if line["file"] and line["line"] != -1:
+                output += f', archivo "{line["file"]}", linea {line["line"]}'
+            output += ' )'
+
+            self.handle_output(output, RED)
+        self.handle_output(']', RED)
 
     def send_reset(self):
         """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
         """
-        self.vm.resetErrors()
+        self.errors = []
         self.handle_output('Se vació la lista de errores')
 
-    # ---------- DOCUMENTACION DE COMANDOS ----------
+    # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):
         print(dedent('''
             Aplica el analizador lexicográfico de Stókhos a un comando en
@@ -215,7 +238,7 @@ class StokhosCMD(Cmd):
             Su ejecucion se realiza mediante:
             >>> .reset'''))
 
-    # -------------- MÉTODOS BÁSICOS --------------
+    # -------------- MÉTODOS SUPERCLASE CUSTOMIZADOS --------------
     def cmdloop(self, intro=None):
         """Ver clase base. Agrega manejo de interrupciones del teclado."""
         print(self.intro)
@@ -274,7 +297,7 @@ class StokhosCMD(Cmd):
         elif re.match(r'\.lex($| )', line):
             # Corta de la entrada '.lex' y envía el comando a la VM
             command = line.lstrip('.lex').strip()
-            return self.send_lexer(command)
+            return self.send_lextest(command)
 
         elif re.match(r'\.load($| )', line):
             # Corta '.load' y carga el archivo
@@ -287,19 +310,21 @@ class StokhosCMD(Cmd):
         elif re.match(r'\.ast($| )', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
             command = line.lstrip('.ast').strip()
-            self.handle_output(command)
+            self.send_ast(command)
 
         elif line == '.failed':
-            print(self.errors)
             self.send_failed()
 
         elif line == '.reset':
             self.send_reset()
 
+        elif line.startswith('.'):
+            self.handle_output('ERROR: Comando especial inexistente.')
+            
         else:
             return self.send_process(line.strip())
 
-    # -------- FUNCIONES HELPER --------
+    # -------- MISCELANEA --------
 
     def handle_output(self, line: str, color: str = BLUE) -> None:
         """Imprime con un color en especifico los resultados de la REPL al usuario.
@@ -309,8 +334,17 @@ class StokhosCMD(Cmd):
             Retorna:
                 Nada, dado que los resultados se imprimen al usuario.
         """
-        if line.startswith('ERROR'):   
-            self.errors.append((self.current_file, line[7:], self.line_no))
+        if line.startswith('ERROR:'):
             color = RED
 
         print(f'{RESET}{color}{line}{RESET}')
+
+
+    def error_to_str(self, error: dict) -> str:
+        """Convierte un token de error a una string"""
+        output = f'ERROR: {error["type"]}("{error["token"].value}")'
+
+        if (error["file"] and error["line"] != -1):
+            output = f'ERROR: {error["type"]} ("{error["token"].value}") en la linea {error["line"]} del archivo "{error["file"]}"'
+
+        return output

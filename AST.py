@@ -271,3 +271,10 @@ class ElemList(AST):
     def __debug_Init__(self, elements:object):
         self.elements = elements
         return self
+
+class Error(AST):
+    def __init__(self, cause: str):
+        self.cause = cause
+    
+    def __str__(self) -> str:
+        return f'''Error('{self.cause}')'''

@@ -1,0 +1,3 @@
+# TESTING DE EXPRESIONES BIEN FORMADAS
+
+.ast x := [x+1, x+2, g[h[x]] + f(g[h(x(y, z, w))], z), 2];
