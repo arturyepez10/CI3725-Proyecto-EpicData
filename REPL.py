@@ -133,9 +133,8 @@ class StokhosCMD(Cmd):
                 self.line_no = 1
 
                 for line in fi.readlines():
-                    # Salta líneas vacías y que comiencen con # (comentarios)
                     _input = line.strip()
-                    if _input and not _input.startswith('#'):
+                    if _input:
                         self.default(_input)
                     
                     if self.exit:
