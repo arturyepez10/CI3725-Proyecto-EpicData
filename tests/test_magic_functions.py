@@ -109,19 +109,19 @@ test_sol.append(sol1 + sol2 + sol1 + sol2 + sol1 + sol2)
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_1.txt")}'))
-test_sol.append([error_invalid_char("@")])
+test_sol.append([error_invalid_char("@", 1)])
 
 # Con expresion valida, seguida de error, seguida expresion valida
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_2.txt")}'))
-test_sol.append(sol3 + [error_invalid_id("2add")] +  sol4)
+test_sol.append(sol3 + [error_invalid_id("2add", 2)] +  sol4)
 
 # Cargar archivo que carga archivos con errores
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_3.txt")}'))
-test_sol.append(sol3 + [error_invalid_id("2add")] +  sol4)
+test_sol.append(sol3 + [error_invalid_id("2add", 2)] +  sol4)
 
 # -----------------------------------------------------------------
 
