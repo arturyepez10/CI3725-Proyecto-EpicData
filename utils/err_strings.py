@@ -15,6 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+def error_file_not_found(file_full_patch: str) -> str:
+    f'ERROR: No se encuentra el archivo {file_full_patch}'
+
+def error_is_a_directory() -> str:
+    return 'ERROR: Ha indicado un directorio'
 
 def error_circular_dependence(file_name:str) -> str:
     return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'

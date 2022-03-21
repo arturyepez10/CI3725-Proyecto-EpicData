@@ -14,7 +14,7 @@ def lex_error_invalid_id(Id:str) -> str:
 def error_with_line_and_file(error:str, line:int, file:str) -> str:
     return  f'{error} en la linea {line} del archivo "{file}"'
 
-from utils.err_strings import *
+
 
 repl = StokhosCMD()
 test_cases, test_sol = [], []
@@ -126,10 +126,9 @@ test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_
 
 # -----------------------------------------------------------------
 
-
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
-def test_load(test_case:str, test_sol:object, capsys):
+def test_magic_functions(test_case:str, test_sol:object, capsys):
 
     # Ejecutar el caso prueba y capturar la salida estandar
     test_case()
@@ -138,6 +137,107 @@ def test_load(test_case:str, test_sol:object, capsys):
     # Aplicar el formato de salida e imprimir la solucion esperada
     for line in test_sol:
         repl.handle_output(line)
+    captured2 = capsys.readouterr()
+
+    # Comprobar las salidas
+    assert captured1.out == captured2.out
+
+
+# Pruebas para .failed
+def simulate_failed(test_sol:list):
+    repl.handle_output('[', RED)
+    for line in test_sol:
+        output = f'    {line}'
+
+        repl.handle_output(output, RED)
+    repl.handle_output(']', RED)
+
+def simulate_error_failed_format(error:str, file:str=None, line:int=None):
+    if file and line:
+        return f'({file}), {line}, {error})'
+    else:
+        return f'(<consola>, -1, {error})'
+
+
+repl_failed_tests = StokhosCMD()
+test_cases, test_sol = [], []
+
+# Pruebas de errores de sintaxis deben complir con el formato en .failed
+# Error generico
+test_cases.append([r'.ast 2;'])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(';', 2))])
+
+# Caracter  invalido
+test_cases.append([r'.ast @'])
+test_sol.append([simulate_error_failed_format(error_invalid_char('@', 2))])
+
+# ID invalido
+test_cases.append([r'.ast .hola'])
+test_sol.append([simulate_error_failed_format(error_invalid_id('.hola', 1))])
+
+# ; faltante
+test_cases.append([r'.ast x := 2'])
+test_sol.append([simulate_error_failed_format(error_missing_semicolon(7))])
+
+# Se esperaba una expresion
+test_cases.append([r'.ast x := ;'])
+test_sol.append([simulate_error_failed_format(error_expression_expected(5))])
+
+# Se esperaba el identificador
+test_cases.append([r'.ast [num] := [1];'])
+test_sol.append([simulate_error_failed_format(error_id_expected(6))])
+
+# Se esperaba el constructor del arreglo
+test_cases.append([r'.ast [num] x := ;'])
+test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
+
+test_cases.append([r'.ast [num] x := 1,2,3;'])
+test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
+
+# Constructor de arreglo sin cerrar
+test_cases.append([r'.ast [num] x := [1,2,3 ;'])
+test_sol.append([simulate_error_failed_format(error_unclosed_array_constructor(18))])
+
+# Constructor de arreglo sin abrir
+test_cases.append([r'.ast [num] x := 1,2,3];'])
+test_sol.append([simulate_error_failed_format(error_unopened_array_constructor(11))])
+
+# Acceso invalido a expresion
+test_cases.append([r'.ast true[2]'])
+test_sol.append([simulate_error_failed_format(error_invalid_expression_access(5))])
+
+# Error de sintaxis generico
+test_cases.append([r'.ast (2+3'])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic())])
+
+test_cases.append([r'.ast 2+3)'])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(')', 4))])
+
+test_cases.append([r'.ast [2+3'])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic("2", 2))])
+
+test_cases.append([r'.ast 2+3]'])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(']', 4))])
+
+# Pruebas de lextest deben cumplit con el fomato en .failed
+
+cases = list(zip(test_cases, test_sol))
+@pytest.mark.parametrize("test_case,test_sol", cases)
+def test_failed(test_case:str, test_sol:object, capsys):
+    # Resetear la lista de errores
+    repl_failed_tests.default('.reset')
+
+    # Ejecutar el caso prueba y desechar la salida estandar
+    for command in test_case:
+        repl_failed_tests.default(command)
+    capsys.readouterr()
+
+    # Ejecutar el .failed y capturarlo
+    repl_failed_tests.default(r'.failed')
+    captured1 = capsys.readouterr()
+
+    # Simular la salida esperada del caso prueba y capturarla
+    simulate_failed(test_sol)
     captured2 = capsys.readouterr()
 
     # Comprobar las salidas
