@@ -1,4 +1,21 @@
-"""Modulo con funciones que retornan strings con formatos de errores"""
+"""Excepciones de utilidad para el proyecto.
+Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
+CI3725 - Traductores e Interpretadores
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 def error_circular_dependence(file_name:str) -> str:
     return  f'Detectadas dependencias circulares, el archivo {file_name} ya se encuentra cargado'
 
@@ -29,7 +46,7 @@ def error_unopened_array_constructor(column: int):
 def error_invalid_expression_access(column: int):
     return f'Acceso inválido a expresión (columna {column})'
 
-def error_invalid_syntax(offender:str =None , column: int =None):
+def error_invalid_syntax_generic(offender:str =None , column: int =None):
     if not offender and not column:
         return 'Sintaxis inválida al final de la línea'
     else:
