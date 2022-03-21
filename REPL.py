@@ -81,7 +81,7 @@ class StokhosCMD(Cmd):
 
         for line in out:
             if line.startswith('ERROR: '):
-                error = self.parseError(line)
+                error = self.parseLexError(line)
 
                 error_message = line.lstrip('ERROR: ')
                 self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
@@ -167,6 +167,9 @@ class StokhosCMD(Cmd):
         # Análisis lexicográfico de la entrada por la VM
         out = self.vm.testparser(command)
 
+        if out.startswith('ERROR: '):
+            error_message = out.lstrip('ERROR: ')
+            self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
         self.handle_output(out)
 
     def send_failed(self):
@@ -341,7 +344,7 @@ class StokhosCMD(Cmd):
         print(f'{RESET}{color}{line}{RESET}')
 
 
-    def parseError(self, error: str) -> str:
+    def parseLexError(self, error: str) -> str:
         """Convierte un token de error a una string"""
         output = error
 
