@@ -255,7 +255,7 @@ test_sol.append([simulate_error_failed_format(error_is_a_directory())])
 # Errores de syntax:
 file_path = os.path.join('tests', 'parser', 't_syntax_errors.stk')
 test_cases.append([f'.load {file_path}'])
-test_sol.append([
+test_syntax_sol = [
     simulate_error_failed_format(error_missing_semicolon(59), file_path, 6),
     simulate_error_failed_format(error_expression_expected(9), file_path, 12),
     simulate_error_failed_format(error_id_expected(7), file_path, 15),
@@ -268,15 +268,28 @@ test_sol.append([
     simulate_error_failed_format(error_invalid_expression_access(14), file_path, 41),
     simulate_error_failed_format(error_invalid_syntax_generic('!', 29), file_path, 44),
     simulate_error_failed_format(error_invalid_syntax_generic(')', 34), file_path, 47)    
-])
+]
+test_sol.append(test_syntax_sol)
+
+# Archivo que llama a archivo con errores de syntax
+file_path = os.path.join('tests', 'parser', 't_syntax_errors1.stk')
+test_cases.append([f'.load {file_path}'])
+test_sol.append(test_syntax_sol)
 
 # Errores de lex
 file_path = os.path.join('tests', 'tests_load', 't_error_4.txt')
 test_cases.append([f'.load {file_path}'])
-test_sol.append([
+test_lexer_sol = [
     simulate_error_failed_format(lex_error_invalid_char('@'), file_path, 1),
     simulate_error_failed_format(lex_error_invalid_id('a.23'), file_path, 2)
-    ])
+    ]
+test_sol.append(test_lexer_sol)
+
+# Archivo que llamar archivo con errores de lex
+file_path = os.path.join('tests', 'tests_load', 't_error_5.txt')
+test_cases.append([f'.load {file_path}'])
+test_sol.append(test_lexer_sol)
+
 
 # Errores del .load
 # Cargar archivo que lleva a dependencia circular
