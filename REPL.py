@@ -145,7 +145,7 @@ class StokhosCMD(Cmd):
                     # Deshace todo el contexto si se ha detectado un error
                     if self.exit:
                         self.context = os.getcwd()
-                        self.current_file = ''
+                        self.current_file = '<consola>'
 
                         return self.loaded.clear()
 
