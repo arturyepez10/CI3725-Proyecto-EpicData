@@ -177,7 +177,7 @@ class StokhosCMD(Cmd):
         """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
         """
         self.errors.clear()
-        self.handle_output('Lista de errores vaciada correctamente')
+        self.handle_output('OK: Lista de errores vaciada correctamente')
 
     # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):
