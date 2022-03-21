@@ -21,7 +21,6 @@ class AST:
     def __repr__(self) -> str:
         return self.__str__()
     
-
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
     def __init__(self, op: str, lhs_term: object, rhs_term: object):

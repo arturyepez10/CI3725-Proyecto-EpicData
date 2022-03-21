@@ -1,5 +1,4 @@
-"""REPL cliente de la VM del lenguaje Stókhos
-
+"""Funciones de ayuda para los demás módulos del proyecyo.
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
 
@@ -17,29 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from sys import argv
+import re
 
-from REPL import StokhosCMD
-
-repl = StokhosCMD()
-
-def main():
-    repl.cmdloop()
-
-if __name__ == '__main__':
-    enter = True
-
-    if len(argv) != 1:
-        for path in argv[1:]:
-            repl.send_load(path)
-
-        print('¿Quieres acceder al REPL de Stokhos? [y/n]: ')
-        while True:
-            answer = input().strip().lower()
-            if answer in ['yes', 'y']:
-                break
-            elif answer in ['no', 'n']:
-                enter = False
-                break
-    if enter:
-        main()
+def match_magic_command(name: str, line: str) -> bool:
+    '''Retorna un booleano indicando si la línea contiene un comando magico
+    
+    Argumentos:
+        name: Nombre del comando magico
+        line: Línea a analizar
+    '''
+    return bool(re.match(f'\.{name}($| )', line))

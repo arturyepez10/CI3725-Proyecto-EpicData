@@ -18,13 +18,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
-import re
 from cmd import Cmd
+from distutils.log import error
 from textwrap import dedent
 from typing import Union
 
-from VM import StokhosVM as SVM
 from utils.constants import *
+from utils.helpers import *
+from VM import StokhosVM as SVM
+
 
 class StokhosCMD(Cmd):
     """Intérprete de línea de comandos para la REPL cliente de Stókhos.
@@ -60,7 +62,7 @@ class StokhosCMD(Cmd):
         self.context = os.getcwd()
         self.loaded = set()
         self.current_file = '<consola>'
-        self.line_no = -1
+        self.line_no = 1
 
         # True si hay una condición de error urgente
         self.exit = False 
@@ -78,17 +80,7 @@ class StokhosCMD(Cmd):
 
         # Análisis lexicográfico de la entrada por la VM
         out = self.vm.lextest(command)
-
-        for line in out:
-            if line.startswith('ERROR: '):
-                error = self.parseLexError(line)
-
-                error_message = line.lstrip('ERROR: ')
-                self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
-                self.handle_output(error)
-            else:
-                self.handle_output(line)
-
+        self.handle_output(out)
 
     def send_process(self, command: str):
         """Envia un comando al intérprete de Stókhos.
@@ -101,10 +93,6 @@ class StokhosCMD(Cmd):
 
         # Entrada procesada de la VM
         out = self.vm.process(command)
-
-        if out.startswith('ERROR: '):
-            error_message = out.lstrip('ERROR: ')
-            self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
         self.handle_output(out)
 
     def send_load(self, path: str):
@@ -121,7 +109,6 @@ class StokhosCMD(Cmd):
             self.handle_output(f'ERROR: Detectadas dependencias circulares, '
                 f'el archivo {filename} ya se encuentra cargado')
 
-            self.errors += [f'({self.current_file}, {self.line_no}, Detectadas dependencias circulares)']
             return
 
         temp1 = self.context
@@ -158,41 +145,35 @@ class StokhosCMD(Cmd):
         except FileNotFoundError:
             self.exit = True
             self.handle_output(f'ERROR: No se encuentra el archivo {full_path}')
-            self.errors += [f'({self.current_file}, {self.line_no}, No se encuentra el archivo {full_path})']
             return
         except IsADirectoryError:
             self.exit = True
             self.handle_output(f'ERROR: Ha indicado un directorio')
-            self.errors += [f'({self.current_file}, {self.line_no}, Ha indicado un directorio)']
             return
 
     def send_ast(self, command: str):
         # Análisis lexicográfico de la entrada por la VM
         out = self.vm.testparser(command)
-
-        if out.startswith('ERROR: '):
-            error_message = out.lstrip('ERROR: ')
-            self.errors += [f'({self.current_file}, {self.line_no}, {error_message})']
         self.handle_output(out)
 
     def send_failed(self):
         """Le pide la lista de errores a la VM de Stókhos y luego imprime
         los tokens de error almacenados hasta el momento de ejecucion en 
         la salida estándar.
+
+        MODIFICAR ESTOS DOCS
         """
 
         self.handle_output('[', RED)
-        for line in self.errors:
-            output = f'    {line}'
-
-            self.handle_output(output, RED)
+        for error_tuple in self.errors:
+            self.handle_output(f'    {error_tuple}', RED)
         self.handle_output(']', RED)
 
     def send_reset(self):
         """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
         """
-        self.errors = []
-        self.handle_output('Se vació la lista de errores')
+        self.errors.clear()
+        self.handle_output('Lista de errores vaciada correctamente')
 
     # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):
@@ -299,39 +280,57 @@ class StokhosCMD(Cmd):
         if line == ".":
             return self.do_exit(line)
 
-        elif re.match(r'\.lex($| )', line):
+        elif line.startswith('#'):
+            # Soporte para comentarios
+            return self.emptyline()
+
+        elif match_magic_command('lex', line):
             # Corta de la entrada '.lex' y envía el comando a la VM
-            command = line.lstrip('.lex').strip()
+            command = line[4:].strip()
             return self.send_lextest(command)
 
-        elif re.match(r'\.load($| )', line):
+        elif match_magic_command('load', line):
             # Corta '.load' y carga el archivo
-            path = line.lstrip('.load').strip()
+            path = line[5:].strip()
             if path:
                 self.send_load(path)
             else:
                 self.handle_output('ERROR: No se ha indicado ninguna ruta')
-                self.errors += [f'({self.current_file}, {self.line_no}, No se ha indicado ninguna ruta)']
 
-        elif re.match(r'\.ast($| )', line):
+        elif match_magic_command('ast', line):
             # Corta de la entrada '.ast' e invoca al parse (entrega 2)
             command = line.lstrip('.ast').strip()
             self.send_ast(command)
 
-        elif line == '.failed':
+        elif match_magic_command('failed', line):
+            # Corta de la entrada '.failed' e imprime la lista de errores
+            rem = line[7:].strip()
+
+            # Si había en la línea algo más que .failed se usó mal el comando
+            if rem:
+                self.handle_output(f'ERROR: .failed no acepta argumentos')
+                return
+            
             self.send_failed()
 
-        elif line == '.reset':
+        elif match_magic_command('reset', line):
+            # Corta de la entrada '.reset' e imprime la lista de errores
+            rem = line[6:].strip()
+
+            # Si había en la línea algo más que .reset se usó mal el comando
+            if rem:
+                self.handle_output(f'ERROR: .reset no acepta argumentos')
+                return
+            
             self.send_reset()
 
         elif line.startswith('.'):
             self.handle_output('ERROR: Comando especial inexistente.')
-            self.errors += [f'({self.current_file}, {self.line_no}, Comando especial inexistente)']
             
         else:
             return self.send_process(line.strip())
 
-    # -------- MISCELANEA --------
+    # -------- MISCELÁNEA --------
 
     def handle_output(self, line: str, color: str = BLUE) -> None:
         """Imprime con un color en especifico los resultados de la REPL al usuario.
@@ -343,15 +342,7 @@ class StokhosCMD(Cmd):
         """
         if line.startswith('ERROR:'):
             color = RED
+            error_tuple = (self.current_file, self.line_no, line[7:])
+            self.errors.append(error_tuple)
 
         print(f'{RESET}{color}{line}{RESET}')
-
-
-    def parseLexError(self, error: str) -> str:
-        """Convierte un token de error a una string"""
-        output = error
-
-        if (self.line_no != -1):
-            output += f' en la linea {self.line_no} del archivo "{self.current_file}"'
-
-        return output

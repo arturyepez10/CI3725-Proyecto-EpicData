@@ -22,8 +22,8 @@ def error_circular_dependence(file_name:str) -> str:
 def error_invalid_char(char:str, column:int) -> str:
     return f'Caracter inválido ("{char}") (columna {column})'
 
-def error_invalid_id(Id:str, column:int) -> str:
-    return f'ID ilegal ("{Id}") (columna {column})'
+def error_invalid_id(_id:str, column:int) -> str:
+    return f'ID ilegal ("{_id}") (columna {column})'
 
 def error_missing_semicolon(column:int):
     return f'Punto y coma faltante al final (columna {column})'

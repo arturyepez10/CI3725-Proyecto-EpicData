@@ -19,13 +19,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import Union
 
+import AST
+import grammar
 import ply.lex as lex
 import ply.yacc as yacc
-
-import AST
 import tokenrules
-import grammar
 from utils.custom_exceptions import ParseError
+from utils.err_strings import error_invalid_char, error_invalid_id
+
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -78,7 +79,7 @@ class StokhosVM:
         
         return f'{prefix}: {suffix}'
 
-    def lextest(self, command: str) -> list[str]:
+    def lextest(self, command: str) -> str:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
 
         Retorna:
@@ -93,36 +94,25 @@ class StokhosVM:
             'OK: lex("  ") ==> []'
 
             >>> lextest("entrada mal@")
-            'ERROR: Caracter inválido (“@”) en la entrada'
+            'ERROR: Caracter inválido ("@") (columna 1)'
         """
 
-        # Analiza el comando con el lexer de la instancia
+        # Analiza el comando >con el lexer de la instancia
         self.lex.input(command)
 
         # Lista vacia que recolecta todos los tokens encontrados en el comando
         tokens = []
 
-        # Lista vacia que recolecta todos los tokens de error encontrados en el comando
-        error_tokens = []
         for token in self.lex:
             if token.type == 'IllegalCharacter':
-                # Crea una entrada de error por token de tipo caracter ilegal
-                error_tokens.append(f'ERROR: Caracter inválido ("{token.value}")')
+                return f'ERROR: {error_invalid_char(token.value, token.lexpos)}'
             elif token.type == 'IllegalID':
-                # Crea una entrada de error por token de tipo ID ilegal
-                error_tokens.append(f'ERROR: ID ilegal ("{token.value}")')
-            
+                return f'ERROR: {error_invalid_id(token.value, token.lexpos)}'
             else:
                 tokens.append(token)
 
         # Formatea la salida
-        output = []
-        if len(error_tokens):
-            output = error_tokens
-        else :
-            output = [f'OK: lex("{command}") ==> {tokens}']
-
-        return output
+        return f'OK: lex("{command}") ==> {tokens}'
 
     def parse(self, command: str) -> AST:
         try:
@@ -131,13 +121,9 @@ class StokhosVM:
             return AST.Error(e.message)
         
     def testparser(self, command: str) -> str:
-        try:
-            out = self.parse(command)
-            if isinstance(out, AST.Error):
-                return f'ERROR: {out.cause}'
-        except Exception as e:
-            print(e)
-            return 'TODO: Error sin handler'
+        out = self.parse(command)
+        if isinstance(out, AST.Error):
+            return f'ERROR: {out.cause}'
         
         return f'OK: ast("{command}") ==> {out}'
 
