@@ -154,7 +154,7 @@ def simulate_failed(test_sol:list):
 
 def simulate_error_failed_format(error:str, file:str=None, line:int=None):
     if file and line:
-        return f'({file}), {line}, {error})'
+        return f'({file}, {line}, {error})'
     else:
         return f'(<consola>, -1, {error})'
 
@@ -249,6 +249,34 @@ file_patch = os.path.join('tests')
 test_cases.append([f'.load {file_patch}'])
 test_sol.append([simulate_error_failed_format(error_is_a_directory())])
 
+
+# --------------------- Comprobar formato de .failed por errores cargados mediante .load --------
+
+# Errores de syntax:
+test_cases.append([f'.load tests/parser/t_syntax_errors.stk'])
+test_sol.append([
+    simulate_error_failed_format(error_missing_semicolon(59), 't_syntax_errors.stk', 6),
+    simulate_error_failed_format(error_expression_expected(9), 't_syntax_errors.stk', 12),
+    simulate_error_failed_format(error_id_expected(7), 't_syntax_errors.stk', 15),
+    simulate_error_failed_format(error_array_constructor_expected(11), 't_syntax_errors.stk', 18),
+    simulate_error_failed_format(error_unopened_array_constructor(19), 't_syntax_errors.stk', 21),
+    simulate_error_failed_format(error_expression_expected(5), 't_syntax_errors.stk', 26),
+    simulate_error_failed_format(error_id_expected(1), 't_syntax_errors.stk', 29),
+    simulate_error_failed_format(error_unclosed_array_constructor(25), 't_syntax_errors.stk', 32),
+    simulate_error_failed_format(error_invalid_id('.id', 1), 't_syntax_errors.stk', 36),    
+    simulate_error_failed_format(error_invalid_expression_access(14), 't_syntax_errors.stk', 41),
+    simulate_error_failed_format(error_invalid_syntax_generic('!', 29), 't_syntax_errors.stk', 44),
+    simulate_error_failed_format(error_invalid_syntax_generic(')', 34), 't_syntax_errors.stk', 47)    
+])
+
+# Errores de lex
+test_cases.append([f'.load tests/tests_load/t_error_4.txt'])
+test_sol.append([
+    simulate_error_failed_format(lex_error_invalid_char('@'), 't_error_4.txt', 1),
+    simulate_error_failed_format(lex_error_invalid_id('a.23'), 't_error_4.txt', 2)
+    ])
+
+# Errores del .load
 
 
 cases = list(zip(test_cases, test_sol))
