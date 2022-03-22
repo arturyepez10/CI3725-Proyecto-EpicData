@@ -345,6 +345,7 @@ class StokhosCMD(Cmd):
             error_tuple = (self.current_file, self.line_no, line[7:])
             self.errors.append(error_tuple)
 
+            # Si se está en un archivo se muestra info adicional del error en el REPL
             if self.current_file != '<consola>':
                 additional_info = f'en la línea {self.line_no} del archivo "{self.current_file}" '
                 colum_report = line.find('(columna ') 
