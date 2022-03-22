@@ -1,4 +1,4 @@
-"""Funciones de ayuda para los demás módulos del proyecyo.
+"""Funciones de ayuda para los demás módulos del proyecto.
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
 

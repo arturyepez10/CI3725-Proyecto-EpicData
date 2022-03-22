@@ -1,4 +1,4 @@
-"""Excepciones de utilidad para el proyecto.
+"""Módulo con funciones que generan strings de error para la salida estándar.
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
 
