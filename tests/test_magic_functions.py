@@ -20,89 +20,91 @@ def append_column(string:str, column:str) -> str:
 repl = StokhosCMD()
 test_cases, test_sol = [], []
 
+TEST_FOLDER = "load"
+
 # -------------------- .loads sencillos ------------
 # Archivo con instrucciones
 sol1 = ['OK: lex("x") ==> [TkId("x")]', 'OK: lex("true + 2") ==> [TkTrue, TkPlus, TkNumber(2)]', 'OK: lex("x ^ 2") ==> [TkId("x"), TkPower, TkNumber(2)]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_1.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_1.txt")}'))
 test_sol.append(sol1)
 
 # Archivo con instrucciones y lineas en blanco
 sol2 = ['OK: lex("false || true") ==> [TkFalse, TkOr, TkTrue]', 'OK: lex("32") ==> [TkNumber(32)]', 'OK: lex("algoAlejado") ==> [TkId("algoAlejado")]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_2.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_2.txt")}'))
 test_sol.append(sol2)
 
 # Llamar al primer archivo con otro
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_3.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_3.txt")}'))
 test_sol.append(sol1)
 
 # Llamar a los dos primeros archivos
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_4.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_4.txt")}'))
 test_sol.append(sol1 + sol2)
 
 # Archivo que llama al archivo que llama a los primeros dos archivos
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_5.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_5.txt")}'))
 test_sol.append(sol1 + sol2)
 # -----------------------------------------------------------------------
 
 # ------------------- Dependencia circular ---------------------------------
 # Cargarse a si mismo
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_self.txt")}'))
 test_sol.append([prefix_error( error_with_line_and_file( error_circular_dependency('t_self.txt'), 1, "t_self.txt"))])
 
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, file_name)}'))
 test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency(file_name), 1, "t_6_2.txt"))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, file_name)}'))
 test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency("t_6_1.txt"), 1, "t_6_2.txt"))])
 
 # Cargar desde un archivo repeticion de los primeros dos archivos
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_7.txt")}'))
 test_sol.append(sol1 + sol2 + sol1 + sol2 + sol1 + sol2)
 #-------------------------------------------------------------------
 
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_1.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_1.txt")}'))
 test_sol.append([append_column(prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, 't_error_1.txt')), 9)])
 
 # Con expresion valida, seguida de error, seguida expresion valida
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_2.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_2.txt")}'))
 test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, 't_error_2.txt')), 1)] +  sol4)
 
 # Cargar archivo que carga archivos con errores
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_3.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_3.txt")}'))
 test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # -----------------------------------------------------------------
 
 # Archivo que llama al archivo que llama a los primeros dos archivos
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_5.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_5.txt")}'))
 test_sol.append(sol1 + sol2)
 # -----------------------------------------------------------------------
 
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_1.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_1.txt")}'))
 test_sol.append([append_column(prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, "t_error_1.txt")), 9)])
 
 # Con expresion valida, seguida de error, seguida expresion valida
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_2.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_2.txt")}'))
 test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # Cargar archivo que carga archivos con errores
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_3.txt")}'))
+test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", TEST_FOLDER, "t_error_3.txt")}'))
 test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # -----------------------------------------------------------------
@@ -217,7 +219,7 @@ test_sol.append([simulate_error_failed_format(error_non_implemented_interpretati
 # --- Errores derivados por el .load -------
 
 # Dependencia circular
-file_patch = os.path.join('tests', 'tests_load', 't_self.txt')
+file_patch = os.path.join('tests', TEST_FOLDER, 't_self.txt')
 test_cases.append([f'.load {file_patch}'])
 test_sol.append([simulate_error_failed_format(error_circular_dependency("t_self.txt"), file_patch, 1)])
 
@@ -257,7 +259,7 @@ test_cases.append([f'.load {file_path}'])
 test_sol.append(test_syntax_sol)
 
 # Errores de lex
-file_path = os.path.join('tests', 'tests_load', 't_error_4.txt')
+file_path = os.path.join('tests', TEST_FOLDER, 't_error_4.txt')
 test_cases.append([f'.load {file_path}'])
 test_lexer_sol = [
     simulate_error_failed_format(error_invalid_char('@', 5), file_path, 1),
@@ -266,25 +268,25 @@ test_lexer_sol = [
 test_sol.append(test_lexer_sol)
 
 # Archivo que llamar archivo con errores de lex
-file_path = os.path.join('tests', 'tests_load', 't_error_5.txt')
+file_path = os.path.join('tests', TEST_FOLDER, 't_error_5.txt')
 test_cases.append([f'.load {file_path}'])
 test_sol.append(test_lexer_sol)
 
 
 # Errores del .load
 # Cargar archivo que lleva a dependencia circular
-file_path = os.path.join('tests', 'tests_load', 't_6_3.txt')
+file_path = os.path.join('tests', TEST_FOLDER, 't_6_3.txt')
 test_cases.append([f'.load {file_path}'])
-test_sol.append([simulate_error_failed_format(error_circular_dependency('t_6_1.txt'), os.path.join('tests', 'tests_load', 't_6_2.txt'), 1)])
+test_sol.append([simulate_error_failed_format(error_circular_dependency('t_6_1.txt'), os.path.join('tests', TEST_FOLDER, 't_6_2.txt'), 1)])
 
 # Cargar archivo que carga archivo inexistente
-file_path = os.path.join('tests', 'tests_load', 't_load_non_existent.txt')
-non_existent_file_path = os.path.join('tests', 'tests_load', 'NOEXISTO.txt')
+file_path = os.path.join('tests', TEST_FOLDER, 't_load_non_existent.txt')
+non_existent_file_path = os.path.join('tests', TEST_FOLDER, 'NOEXISTO.txt')
 test_cases.append([f'.load {file_path}'])
 test_sol.append([simulate_error_failed_format(error_file_not_found(os.path.abspath(non_existent_file_path)), file_path, 1)])
 
 # Cargar archivo que carga un directorio
-file_path = os.path.join('tests', 'tests_load', 't_load_directory.txt')
+file_path = os.path.join('tests', TEST_FOLDER, 't_load_directory.txt')
 test_cases.append([f'.load {file_path}'])
 test_sol.append([simulate_error_failed_format(error_is_a_directory(), file_path, 1)])
 
