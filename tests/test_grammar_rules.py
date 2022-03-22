@@ -1,15 +1,18 @@
 """Modulos de pruebas para las reglas en grammar.py. Se prueban las reglas de manera individual""" 
 
-import os, sys, pytest
+import os
+import sys
 
+import pytest
 
 sys.path.insert(1, os.path.abspath('.'))
 
 import ply.yacc as yacc
-from tokenrules import tokens
-from VM import StokhosVM as SVM
-import grammar
-import AST
+import stokhos.AST as AST
+import stokhos.grammar as grammar
+from stokhos.tokenrules import tokens
+from stokhos.VM import StokhosVM as SVM
+
 # Build the parser
 parser = yacc.yacc(debug=True, module=grammar)
 vm = SVM()

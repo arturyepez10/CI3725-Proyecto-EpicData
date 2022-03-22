@@ -16,11 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import AST
-import ply.yacc as yacc
-from tokenrules import tokens
-from utils.custom_exceptions import ParseError
-from utils.err_strings import *
+
+from . import AST
+from .tokenrules import tokens
+from .utils.custom_exceptions import ParseError
+from .utils.err_strings import *
 
 # -------- REGLAS DE PRECEDENCIA --------
 precedence = (

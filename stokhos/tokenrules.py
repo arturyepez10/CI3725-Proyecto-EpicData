@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
 
-from ply.lex import LexToken, lex
+from ply.lex import LexToken
 
 # Palabras reservadas del lenguaje
 reserved = {

@@ -1,11 +1,13 @@
-import os, sys
+import os
+import sys
 
 sys.path.insert(1, os.path.abspath('.'))
 
 import pytest
-from REPL import StokhosCMD
-from utils.constants import *
-from utils.err_strings import *
+from stokhos.REPL import StokhosCMD
+from stokhos.utils.constants import *
+from stokhos.utils.err_strings import *
+
 repl = StokhosCMD()
 test_cases, test_sol = [], []
 

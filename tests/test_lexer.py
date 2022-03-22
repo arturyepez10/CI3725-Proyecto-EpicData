@@ -6,7 +6,7 @@ import sys
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
-from VM import StokhosVM as SVM
+from stokhos.VM import StokhosVM as SVM
 
 vm = SVM()
 

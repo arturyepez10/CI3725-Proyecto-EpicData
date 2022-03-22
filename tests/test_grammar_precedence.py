@@ -1,16 +1,18 @@
 """Modulo de pruebas para la precedencia de los operadores de las reglas definidas en grammar.py"""
 
+import os
+import sys
 from ast import Num
-import os, sys, pytest
 
+import pytest
 
 sys.path.insert(1, os.path.abspath('.'))
 
 import ply.yacc as yacc
-from tokenrules import tokens
-from VM import StokhosVM as SVM
-import grammar
-from AST import *
+import stokhos.grammar as grammar
+from stokhos.AST import *
+from stokhos.tokenrules import tokens
+from stokhos.VM import StokhosVM as SVM
 
 # Inicializar el parser
 parser = yacc.yacc(debug=True, module=grammar)

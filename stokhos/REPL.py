@@ -22,10 +22,11 @@ from cmd import Cmd
 from textwrap import dedent
 from typing import Union
 
-from utils.constants import *
-from utils.err_strings import *
-from utils.helpers import *
-from VM import StokhosVM as SVM
+from .utils.constants import *
+from .utils.err_strings import *
+from .utils.helpers import *
+from .VM import StokhosVM as SVM
+
 
 class StokhosCMD(Cmd):
     """Intérprete de línea de comandos para la REPL cliente de Stókhos.

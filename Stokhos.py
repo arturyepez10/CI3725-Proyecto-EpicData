@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from sys import argv
 
-from REPL import StokhosCMD
+from stokhos.REPL import StokhosCMD
 
 repl = StokhosCMD()
 

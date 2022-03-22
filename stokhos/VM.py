@@ -17,14 +17,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import AST
-import grammar
 import ply.lex as lex
 import ply.yacc as yacc
-import tokenrules
-from utils.custom_exceptions import ParseError
-from utils.err_strings import error_invalid_char, error_invalid_id
-from utils.helpers import NullLogger
+
+import stokhos.grammar as grammar
+import stokhos.tokenrules as tokenrules
+
+from . import AST
+from .utils.custom_exceptions import ParseError
+from .utils.err_strings import error_invalid_char, error_invalid_id
+from .utils.helpers import NullLogger
+
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
