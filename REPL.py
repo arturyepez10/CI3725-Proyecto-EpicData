@@ -165,7 +165,9 @@ class StokhosCMD(Cmd):
 
         self.handle_output('[', RED)
         for err_tuple in self.errors:
-            _str = f'    ({err_tuple[0]}, {err_tuple[1]}, {err_tuple[2]})'
+            full_path = err_tuple[0]
+            rel_path = os.path.relpath(full_path, self.context)
+            _str = f'    ({rel_path}, {err_tuple[1]}, {err_tuple[2]})'
             self.handle_output(_str, RED)
         self.handle_output(']', RED)
 
@@ -340,9 +342,17 @@ class StokhosCMD(Cmd):
             Retorna:
                 Nada, dado que los resultados se imprimen al usuario.
         """
+
+        # Si es un error, se imprime de rojo y se guarda la tupla con información
         if line.startswith('ERROR:'):
             color = RED
-            error_tuple = (self.current_file, self.line_no, line[7:])
+
+            if self.current_file == '<consola>':
+                full_path = self.current_file
+            else:
+                full_path = os.path.join(self.context, self.current_file)
+
+            error_tuple = (full_path, self.line_no, line[7:])
             self.errors.append(error_tuple)
 
             # Si se está en un archivo se muestra info adicional del error en el REPL
