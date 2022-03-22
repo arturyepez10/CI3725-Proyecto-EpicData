@@ -16,9 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import os
 import re
-import sys
 
 def match_magic_command(name: str, line: str) -> bool:
     '''Retorna un booleano indicando si la línea contiene un comando magico
@@ -27,7 +25,7 @@ def match_magic_command(name: str, line: str) -> bool:
         name: Nombre del comando magico
         line: Línea a analizar
     '''
-    return bool(re.match(f'\.{name}($| )', line))
+    return bool(re.match(r'\.' + f'{name}($| )', line))
 
 class NullLogger():
     '''Logger sustituto para no mostrar las warnings de PLY'''
