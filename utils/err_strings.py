@@ -70,7 +70,7 @@ def error_nonexistent_special_command():
     return 'Comando especial inexistente'
 
 def error_non_implemented_interpretation():
-    return 'Interpretación no implementada'
+    return 'interpretación no implementada'
 
 def error_invalid_arguments(command: str):
     return f'{command} no acepta argumentos'

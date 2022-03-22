@@ -12,7 +12,10 @@ def lex_error_invalid_id(Id:str) -> str:
     return f'ID ilegal ("{Id}")'
 
 def error_with_line_and_file(error:str, line:int, file:str) -> str:
-    return  f'{error} en la línea {line} del archivo "{file}"'
+    return  f'{error} en la línea {line} del archivo "{file}" '
+
+def append_column(string:str, column:str) -> str:
+    return f'{string}(columna {column})'
 
 repl = StokhosCMD()
 test_cases, test_sol = [], []
@@ -44,12 +47,12 @@ test_sol.append(sol1 + sol2)
 # ------------------- Dependencia circular ---------------------------------
 # Cargarse a si mismo
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
-test_sol.append([prefix_error(error_circular_dependency('t_self.txt'))])
+test_sol.append([prefix_error( error_with_line_and_file( error_circular_dependency('t_self.txt'), 1, "t_self.txt"))])
 
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency(file_name), 1, "t_6_1.txt"))])
+test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency(file_name), 1, "t_6_2.txt"))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
@@ -64,19 +67,19 @@ test_sol.append(sol1 + sol2 + sol1 + sol2 + sol1 + sol2)
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_1.txt")}'))
-test_sol.append([prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, 't_error_1.txt'))])
+test_sol.append([append_column(prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, 't_error_1.txt')), 9)])
 
 # Con expresion valida, seguida de error, seguida expresion valida
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_2.txt")}'))
-test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, 't_error_2.txt'))] +  sol4)
+test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, 't_error_2.txt')), 1)] +  sol4)
 
 # Cargar archivo que carga archivos con errores
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_3.txt")}'))
-test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt"))] +  sol4)
+test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # -----------------------------------------------------------------
 
@@ -88,19 +91,19 @@ test_sol.append(sol1 + sol2)
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_1.txt")}'))
-test_sol.append([prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, "t_error_1.txt"))])
+test_sol.append([append_column(prefix_error(error_with_line_and_file(lex_error_invalid_char("@"), 1, "t_error_1.txt")), 9)])
 
 # Con expresion valida, seguida de error, seguida expresion valida
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_2.txt")}'))
-test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt"))] +  sol4)
+test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # Cargar archivo que carga archivos con errores
 sol3 = ['OK: lex("3 * 2") ==> [TkNumber(3), TkMult, TkNumber(2)]']
 sol4 = ['OK: lex("y && true") ==> [TkId("y"), TkAnd, TkTrue]']
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_error_3.txt")}'))
-test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt"))] +  sol4)
+test_sol.append(sol3 + [append_column(prefix_error(error_with_line_and_file(lex_error_invalid_id("2add"), 2, "t_error_2.txt")), 1)] +  sol4)
 
 # -----------------------------------------------------------------
 
@@ -199,10 +202,10 @@ test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(']', 
 # ------ Errores de lextest deben cumplir con el fomato en .failed ------
 
 test_cases.append([r'.lex @'])
-test_sol.append([simulate_error_failed_format(lex_error_invalid_char('@'))])
+test_sol.append([simulate_error_failed_format(error_invalid_char('@', 1))])
 
 test_cases.append([r'.lex 1Ramon'])
-test_sol.append([simulate_error_failed_format(lex_error_invalid_id('1Ramon'))])
+test_sol.append([simulate_error_failed_format(error_invalid_id('1Ramon', 1))])
 
 # ------- Errores de comandos en el formato .failed -----
 test_cases.append([r'.Cabaiero'])
@@ -216,7 +219,7 @@ test_sol.append([simulate_error_failed_format(error_non_implemented_interpretati
 # Dependencia circular
 file_patch = os.path.join('tests', 'tests_load', 't_self.txt')
 test_cases.append([f'.load {file_patch}'])
-test_sol.append([simulate_error_failed_format(error_circular_dependency(), file_patch, 1)])
+test_sol.append([simulate_error_failed_format(error_circular_dependency("t_self.txt"), file_patch, 1)])
 
 # Archivo inexistente
 test_cases.append([f'.load 2'])
@@ -257,8 +260,8 @@ test_sol.append(test_syntax_sol)
 file_path = os.path.join('tests', 'tests_load', 't_error_4.txt')
 test_cases.append([f'.load {file_path}'])
 test_lexer_sol = [
-    simulate_error_failed_format(lex_error_invalid_char('@'), file_path, 1),
-    simulate_error_failed_format(lex_error_invalid_id('a.23'), file_path, 2)
+    simulate_error_failed_format(error_invalid_char('@', 5), file_path, 1),
+    simulate_error_failed_format(error_invalid_id('a.23', 1), file_path, 2)
     ]
 test_sol.append(test_lexer_sol)
 
@@ -272,7 +275,7 @@ test_sol.append(test_lexer_sol)
 # Cargar archivo que lleva a dependencia circular
 file_path = os.path.join('tests', 'tests_load', 't_6_3.txt')
 test_cases.append([f'.load {file_path}'])
-test_sol.append([simulate_error_failed_format(error_circular_dependency(), os.path.join('tests', 'tests_load', 't_6_2.txt'), 1)])
+test_sol.append([simulate_error_failed_format(error_circular_dependency('t_6_1.txt'), os.path.join('tests', 'tests_load', 't_6_2.txt'), 1)])
 
 # Cargar archivo que carga archivo inexistente
 file_path = os.path.join('tests', 'tests_load', 't_load_non_existent.txt')
