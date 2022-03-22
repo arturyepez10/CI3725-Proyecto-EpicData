@@ -277,6 +277,10 @@ def p_tipo(p):
         | TkBool'''
     p[0] = AST.Type(p[1])
 
+# def p_easter_egg(p):
+#     'tokensfaltantes : TkOpenBrace TkSemicolon TkColon TkCloseBrace'
+#     # Imposible llegar a esta producción, está para esconder los warnings
+
 # -------- PALABRA VACÍA --------
 def p_lambda(p):
     'lambda :'
