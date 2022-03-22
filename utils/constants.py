@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
-# Lista de colores a utilizar para la impresion
+# Lista de colores a utilizar para la impresión
 BOLD = '\033[1m'
 BLUE = '\033[94m'
 RESET = '\033[0m'
