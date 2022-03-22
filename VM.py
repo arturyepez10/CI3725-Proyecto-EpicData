@@ -114,12 +114,40 @@ class StokhosVM:
         return f'OK: lex("{command}") ==> {tokens}'
 
     def parse(self, command: str) -> AST:
+        """Llama al parser de Stókhos y construye el Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el Árbol de Sintaxis Abstracta resultado
+            del análisis sintáctico del comando.
+        """
         try:
             return self.parser.parse(command, lexer=self.lex, tracking=True)
         except ParseError as e:
             return AST.Error(e.message)
 
     def testparser(self, command: str) -> str:
+        """Llama a parse(command) y convierte el Árbol de Sintaxis Abstracta
+        que retorna en una cadena de caracteres para imprimirla de manera
+        adecuada en la salida estándar.
+
+        Retorna:
+            Una cadena de caracteres con el resultado del análisis
+            sintáctico del comando. Por ejemplo:
+
+            >>> parse("num nota := 100;")
+            'OK: ast("num nota := 100;") ==> SymDef(Type(num), Id(nota),
+            Number(100))'
+
+            >>> parse("x := x+1;")
+            'OK: ast("x := x+1;") ==> Assign(Id(x), (Id(x) + Number(1)))'
+
+            >>> parse("6+7 * true || p")
+            'OK: ast("6+7 * true || p") ==> ((Number(6) + (Number(7) * 
+            Boolean(true))) || Id(p))'
+
+            >>> parse("num x:=1")
+            'ERROR: Punto y coma faltante al final (columna 9)'
+        """
         out = self.parse(command)
         if isinstance(out, AST.Error):
             return f'ERROR: {out.cause}'
