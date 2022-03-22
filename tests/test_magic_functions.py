@@ -12,7 +12,7 @@ def lex_error_invalid_id(Id:str) -> str:
     return f'ID ilegal ("{Id}")'
 
 def error_with_line_and_file(error:str, line:int, file:str) -> str:
-    return  f'{error} en la linea {line} del archivo "{file}"'
+    return  f'{error} en la línea {line} del archivo "{file}"'
 
 repl = StokhosCMD()
 test_cases, test_sol = [], []
@@ -49,12 +49,12 @@ test_sol.append([prefix_error(error_circular_dependency('t_self.txt'))])
 # Archivo que carga una dependecia circular
 file_name = "t_6_1.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependency(file_name))])
+test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency(file_name), 1, "t_6_1.txt"))])
 
 # Archivo que carga otra dependecia circular
 file_name = "t_6_3.txt"
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependency("t_6_1.txt"))])
+test_sol.append([prefix_error(error_with_line_and_file(error_circular_dependency("t_6_1.txt"), 1, "t_6_2.txt"))])
 
 # Cargar desde un archivo repeticion de los primeros dos archivos
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
@@ -84,26 +84,6 @@ test_sol.append(sol3 + [prefix_error(error_with_line_and_file(lex_error_invalid_
 test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_5.txt")}'))
 test_sol.append(sol1 + sol2)
 # -----------------------------------------------------------------------
-
-# ------------------- Dependencia circular ---------------------------------
-# Cargarse a si mismo
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_self.txt")}'))
-test_sol.append([prefix_error(error_circular_dependency('t_self.txt'))])
-
-# Archivo que carga una dependecia circular
-file_name = "t_6_1.txt"
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependency(file_name))])
-
-# Archivo que carga otra dependecia circular
-file_name = "t_6_3.txt"
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", file_name)}'))
-test_sol.append([prefix_error(error_circular_dependency("t_6_1.txt"))])
-
-# Cargar desde un archivo repeticion de los primeros dos archivos
-test_cases.append(lambda :repl.default(f'.load {os.path.join("tests", "tests_load", "t_7.txt")}'))
-test_sol.append(sol1 + sol2 + sol1 + sol2 + sol1 + sol2)
-#-------------------------------------------------------------------
 
 # --------------- Archivos que contienen errores ------------------
 # Archivo con un error de caracter invalido
