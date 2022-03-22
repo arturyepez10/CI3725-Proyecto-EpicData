@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Union
-
 import AST
 import grammar
 import ply.lex as lex
@@ -26,7 +24,7 @@ import ply.yacc as yacc
 import tokenrules
 from utils.custom_exceptions import ParseError
 from utils.err_strings import error_invalid_char, error_invalid_id
-
+from utils.helpers import NullLogger
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -40,10 +38,11 @@ class StokhosVM:
     """
 
     def __init__(self):
+        # No se imprime ningún mensaje que pueda generar ply
         self.lex = lex.lex(module=tokenrules)
-        self.parser = yacc.yacc(module=grammar)
+        self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
 
-    def process(self, command: str, line = -1) -> str:
+    def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
 
         Transforma el comando en un arbol abstracto, evalúa expresiones y las
