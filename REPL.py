@@ -33,14 +33,15 @@ class StokhosCMD(Cmd):
     Aplica los métodos principales para la REPL de Stókhos. Utiliza los métodos
     base de Cmd, personalizados para ofrecer las funcionalidades especificadas.
     
-    Variables de clase:
+    Atributos:
         vm: Instancia de la máquina virtual que interpreta Stókhos.
-        context: direccion desde donde se ejecuta la REPL.
-        loaded: conjunto de nombres de archivos que se han cargado al sistema.
-        current_file: direccion del archivo actual que se esta cargando (si aplica).
-        line_no: numero de linea del archivo que se lee (si aplica).
-        exit: variable para salida del metodo para cargar archivos.
-        errors: Lista de errores manejada en la sesion.
+        context: Dirección desde donde se ejecuta la REPL.
+        loaded: Conjunto de nombres de archivos que se han cargado al sistema.
+        current_file: Dirección del archivo actual que está cargando
+            (<consola> si no hay ninguno).
+        line_no: Número de línea del archivo que se lee (-1 si es la consola).
+        exit: Flag para salida de emergencia de la carga de archivos.
+        errors: Lista de errores manejada en la sesión.
     """
     # Mensajes de la REPL
     prompt = f'{RESET}< Stókhos > {BOLD}'
@@ -95,8 +96,8 @@ class StokhosCMD(Cmd):
         self.handle_output(out)
 
     def send_load(self, path: str):
-        """Carga un archivo lleno de instrucciones para la VM, y los envia
-        al reconocedor de instrucciones deL REPL.
+        """Carga un archivo lleno de instrucciones para la VM, y los envía
+        al reconocedor de instrucciones del REPL.
         """
         full_path = os.path.join(self.context, path)
         _dir = os.path.dirname(full_path)
@@ -156,11 +157,17 @@ class StokhosCMD(Cmd):
         self.handle_output(out)
 
     def send_failed(self):
-        """Le pide la lista de errores a la VM de Stókhos y luego imprime
-        los tokens de error almacenados hasta el momento de ejecucion en 
-        la salida estándar.
+        """Imprime por salida estándar una lista de errores almacenados hasta
+        el momento, en orden cronológico, con el siguiente formato:
 
-        MODIFICAR ESTOS DOCS
+        [
+            (<ruta_a_archivo>, <línea_de_error>, <descripción_del_error>),
+            (<ruta_a_archivo>, <línea_de_error>, <descripción_del_error>),
+                    .                 .                     .
+                    .                 .                     .
+                    .                 .                     .
+            (<ruta_a_archivo>, <línea_de_error>, <descripción_del_error>),
+        ]
         """
 
         self.handle_output('[', RED)
@@ -172,8 +179,7 @@ class StokhosCMD(Cmd):
         self.handle_output(']', RED)
 
     def send_reset(self):
-        """Llama a la VM de Stókhos y le pide vaciar su lista de errores.
-        """
+        """Vacía la lista de errores de la sesión."""
         self.errors.clear()
         self.handle_output('OK: Lista de errores vaciada correctamente')
 
@@ -335,12 +341,16 @@ class StokhosCMD(Cmd):
     # -------- MISCELÁNEA --------
 
     def handle_output(self, line: str, color: str = BLUE):
-        """Imprime con un color en especifico los resultados de la REPL al usuario.
+        """Imprime con un color en específico los resultados de la REPL al
+        usuario.
 
-            Segun el enunciado, la salida standard de las respuestas de Stókhos debe ser en color azul.
-            
-            Retorna:
-                Nada, dado que los resultados se imprimen al usuario.
+        Si el mensaje es de error, se encarga de extraer la información
+        necesaria y guardarla en la una tripleta para añadirla a la lista
+        de errores.
+
+        También se encarga de añadir información adicional a la string antes
+        de imprimirla en caso de que el error se haya producido dentro de un
+        archivo cargado.
         """
 
         # Si es un error, se imprime de rojo y se guarda la tupla con información
@@ -370,7 +380,7 @@ class StokhosCMD(Cmd):
         print(f'{RESET}{color}{line}{RESET}')
 
     def panic_exit_all_context(self):
-        # Se deshace al contexto inicial del REPL
+        '''Deshace el contexto del REPL y lo devuelve a su estado inicial.'''
         self.context = os.getcwd()
         self.current_file = '<consola>'
         self.line_no = -1
