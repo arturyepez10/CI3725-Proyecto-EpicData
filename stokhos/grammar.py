@@ -71,48 +71,24 @@ def p_asignacion_elemento_arr(p):
     p[0] = AST.AssignArrayElement(p[1], p[3])
 
 # ---- errores en asignaciones y definiciones ----
-#def p_assign_def_err1(p):
-#    '''definicion : tipo TkAssign expresion
-#        | tipoArreglo TkAssign TkOpenBracket listaElems TkCloseBracket
-#    asignacion : TkAssign expresion
-#        | TkAssign TkOpenBracket listaElems TkCloseBracket'''
-#    col = p.lexpos(2)
-#    if isinstance(p[1], str) and p[1] == ':=':
-#        col = p.lexpos(1) + 1
-#
-#    raise ParseError(error_id_expected(col))
-#
-#def p_assign_def_err2(p):
-#    '''definicion : tipo identificador TkAssign
-#    asignacion : identificador TkAssign'''
-#    col = p.lexspan(2)[1] + 3
-#    if len(p) == 4:
-#        col = p.lexspan(3)[1] + 3
-#    raise ParseError(error_expression_expected(col))
-#
-#def p_assign_def_err3(p):
-#    'definicion : tipoArreglo identificador TkAssign listaElems'
-#    col = p.lexpos(3) + 3
-#    raise ParseError(error_array_constructor_expected(col))
-#
-#def p_arr_desbalanceado_err1(p):
-#    '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
-#    asignacion : identificador TkAssign TkOpenBracket listaElems'''
-#    col = p.lexspan(4)[1] + 2
-#    if len(p) == 6:
-#        col = p.lexspan(5)[1] + 2
-#
-#    raise ParseError(error_unclosed_array_constructor(col))
-#
-#def p_arr_desbalanceado_err2(p):
-#    '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
-#    asignacion : identificador TkAssign listaElems TkCloseBracket'''
-#    col = p.lexpos(2) + 3
-#    if len(p) == 6:
-#        col = p.lexpos(3) + 3
-#
-#    raise ParseError(error_unopened_array_constructor(col))
-#
+
+def p_assign_def_err1(p):
+   '''definicion : tipo TkAssign expresion
+   asignacion : TkAssign expresion'''
+   col = p.lexpos(2)
+   if isinstance(p[1], str) and p[1] == ':=':
+       col = p.lexpos(1) + 1
+
+   raise ParseError(error_id_expected(col))
+
+def p_assign_def_err2(p):
+   '''definicion : tipo identificador TkAssign
+   asignacion : identificador TkAssign'''
+   col = p.lexspan(2)[1] + 3
+   if len(p) == 4:
+       col = p.lexspan(3)[1] + 3
+   raise ParseError(error_expression_expected(col))
+
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
@@ -226,6 +202,16 @@ def p_identificador_tkId(p):
 def p_arreglo(p):
     'arreglo : TkOpenBracket listaElems  TkCloseBracket'
     p[0] = AST.Array(p[2])
+
+# ---- errores en arreglos ----
+def p_arr_desbalanceado_err1(p):
+    'arreglo : TkOpenBracket listaElems'
+    print(p.lexspan(0))
+    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1] + 4))
+
+def p_arr_desbalanceado_err2(p):
+    'arreglo : listaElems TkCloseBracket'
+    raise ParseError(error_unopened_array_constructor(p.lexpos(1) + 1))
 
 # -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>
