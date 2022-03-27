@@ -93,7 +93,8 @@ def p_assign_def_err2(p):
 # <acceso_arreglo> -> <identificador>[<expresión>]
 def p_acceso_arreglo(p):
     '''acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket
-        | funcion TkOpenBracket expresion TkCloseBracket'''
+        | funcion TkOpenBracket expresion TkCloseBracket
+        | arreglo TkOpenBracket expresion TkCloseBracket'''
     p[0] = AST.ArrayAccess(p[1], p[3])
 
 
