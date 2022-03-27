@@ -104,7 +104,7 @@ class TypeArray(AST):
         self.type = type        
 
     def __str__(self) -> str:
-        return f'Array({self.type})]'
+        return f'Array({self.type})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -177,24 +177,7 @@ class AssignArrayElement(AST):
                 and self.index == other.index
                 and self.value == other.value)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
-
-class AssignArray(AST):
-    def __init__(self, _id: object, elements: object):
-        self.id = _id
-        self.elements = elements
-
-    def __str__(self) -> str:
-        return f'AssignArray({self.id}, {self.elements})'
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, type(self)):
-            return (self.id == other.id
-                and self.elements == other.elements)
-        else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}'
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
