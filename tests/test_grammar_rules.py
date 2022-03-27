@@ -68,10 +68,10 @@ test_cases.extend(
     ])
 # Definiciones
 test_sol.extend([
-    AST.SymDef(AST.Type('num'), AST.Id('x'), AST.Number(3)), 
-    AST.SymDef(AST.Type('bool'), AST.Id('x'), AST.Boolean('true')),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.Type('num'))), AST.Id('r'), AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)])),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.Type('bool'))), AST.Id('F'), AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')]))
+    AST.SymDef(AST.Type(AST.PrimitiveType('num')), AST.Id('x'), AST.Number(3)), 
+    AST.SymDef(AST.Type(AST.PrimitiveType('bool')), AST.Id('x'), AST.Boolean('true')),
+    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('num'))), AST.Id('r'), AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)])),
+    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')]))
     ])
 
 # Asignaciones 
