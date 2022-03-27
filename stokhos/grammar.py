@@ -117,6 +117,14 @@ def p_acceso_arreglo_err(p):
     'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
     raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
 
+def p_arr_desbalanceado_err1(p):
+    'arreglo : TkOpenBracket listaElems'
+    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1] + 4))
+
+def p_arr_desbalanceado_err2(p):
+    'arreglo : listaElems TkCloseBracket'
+    raise ParseError(error_unopened_array_constructor(p.lexpos(1) + 1))
+
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
 #     | '<expresion>'
@@ -206,8 +214,7 @@ def p_arreglo(p):
 # ---- errores en arreglos ----
 def p_arr_desbalanceado_err1(p):
     'arreglo : TkOpenBracket listaElems'
-    print(p.lexspan(0))
-    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1] + 4))
+    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1]))
 
 def p_arr_desbalanceado_err2(p):
     'arreglo : listaElems TkCloseBracket'
