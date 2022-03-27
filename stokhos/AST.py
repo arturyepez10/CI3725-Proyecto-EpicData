@@ -136,7 +136,7 @@ class Assign(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 
-class AssignArrayElement:
+class AssignArrayElement(AST):
     def __init__(self, arrayAccess: object, value: object):
         self.id = arrayAccess.id
         self.index = arrayAccess.index
@@ -154,7 +154,7 @@ class AssignArrayElement:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 
-class AssignArray:
+class AssignArray(AST):
     def __init__(self, _id: object, elements: object):
         self.id = _id
         self.elements = elements
