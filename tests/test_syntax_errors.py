@@ -36,11 +36,11 @@ test_cases.append(lambda: repl.default(r'.ast [num] := [1];'))
 test_sol.append([prefix_error(error_id_expected(6))])
 
 # Se esperaba el constructor del arreglo
-test_cases.append(lambda: repl.default(r'.ast [num] x := ;'))
-test_sol.append([prefix_error(error_array_constructor_expected(11))])
+#test_cases.append(lambda: repl.default(r'.ast [num] x := ;'))
+#test_sol.append([prefix_error(error_array_constructor_expected(11))])
 
-test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3;'))
-test_sol.append([prefix_error(error_array_constructor_expected(11))])
+#test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3;'))
+#test_sol.append([prefix_error(error_array_constructor_expected(11))])
 
 # Constructor de arreglo sin cerrar
 test_cases.append(lambda: repl.default(r'.ast [num] x := [1,2,3 ;'))

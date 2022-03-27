@@ -70,8 +70,8 @@ test_cases.extend(
 test_sol.extend([
     AST.SymDef(AST.Type(AST.PrimitiveType('num')), AST.Id('x'), AST.Number(3)), 
     AST.SymDef(AST.Type(AST.PrimitiveType('bool')), AST.Id('x'), AST.Boolean('true')),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('num'))), AST.Id('r'), AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)])),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')]))
+    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('num'))), AST.Id('r'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)]))),
+    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')])))
     ])
 
 # Asignaciones 
@@ -86,7 +86,7 @@ test_sol.extend([
     AST.Assign(AST.Id('x'), AST.Number(2)),
     AST.Assign(AST.Id('y'), AST.Boolean('false')),
     AST.Assign(AST.Id('z'), AST.Id('esto_cansa')),
-    AST.AssignArray(AST.Id('arr'), AST.ElemList(None).__debug_Init__([AST.Number(3), AST.Number(1), AST.Number(2)])),
+    AST.Assign(AST.Id('arr'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(3), AST.Number(1), AST.Number(2)]))),
     AST.AssignArrayElement(AST.ArrayAccess(AST.Id('arreglo'), AST.Number(2)), AST.Number(5))
     ])
 

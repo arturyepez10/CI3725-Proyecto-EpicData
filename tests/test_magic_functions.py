@@ -171,11 +171,11 @@ test_cases.append([r'.ast [num] := [1];'])
 test_sol.append([simulate_error_failed_format(error_id_expected(6))])
 
 # Se esperaba el constructor del arreglo
-test_cases.append([r'.ast [num] x := ;'])
-test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
+#test_cases.append([r'.ast [num] x := ;'])
+#test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
 
-test_cases.append([r'.ast [num] x := 1,2,3;'])
-test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
+#test_cases.append([r'.ast [num] x := 1,2,3;'])
+#test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
 
 # Constructor de arreglo sin cerrar
 test_cases.append([r'.ast [num] x := [1,2,3 ;'])
@@ -242,7 +242,7 @@ test_syntax_sol = [
     simulate_error_failed_format(error_missing_semicolon(59), file_path, 6),
     simulate_error_failed_format(error_expression_expected(9), file_path, 12),
     simulate_error_failed_format(error_id_expected(7), file_path, 15),
-    simulate_error_failed_format(error_array_constructor_expected(11), file_path, 18),
+#    simulate_error_failed_format(error_array_constructor_expected(11), file_path, 18),
     simulate_error_failed_format(error_unopened_array_constructor(19), file_path, 21),
     simulate_error_failed_format(error_expression_expected(5), file_path, 26),
     simulate_error_failed_format(error_id_expected(1), file_path, 29),

@@ -219,8 +219,8 @@ class Array(AST):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return (self.id == other.id
-                and self.index == other.index)
+            return self.elements == other.elements
+            
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
