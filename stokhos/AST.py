@@ -98,6 +98,32 @@ class Type(AST):
             return self.id == other.id
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+class TypeArray(AST):
+    def __init__(self, type: object):
+        self.type = type        
+
+    def __str__(self) -> str:
+        return f'Array({self.type})]'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.type == other.type
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+class PrimitiveType(AST):
+    def __init__(self, type: object):
+        self.type = type        
+
+    def __str__(self) -> str:
+        return f'{self.type}'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.type == other.type
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
     
 
 # -------- DEFINICIONES --------
@@ -136,7 +162,7 @@ class Assign(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 
-class AssignArrayElement:
+class AssignArrayElement(AST):
     def __init__(self, arrayAccess: object, value: object):
         self.id = arrayAccess.id
         self.index = arrayAccess.index
@@ -154,7 +180,7 @@ class AssignArrayElement:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 
-class AssignArray:
+class AssignArray(AST):
     def __init__(self, _id: object, elements: object):
         self.id = _id
         self.elements = elements
@@ -201,16 +227,17 @@ class Quoted(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 # -------- ARREGLOS --------
-class TypeArray(AST):
-    def __init__(self, type: object):
-        self.type = type        
+class Array(AST):
+    def __init__(self, elements: object) -> None:
+        self.elements = elements
 
     def __str__(self) -> str:
-        return f'[{self.type}]'
+        return f'Array({self.elements})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return self.type == other.type
+            return (self.id == other.id
+                and self.index == other.index)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
