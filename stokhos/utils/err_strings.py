@@ -45,9 +45,6 @@ def error_expression_expected(column: int):
 def error_id_expected(column: int):
     return f'Se esperaba un identificador (columna {column})'
 
-def error_array_constructor_expected(column: int):
-    return f'Constructor de arreglo faltante del lado derecho de la asignación (columna {column})'
-
 def error_unclosed_array_constructor(column: int):
     return f'Constructor de arreglo sin cerrar (corchetes desbalanceados) (columna {column})'
 
