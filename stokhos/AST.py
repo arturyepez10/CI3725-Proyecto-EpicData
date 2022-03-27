@@ -177,7 +177,7 @@ class AssignArrayElement(AST):
                 and self.index == other.index
                 and self.value == other.value)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}'
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
