@@ -274,7 +274,7 @@ def p_tipo(p):
 # <tipo_arreglo> -> [<tipo>]
 def p_tipo_arreglo(p):
     'tipo_arreglo : TkOpenBracket tipo_primitivo TkCloseBracket'
-    p[0] = AST.TypeArray(AST.PrimitiveType(p[2]))
+    p[0] = AST.TypeArray(p[2])
 
 # <tipo_primitivo> -> num
 #     | bool
