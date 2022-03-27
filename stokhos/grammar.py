@@ -207,23 +207,14 @@ def p_expresion_binarias(p):
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>
+#     | <funcion>
+#     | <arreglo>
+#     | <acceso_arreglo>
 def p_expresion_comparacion(p):
-    'expresion : comparacion'
-    p[0] = p[1]
-
-# <expresion> -> <funcion>
-def p_expresion_funcion(p):
-    'expresion : funcion'
-    p[0] = p[1]
-
-# <expresion> -> <arreglo>
-def p_expresion_arreglo(p):
-    'expresion : arreglo'
-    p[0] = p[1]
-
-# <expresion> -> <acceso_arreglo>
-def p_expresion_acceso_arreglo(p):
-    'expresion : acceso_arreglo'
+    '''expresion : comparacion
+        | funcion
+        | arreglo
+        | acceso_arreglo'''
     p[0] = p[1]
 
 # <identificador> -> TkId
@@ -231,7 +222,7 @@ def p_identificador_tkId(p):
     'identificador : TkId'
     p[0] = AST.Id(p[1])
 
-# <arreglo> -> <lista>
+# <arreglo> -> [<listaElems>]
 def p_arreglo(p):
     'arreglo : TkOpenBracket listaElems  TkCloseBracket'
     p[0] = AST.Array(p[2])
