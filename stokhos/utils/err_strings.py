@@ -36,20 +36,14 @@ def error_invalid_char(char: str, column: int) -> str:
 def error_invalid_id(_id: str, column: int) -> str:
     return f'ID ilegal ("{_id}") (columna {column})'
 
-def error_missing_semicolon(column: int):
-    return f'Punto y coma faltante al final (columna {column})'
+def error_missing_semicolon():
+    return f'Punto y coma faltante al final'
 
 def error_expression_expected(column: int):
     return f'Se esperaba una expresión (columna {column})'
 
 def error_id_expected(column: int):
     return f'Se esperaba un identificador (columna {column})'
-
-def error_unclosed_array_constructor(column: int):
-    return f'Constructor de arreglo sin cerrar (corchetes desbalanceados) (columna {column})'
-
-def error_unopened_array_constructor(column: int): 
-    return f'Constructor de arreglo sin abrir (corchetes desbalanceados) (columna {column})'
 
 def error_invalid_expression_access(column: int):
     return f'Acceso inválido a expresión (columna {column})'

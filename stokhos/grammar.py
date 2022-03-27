@@ -50,8 +50,7 @@ def p_instruccion(p):
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
-    col = p.lexspan(1)[1] + 2
-    raise ParseError(error_missing_semicolon(col))
+    raise ParseError(error_missing_semicolon())
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -65,7 +64,7 @@ def p_asignacion_var(p):
     'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
 
-# <acceso_arreglo> := <expresion>
+# <asignacion> -> <acceso_arreglo> := <expresion>
 def p_asignacion_elemento_arr(p):
     'asignacion : acceso_arreglo TkAssign expresion'
     p[0] = AST.AssignArrayElement(p[1], p[3])
@@ -91,6 +90,8 @@ def p_assign_def_err2(p):
 
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
+#     | <funcion>[<expresión>]
+#     | <arreglo>[<expresión>]
 def p_acceso_arreglo(p):
     '''acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket
         | funcion TkOpenBracket expresion TkCloseBracket
@@ -117,14 +118,6 @@ def p_lista(p):
 def p_acceso_arreglo_err(p):
     'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
     raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
-
-#def p_arr_desbalanceado_err1(p):
-#    'arreglo : TkOpenBracket listaElems'
-#    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1] + 4))
-#
-#def p_arr_desbalanceado_err2(p):
-#    'arreglo : listaElems TkCloseBracket'
-#    raise ParseError(error_unopened_array_constructor(p.lexpos(1) + 1))
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -186,8 +179,7 @@ def p_expresion_binarias(p):
         | expresion TkMod expresion
         | expresion TkPower expresion
         | expresion TkAnd expresion
-        | expresion TkOr expresion
-        '''    
+        | expresion TkOr expresion'''    
     p[0] = AST.BinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
@@ -211,15 +203,6 @@ def p_identificador_tkId(p):
 def p_arreglo(p):
     'arreglo : TkOpenBracket listaElems  TkCloseBracket'
     p[0] = AST.Array(p[2])
-
-# ---- errores en arreglos ----
-#def p_arr_desbalanceado_err1(p):
-#    'arreglo : TkOpenBracket listaElems'
-#    raise ParseError(error_unclosed_array_constructor(p.lexspan(2)[1]))
-#
-#def p_arr_desbalanceado_err2(p):
-#    'arreglo : listaElems TkCloseBracket'
-#    raise ParseError(error_unopened_array_constructor(p.lexpos(1) + 1))
 
 # -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>

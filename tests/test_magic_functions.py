@@ -160,7 +160,7 @@ test_sol.append([simulate_error_failed_format(error_invalid_id('.hola', 1))])
 
 # ; faltante
 test_cases.append([r'.ast x := 2'])
-test_sol.append([simulate_error_failed_format(error_missing_semicolon(7))])
+test_sol.append([simulate_error_failed_format(error_missing_semicolon())])
 
 # Se esperaba una expresion
 test_cases.append([r'.ast x := ;'])
@@ -239,14 +239,14 @@ test_sol.append([simulate_error_failed_format(error_is_a_directory())])
 file_path = os.path.join('tests', 'parser', 't_syntax_errors.stk')
 test_cases.append([f'.load {file_path}'])
 test_syntax_sol = [
-    simulate_error_failed_format(error_missing_semicolon(59), file_path, 6),
+    simulate_error_failed_format(error_missing_semicolon(), file_path, 6),
     simulate_error_failed_format(error_expression_expected(9), file_path, 12),
     simulate_error_failed_format(error_id_expected(7), file_path, 15),
 #    simulate_error_failed_format(error_array_constructor_expected(11), file_path, 18),
-    simulate_error_failed_format(error_unopened_array_constructor(19), file_path, 21),
+    # simulate_error_failed_format(error_unopened_array_constructor(19), file_path, 21),
     simulate_error_failed_format(error_expression_expected(5), file_path, 26),
     simulate_error_failed_format(error_id_expected(1), file_path, 29),
-    simulate_error_failed_format(error_unclosed_array_constructor(25), file_path, 32),
+    # simulate_error_failed_format(error_unclosed_array_constructor(25), file_path, 32),
     simulate_error_failed_format(error_invalid_id('.id', 1), file_path, 36),    
     simulate_error_failed_format(error_invalid_expression_access(14), file_path, 41),
     simulate_error_failed_format(error_invalid_syntax_generic('!', 29), file_path, 44),
