@@ -39,8 +39,6 @@ class BinOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
-
 class Comparison(BinOp):
     pass
 
@@ -60,7 +58,6 @@ class UnOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
 # -------- TERMINALES --------
 class Terminal(AST):
     def __init__(self, value: object):
@@ -74,7 +71,6 @@ class Terminal(AST):
             return self.value == other.value
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
 
 class Number(Terminal):
     pass        
@@ -124,7 +120,6 @@ class PrimitiveType(AST):
             return self.type == other.type
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-    
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -194,7 +189,6 @@ class Parentheses(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
 class Quoted(AST):
     def __init__(self, expr: object):
         self.expr = expr
@@ -224,7 +218,6 @@ class Array(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
 class ArrayAccess(AST):
     def __init__(self, _id:object, _index:object) -> None:
         self.id = _id
@@ -239,7 +232,6 @@ class ArrayAccess(AST):
                 and self.index == other.index)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
 
 class Function(AST):
     def __init__(self, _id:object, _args:object) -> None:
@@ -256,7 +248,6 @@ class Function(AST):
              
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
 
 class ElemList(AST):
     def __init__(self, el: object):
@@ -275,7 +266,6 @@ class ElemList(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
     # Metodo usado para debug
     def __debug_Init__(self, elements:object):
         self.elements = elements
@@ -287,3 +277,10 @@ class Error(AST):
     
     def __str__(self) -> str:
         return f'''Error('{self.cause}')'''
+
+# --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
+class Symbol(AST):
+    def __init__(self, _id: object, _type: object, value: object):
+        self.id = _id
+        self.type = _type
+        self.value = value

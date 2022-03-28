@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from sys import prefix
 import ply.lex as lex
 import ply.yacc as yacc
 
@@ -27,7 +28,8 @@ from . import AST
 from .utils.custom_exceptions import ParseError
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
-
+from .utils.validators import validate_ast
+from .builtins.functions import *
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -44,6 +46,8 @@ class StokhosVM:
         # No se imprime ningún mensaje que pueda generar ply
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
+
+        self.symbols = {}
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -72,13 +76,30 @@ class StokhosVM:
 
                 donde <mensaje> es un mensaje de error descriptivo.
         """
+        ast = self.parse(command)
 
-        try:
-            raise NotImplementedError
-        except NotImplementedError:
-            prefix = 'ERROR'
-            suffix = 'interpretación no implementada'
+        if isinstance(ast, AST.Error):
+            return f'ERROR: {ast.cause}'
         
+        # --- FORMA 1 ---
+        # ast = self.validate(ast)
+        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
+        #     res = self.execute(ast)
+        #     return f'ACK: {command} ==> {res}'
+        # else:
+        #     res = self.eval(ast)
+        #     return f'OK: {res}'
+
+        # --- FORMA 2 ---
+        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
+        #     res = self.execute(ast)
+        #     return f'ACK: {command}'
+        # else:
+        #     res = self.eval(ast)
+        #     return f'OK: {res}'
+
+        prefix = 'OK'
+        suffix = 'TODO'
         return f'{prefix}: {suffix}'
 
     def lextest(self, command: str) -> str:
@@ -156,6 +177,15 @@ class StokhosVM:
             return f'ERROR: {out.cause}'
         
         return f'OK: ast("{command}") ==> {out}'
+
+    def validate(self, ast: AST.AST) -> AST.AST:
+        """Valida un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el Árbol de Sintaxis Abstracta transformado
+            según el resultado de la validación sintáctica del comando.
+        """
+        return validate_ast(ast, self.symbols)
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):

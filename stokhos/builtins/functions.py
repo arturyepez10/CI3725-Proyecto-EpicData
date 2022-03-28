@@ -1,4 +1,5 @@
-"""Excepciones de utilidad para el proyecto.
+"""Implementaciones de las funciones predefinidas de Stókhos.
+
 Copyright (C) 2022 Arturo Yepez - Jesus Bandez - Christopher Gómez
 CI3725 - Traductores e Interpretadores
 
@@ -16,12 +17,3 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-class ParseError(Exception):
-    def __init__(self, message: str):
-        self.message = message
-        super().__init__(self.message)
-
-class SemanticError(Exception):
-    def __init__(self, message: str):
-        self.message = message
-        super().__init__(self.message)
