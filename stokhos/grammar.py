@@ -50,8 +50,7 @@ def p_instruccion(p):
 def p_instruccion_errores(p):
     '''instruccion : definicion 
         | asignacion'''
-    col = p.lexspan(1)[1] + 2
-    raise ParseError(error_missing_semicolon(col))
+    raise ParseError(error_missing_semicolon())
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -59,75 +58,44 @@ def p_definicion_var(p):
     'definicion : tipo identificador TkAssign expresion'
     p[0] = AST.SymDef(p[1], p[2], p[4])
 
-# <definicion> -> [<tipo>] <identificador> := [<listaElems>]
-def p_definicion_arr(p):
-    'definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems TkCloseBracket' 
-    p[0] = AST.SymDef(p[1], p[2], p[5])
-
 # -------- ASIGNACIONES --------
 # <asignacion>  -> <identificador> := <expresion>
 def p_asignacion_var(p):
     'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
 
-# <identificador>[<expresion>] := <expresion>
+# <asignacion> -> <acceso_arreglo> := <expresion>
 def p_asignacion_elemento_arr(p):
     'asignacion : acceso_arreglo TkAssign expresion'
     p[0] = AST.AssignArrayElement(p[1], p[3])
 
-# <identificador> := [<listaElems>]
-def p_asignacion_arr(p):
-    'asignacion : identificador TkAssign TkOpenBracket listaElems TkCloseBracket'
-    p[0] = AST.AssignArray(p[1], p[4])
-
 # ---- errores en asignaciones y definiciones ----
-def p_assign_def_err1(p):
-    '''definicion : tipo TkAssign expresion
-        | tipoArreglo TkAssign TkOpenBracket listaElems TkCloseBracket
-    asignacion : TkAssign expresion
-        | TkAssign TkOpenBracket listaElems TkCloseBracket'''
-    col = p.lexpos(2)
-    if isinstance(p[1], str) and p[1] == ':=':
-        col = p.lexpos(1) + 1
 
-    raise ParseError(error_id_expected(col))
+def p_assign_def_err1(p):
+   '''definicion : tipo TkAssign expresion
+   asignacion : TkAssign expresion'''
+   col = p.lexpos(2)
+   if isinstance(p[1], str) and p[1] == ':=':
+       col = p.lexpos(1) + 1
+
+   raise ParseError(error_id_expected(col))
 
 def p_assign_def_err2(p):
-    '''definicion : tipo identificador TkAssign
-    asignacion : identificador TkAssign'''
-    col = p.lexspan(2)[1] + 3
-    if len(p) == 4:
-        col = p.lexspan(3)[1] + 3
-    raise ParseError(error_expression_expected(col))
-
-def p_assign_def_err3(p):
-    'definicion : tipoArreglo identificador TkAssign listaElems'
-    col = p.lexpos(3) + 3
-    raise ParseError(error_array_constructor_expected(col))
-
-def p_arr_desbalanceado_err1(p):
-    '''definicion : tipoArreglo identificador TkAssign TkOpenBracket listaElems
-    asignacion : identificador TkAssign TkOpenBracket listaElems'''
-    col = p.lexspan(4)[1] + 2
-    if len(p) == 6:
-        col = p.lexspan(5)[1] + 2
-
-    raise ParseError(error_unclosed_array_constructor(col))
-
-def p_arr_desbalanceado_err2(p):
-    '''definicion : tipoArreglo identificador TkAssign listaElems TkCloseBracket
-    asignacion : identificador TkAssign listaElems TkCloseBracket'''
-    col = p.lexpos(2) + 3
-    if len(p) == 6:
-        col = p.lexpos(3) + 3
-
-    raise ParseError(error_unopened_array_constructor(col))
+   '''definicion : tipo identificador TkAssign
+   asignacion : identificador TkAssign'''
+   col = p.lexspan(2)[1] + 3
+   if len(p) == 4:
+       col = p.lexspan(3)[1] + 3
+   raise ParseError(error_expression_expected(col))
 
 # -------- LISTAS --------
 # <acceso_arreglo> -> <identificador>[<expresión>]
+#     | <funcion>[<expresión>]
+#     | <arreglo>[<expresión>]
 def p_acceso_arreglo(p):
     '''acceso_arreglo : identificador TkOpenBracket expresion TkCloseBracket
-        | funcion TkOpenBracket expresion TkCloseBracket'''
+        | funcion TkOpenBracket expresion TkCloseBracket
+        | arreglo TkOpenBracket expresion TkCloseBracket'''
     p[0] = AST.ArrayAccess(p[1], p[3])
 
 
@@ -211,30 +179,30 @@ def p_expresion_binarias(p):
         | expresion TkMod expresion
         | expresion TkPower expresion
         | expresion TkAnd expresion
-        | expresion TkOr expresion
-        '''    
+        | expresion TkOr expresion'''    
     p[0] = AST.BinOp(p[2], p[1], p[3])
 
 # -------- OTRAS EXPRESIONES --------
 # <expresion> -> <comparacion>
+#     | <funcion>
+#     | <arreglo>
+#     | <acceso_arreglo>
 def p_expresion_comparacion(p):
-    'expresion : comparacion'
-    p[0] = p[1]
-
-# <expresion> -> <funcion>
-def p_expresion_funcion(p):
-    'expresion : funcion'
-    p[0] = p[1]
-
-# <expresion> -> <acceso_arreglo>
-def p_expresion_acceso_arreglo(p):
-    'expresion : acceso_arreglo'
+    '''expresion : comparacion
+        | funcion
+        | arreglo
+        | acceso_arreglo'''
     p[0] = p[1]
 
 # <identificador> -> TkId
 def p_identificador_tkId(p):
     'identificador : TkId'
     p[0] = AST.Id(p[1])
+
+# <arreglo> -> [<listaElems>]
+def p_arreglo(p):
+    'arreglo : TkOpenBracket listaElems  TkCloseBracket'
+    p[0] = AST.Array(p[2])
 
 # -------- COMPARACIONES --------
 # <comparacion> -> <expresion> < <expresion>
@@ -265,17 +233,23 @@ def p_booleano(p):
         | TkFalse'''
     p[0] = AST.Boolean(p[1])
 
-# <tipoArreglo> -> [<tipo>]
-def p_tipo_arreglo(p):
-    'tipoArreglo : TkOpenBracket tipo TkCloseBracket'
-    p[0] = AST.Type(AST.TypeArray(p[2]))
-
-# <tipo> -> num
-#     | bool
+# <tipo> -> <tipo_primitivo> | <tipo_arreglo>
 def p_tipo(p):
-    '''tipo : TkNum
-        | TkBool'''
+    '''tipo : tipo_primitivo
+        | tipo_arreglo'''
     p[0] = AST.Type(p[1])
+
+# <tipo_arreglo> -> [<tipo>]
+def p_tipo_arreglo(p):
+    'tipo_arreglo : TkOpenBracket tipo_primitivo TkCloseBracket'
+    p[0] = AST.TypeArray(p[2])
+
+# <tipo_primitivo> -> num
+#     | bool
+def p_tipo_primitivo(p):
+    '''tipo_primitivo : TkNum
+        | TkBool'''
+    p[0] = AST.PrimitiveType(p[1])
 
 # def p_easter_egg(p):
 #     'tokensfaltantes : TkOpenBrace TkSemicolon TkColon TkCloseBrace'

@@ -25,7 +25,7 @@ test_sol.append([prefix_error(error_invalid_id('.hola', 1))])
 
 # ; faltante
 test_cases.append(lambda: repl.default(r'.ast x := 2'))
-test_sol.append([prefix_error(error_missing_semicolon(7))])
+test_sol.append([prefix_error(error_missing_semicolon())])
 
 # Se esperaba una expresion
 test_cases.append(lambda: repl.default(r'.ast x := ;'))
@@ -36,19 +36,13 @@ test_cases.append(lambda: repl.default(r'.ast [num] := [1];'))
 test_sol.append([prefix_error(error_id_expected(6))])
 
 # Se esperaba el constructor del arreglo
-test_cases.append(lambda: repl.default(r'.ast [num] x := ;'))
-test_sol.append([prefix_error(error_array_constructor_expected(11))])
+#test_cases.append(lambda: repl.default(r'.ast [num] x := ;'))
+#test_sol.append([prefix_error(error_array_constructor_expected(11))])
 
-test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3;'))
-test_sol.append([prefix_error(error_array_constructor_expected(11))])
+#test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3;'))
+#test_sol.append([prefix_error(error_array_constructor_expected(11))])
 
-# Constructor de arreglo sin cerrar
-test_cases.append(lambda: repl.default(r'.ast [num] x := [1,2,3 ;'))
-test_sol.append([prefix_error(error_unclosed_array_constructor(18))])
 
-# Constructor de arreglo sin abrir
-test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3];'))
-test_sol.append([prefix_error(error_unopened_array_constructor(11))])
 
 # Acceso invalido a expresion
 test_cases.append(lambda: repl.default(r'.ast true[2]'))
@@ -62,7 +56,7 @@ test_cases.append(lambda: repl.default(r'.ast 2+3)'))
 test_sol.append([prefix_error(error_invalid_syntax_generic(')', 4))])
 
 test_cases.append(lambda: repl.default(r'.ast [2+3'))
-test_sol.append([prefix_error(error_invalid_syntax_generic("2", 2))])
+test_sol.append([prefix_error(error_invalid_syntax_generic())])
 
 test_cases.append(lambda: repl.default(r'.ast 2+3]'))
 test_sol.append([prefix_error(error_invalid_syntax_generic(']', 4))])

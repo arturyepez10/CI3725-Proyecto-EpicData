@@ -12,15 +12,12 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
 <instrucción> -> <definición>; | <asignación>; | <expresión>
 
 <definición> -> <tipo> <identificador> := <expresión>
-    | [<tipo>] <identificador> := [<listaElems>]
-
-<listaElems> -> (lambda)
-    | <expresión>
-    | <listaElems>, <expresión>
 
 <asignación> -> <identificador> := <expresión>
     | <acceso_arreglo> := <expresión>
-    | <identificador> := [<listaElems>]
+
+<tipo> -> <tipo_primitivo> | <tipo_arreglo>
+<tipo_arreglo> -> [<tipo_primitivo>]
 
 ```
 
@@ -66,7 +63,14 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
     | <expresión> || <expresión>
     | <comparación>
     | <función>
+    | <arreglo>
     | <acceso_arreglo>
+
+<arreglo> -> [<lista_elementos>]
+
+<listaElems> -> (lambda)
+    | <expresión>
+    | <listaElems>, <expresión>
 
 <comparación> -> <expresion> < <expresion>
     | <expresion> <= <expresion>
@@ -75,8 +79,8 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
     | <expresión> = <expresión>
     | <expresión> <> <expresión>
 
-<función> -> <identificador> (<listaElems>)
-<acceso_arreglo> -> <identificador> [<expresión>]
+<función> -> <identificador> (<expresion>)
+<acceso_arreglo> -> <identificador> [<expresión>] | <arreglo>[<expresión>]
 ```
 
 ## Terminales
@@ -97,6 +101,6 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
 <booleano> -> true
     | false
 
-<tipo> -> num
+<tipo_primitivo> -> num
     | bool
 ```
