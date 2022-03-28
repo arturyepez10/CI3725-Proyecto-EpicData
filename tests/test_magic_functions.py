@@ -177,13 +177,6 @@ test_sol.append([simulate_error_failed_format(error_id_expected(6))])
 #test_cases.append([r'.ast [num] x := 1,2,3;'])
 #test_sol.append([simulate_error_failed_format(error_array_constructor_expected(11))])
 
-# Constructor de arreglo sin cerrar
-test_cases.append([r'.ast [num] x := [1,2,3 ;'])
-test_sol.append([simulate_error_failed_format(error_unclosed_array_constructor(18))])
-
-# Constructor de arreglo sin abrir
-test_cases.append([r'.ast [num] x := 1,2,3];'])
-test_sol.append([simulate_error_failed_format(error_unopened_array_constructor(11))])
 
 # Acceso invalido a expresion
 test_cases.append([r'.ast true[2]'])
@@ -197,7 +190,7 @@ test_cases.append([r'.ast 2+3)'])
 test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(')', 4))])
 
 test_cases.append([r'.ast [2+3'])
-test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic("2", 2))])
+test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic())])
 
 test_cases.append([r'.ast 2+3]'])
 test_sol.append([simulate_error_failed_format(error_invalid_syntax_generic(']', 4))])
