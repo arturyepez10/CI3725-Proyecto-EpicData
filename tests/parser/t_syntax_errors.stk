@@ -15,10 +15,10 @@
 .ast [bool] := [4, 3];
 
 # Falta el constructor de arreglo
-.ast [num] x := ;
+#.ast [num] x := ;
 
 # Corchetes desbalanceados
-.ast [bool] es_falso := q_1, q_2, q_3];
+#.ast [bool] es_falso := q_1, q_2, q_3];
 
 # ------ Errores en asignaciones ------
 
@@ -29,7 +29,7 @@
 .ast := [x+1, x+2, x+3];
 
 # Corchetes desbalanceados
-.ast es_falso := [q_1, q_2, q_3;
+#.ast es_falso := [q_1, q_2, q_3;
 
 # ------ Errores en el lexing ------
 
