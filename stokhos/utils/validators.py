@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from ..builtins.functions import _type
 from .. import AST
 from .custom_exceptions import SemanticError
 
@@ -80,9 +81,8 @@ def validate_expr(ast: AST.AST, sym_table: dict) -> None:
     else:
         return ast
 
-def validate_type(ast: AST.AST, sym_table: dict) -> None:
-    # Se valida que la expresión sea de tipo booleano
-    if ast.type != 'bool':
+def validate_type(type: AST.Type, ast: AST.AST, sym_table: dict) -> None:
+    # Se valida que el ast sea del mismo tipo que type, independientemente de
+    # si sus variables existen o el ast es semánticamente correcto
+    if ast.type != _type(ast):
         raise Exception(f'Expresión no es de tipo booleano')
-    else:
-        return ast

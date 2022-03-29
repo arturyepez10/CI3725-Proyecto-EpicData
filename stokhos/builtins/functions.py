@@ -17,3 +17,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from .. import AST
+
+
+def _type(ast: AST.AST, sym_table: dict) -> AST.Type:
+    '''Retorna el tipo de una expresión.
+    
+    Args:
+        Un árbol de  una expresión de Stókhos.
+    
+    Retorna:
+        El tipo de la expresión.
+    '''
+    # Si es una constante, se obtiene su tipo.
+    if type(ast) in [AST.Number, AST.Boolean]:
+        return type(ast)
+    
+    # Si es una variable, se obtiene su tipo de la tabla de símbolos.
+    if type(ast) == AST.Id:
+        return sym_table[ast.id.value]
+    
+    # Si es una función, se obtiene su tipo de retorno de la tabla de símbolos.
+    # TODO
+
+    # Si es una expresión binaria, se obtiene el tipo de la operación.
+    if type(ast) == AST.BinOp:
+        if ast.op in ['&&', '||']:
+            return AST.Boolean
+        else:
+            return AST.Number
+    
+    return ast.type

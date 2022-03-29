@@ -86,6 +86,8 @@ class StokhosVM:
         # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
         #     res = self.execute(ast)
         #     return f'ACK: {command} ==> {res}'
+        # elif type(ast) == AST.Error:
+        #     return f'ERROR: {ast.cause}'
         # else:
         #     res = self.eval(ast)
         #     return f'OK: {res}'
