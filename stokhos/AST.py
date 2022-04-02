@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from array import ArrayType
+
+
 class AST:
     def __repr__(self) -> str:
         return self.__str__()
@@ -270,18 +273,31 @@ class Quoted(AST):
 
 # -------- ARREGLOS --------
 class Array(AST):
-    def __init__(self, elements: object) -> None:
-        self.elements = elements
+    def __init__(self, list: object) -> None:
+        self.list = list
 
     def __str__(self) -> str:
-        return f'Array({self.elements})'
+        return f'Array({self.list})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return self.elements == other.elements
+            return self.list == other.list
             
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+    
+    def type_check(self, symbol_table):
+        if len(self.list.elements) == 0:
+            raise Exception('Not enough information to infer type')
+
+        array_type = self.list.elements[0].type_check(symbol_table)
+
+        try: 
+            assert not any([x.type_check(symbol_table) != array_type for x in self.list.elements])
+        except (TypeError, AssertionError):
+            raise Exception('non-homogeneous array')
+        
+        return Type(TypeArray(array_type.type)) 
 
 
 class ArrayAccess(AST):
@@ -298,6 +314,19 @@ class ArrayAccess(AST):
                 and self.index == other.index)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def type_check(self, symbol_table): 
+        array_type = self.id.type_check(symbol_table)
+
+        # Tratar de acceder a algo que no es de tipo arreglo
+        if not isinstance(array_type.type, TypeArray):
+            raise Exception(f'{self.id} is not an array')
+
+        # Tratar de usar un indice que no es un numero
+        if self.index.type_check(symbol_table) != Type(PrimitiveType('num')):
+            raise Exception(f'{self.index} is not num type, bad array access')
+
+        return Type(array_type.type.type)
 
 
 class Function(AST):
@@ -340,6 +369,8 @@ class ElemList(AST):
         self.elements = elements
         return self
 
+    # El chequeo de tipos de esta clase se hace por medio de las clases funciones
+    # de funciones o arreglos
 
 class Error(AST):
     def __init__(self, cause: str):

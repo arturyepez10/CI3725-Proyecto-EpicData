@@ -80,7 +80,9 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
     | <expresión> <> <expresión>
 
 <función> -> <identificador> (<expresion>)
-<acceso_arreglo> -> <identificador> [<expresión>] | <arreglo>[<expresión>]
+<acceso_arreglo> -> <identificador> [<expresión>] 
+    | <arreglo>[<expresión>]
+    | <funcion>[<expresión>]
 ```
 
 ## Terminales

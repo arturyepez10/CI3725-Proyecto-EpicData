@@ -88,6 +88,25 @@ test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(BOOL_BIN_OPS))])
 test_cases.extend([f"3 {comparison} 'unNumero'" for comparison in COMPARISONS])
 test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(COMPARISONS))])
 
+# -----------Acceso a arreglos ----------
+# En tabla de simbolos:
+test_cases.append('arregloDeNumeros[2]')
+test_sol.append(Type(PrimitiveType('num')))
+
+test_cases.append('arregloDeBooleanos[2]')
+test_sol.append(Type(PrimitiveType('bool')))
+
+# Arreglos
+test_cases.append('[1, 2, 3]')
+test_sol.append(Type(TypeArray(PrimitiveType('num'))))
+
+# Arreglos
+test_cases.append('[1, 2, 3][2]')
+test_sol.append(Type(PrimitiveType('num')))
+
+test_cases.append('[1, unNumero]')
+test_sol.append(Type(TypeArray(PrimitiveType('num'))))
+
 
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
@@ -96,5 +115,8 @@ def test_type_check(test_case:str, test_sol:object):
     symbols = {
         'unNumero': Type(PrimitiveType('num')),
         'unBooleano': Type(PrimitiveType('bool')),
+        'arregloDeNumeros': Type(TypeArray(PrimitiveType('num'))),
+        'arregloDeBooleanos': Type(TypeArray(PrimitiveType('bool')))
     }    
-    assert parser.parse(test_case).type_check(symbols) == test_sol
+    out = parser.parse(test_case).type_check(symbols)
+    assert out == test_sol
