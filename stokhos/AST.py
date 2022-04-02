@@ -101,7 +101,6 @@ class UnOp(AST):
     def return_type(self):
         return self.expected_type()
 
-
 # -------- TERMINALES --------
 class Terminal(AST):
     def __init__(self, value: object):
@@ -248,6 +247,9 @@ class Parentheses(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def type_check(self, symbol_table):
+        return self.expr.type_check(symbol_table)
+
 
 class Quoted(AST):
     def __init__(self, expr: object):
@@ -262,6 +264,9 @@ class Quoted(AST):
                
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def type_check(self, symbol_table):
+        return self.expr.type_check(symbol_table)
 
 # -------- ARREGLOS --------
 class Array(AST):
@@ -334,6 +339,7 @@ class ElemList(AST):
     def __debug_Init__(self, elements:object):
         self.elements = elements
         return self
+
 
 class Error(AST):
     def __init__(self, cause: str):

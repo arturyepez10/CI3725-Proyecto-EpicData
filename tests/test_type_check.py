@@ -66,6 +66,28 @@ test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(BOOL_BIN_OPS))])
 test_cases.extend([f'3 {comparison} unNumero' for comparison in COMPARISONS])
 test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(COMPARISONS))])
 
+# ------------ Parentesis ---------
+test_cases.extend([f'((3) {numOp} (5))' for numOp in NUM_BIN_OPS])
+test_sol.extend([Type(PrimitiveType('num')) for i in range(len(NUM_BIN_OPS))])
+
+test_cases.extend([f'(true {boolOp} false)' for boolOp in BOOL_BIN_OPS])
+test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(BOOL_BIN_OPS))])
+
+
+test_cases.extend([f'3 {comparison} (unNumero)' for comparison in COMPARISONS])
+test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(COMPARISONS))])
+
+# ---------- Acotado ------------
+test_cases.extend([f"''3' {numOp} '5''" for numOp in NUM_BIN_OPS])
+test_sol.extend([Type(PrimitiveType('num')) for i in range(len(NUM_BIN_OPS))])
+
+test_cases.extend([f"'true {boolOp} false'" for boolOp in BOOL_BIN_OPS])
+test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(BOOL_BIN_OPS))])
+
+
+test_cases.extend([f"3 {comparison} 'unNumero'" for comparison in COMPARISONS])
+test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(COMPARISONS))])
+
 
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
