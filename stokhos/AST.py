@@ -21,6 +21,9 @@ class AST:
     def __repr__(self) -> str:
         return self.__str__()
     
+    def type_check(self, symbol_table):
+        raise Exception('Type check not implemented')
+
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
     def __init__(self, op: str, lhs_term: object, rhs_term: object):
@@ -39,10 +42,32 @@ class BinOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def type_check(self, symbol_table):
+        expected_type = self.expected_type()
+        lhs_type = self.lhs_term.type_check(symbol_table)
+        rhs_type = self.rhs_term.type_check(symbol_table)
+        
+        if lhs_type == rhs_type and rhs_type == expected_type:
+            return self.return_type()
+        else:
+            raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
+
+    def expected_type(self):
+        if self.op in ['&&', '||']:
+            return Type(PrimitiveType('bool'))
+        else:
+            return Type(PrimitiveType('num'))
+
+    def return_type(self):
+        return self.expected_type()
 
 
 class Comparison(BinOp):
-    pass
+    def expected_type(self):
+        return Type(PrimitiveType('num'))
+
+    def return_type(self):
+        return Type(PrimitiveType('bool'))
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -59,6 +84,22 @@ class UnOp(AST):
                 and self.term == other.term)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+    
+    def type_check(self, symbol_table):
+        expected_type = self.expected_type()
+        if self.term.type_check(symbol_table) == expected_type:
+            return self.return_type()
+        else:
+            raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
+
+    def expected_type(self):
+        if self.op in ['+', '-']:
+            return Type(PrimitiveType('num'))
+        else:
+            return Type(PrimitiveType('bool'))
+
+    def return_type(self):
+        return self.expected_type()
 
 
 # -------- TERMINALES --------
@@ -75,27 +116,34 @@ class Terminal(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-
 class Number(Terminal):
-    pass        
+    def type_check(self, symbol_table):
+        return Type(PrimitiveType('num'))        
 
 class Id(Terminal):
-    pass
+    def type_check(self, symbol_table):
+
+        if symbol_table.get(self.value):
+            return symbol_table.get(self.value)
+
+        else:
+            raise Exception(f'No existe "{self.value}" en la tabla de simbolos')
 
 class Boolean(Terminal):
-    pass
+    def type_check(self, symbol_table):
+        return Type(PrimitiveType('bool'))  
 
 # -------- TIPOS --------
 class Type(AST):
-    def __init__(self, _id: object):
-        self.id = _id
+    def __init__(self, _type: object):
+        self.type = _type
 
     def __str__(self) -> str:
-        return f'Type({self.id.__str__()})'
+        return f'Type({self.type.__str__()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return self.id == other.id
+            return self.type == other.type
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
@@ -112,12 +160,18 @@ class TypeArray(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def __repr__(self) -> str:
+        return f'TypeArray({self.type})'
+
 class PrimitiveType(AST):
     def __init__(self, type: object):
         self.type = type        
 
     def __str__(self) -> str:
         return f'{self.type}'
+
+    def __repr__(self) -> str:
+        return f'PrimitiveType({self.type})'    
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -287,3 +341,5 @@ class Error(AST):
     
     def __str__(self) -> str:
         return f'''Error('{self.cause}')'''
+
+
