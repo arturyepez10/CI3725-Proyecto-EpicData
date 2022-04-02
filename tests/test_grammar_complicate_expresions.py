@@ -1,5 +1,4 @@
 """Modulo de pruebas para la precedencia de los operadores de las reglas definidas en grammar.py"""
-
 import os
 import sys
 from ast import Num

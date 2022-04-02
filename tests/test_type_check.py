@@ -1,17 +1,11 @@
-
+"""Modulo de pruebas para el chequeo de tipos"""
 import os
 import sys
-from ast import Num
-
 import pytest
-
-
 sys.path.insert(1, os.path.abspath('.'))
-
 import ply.yacc as yacc
 import stokhos.grammar as grammar
 from stokhos.AST import *
-from stokhos.tokenrules import tokens
 
 NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
 BOOL_BIN_OPS = ['&&', '||']

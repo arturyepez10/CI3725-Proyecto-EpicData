@@ -1,10 +1,8 @@
 import os
-
 import pytest
 from stokhos.REPL import StokhosCMD
 from stokhos.utils.constants import *
 from stokhos.utils.err_strings import *
-
 
 def lex_error_invalid_char(char:str) -> str:
     return f'Caracter inválido ("{char}")'
