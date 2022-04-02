@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import locale
 import os
 from cmd import Cmd
 from textwrap import dedent
@@ -70,6 +71,9 @@ class StokhosCMD(Cmd):
 
         # Lista de tripletas de errores
         self.errors = []
+
+        if os.name in ('cls', 'dot'):
+            locale.setlocale(locale.LC_ALL, 'Spanish_Spain.1252')
     
     # ----------- MÉTODOS QUE ENVIAN A LA VIRTUAL MACHINE -----------
     def send_lextest(self, command: str):
