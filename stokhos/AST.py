@@ -50,7 +50,8 @@ class BinOp(AST):
         lhs_type = self.lhs_term.type_check(symbol_table)
         rhs_type = self.rhs_term.type_check(symbol_table)
         
-        if lhs_type == rhs_type and rhs_type == expected_type:
+        if (isinstance(lhs_type.type, type(rhs_type.type)) and lhs_type == rhs_type 
+            and isinstance(rhs_type.type, type(expected_type.type)) and rhs_type == expected_type):
             return self.return_type()
         else:
             raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
@@ -90,7 +91,9 @@ class UnOp(AST):
     
     def type_check(self, symbol_table):
         expected_type = self.expected_type()
-        if self.term.type_check(symbol_table) == expected_type:
+        term_type = self.term.type_check(symbol_table)
+
+        if isinstance(term_type.type, type(expected_type.type)) and term_type == expected_type:
             return self.return_type()
         else:
             raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
@@ -184,56 +187,96 @@ class PrimitiveType(AST):
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
-    def __init__(self, _type: Type, _id: object, value: object):
+    def __init__(self, _type: Type, _id: object, rhs: object):
         self.type = _type
         self.id = _id
-        self.value = value
+        self.rhs = rhs
         
     def __str__(self) -> str:
-        return f'SymDef({self.type}, {self.id}, {self.value})'
+        return f'SymDef({self.type}, {self.id}, {self.rhs})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
             return (self.type == other.type
                 and self.id == other.id
-                and self.value == other.value)
+                and self.rhs == other.rhs)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-    
+
+    def type_check(self, symbol_table):
+
+        if symbol_table.get(self.id.value):
+            raise Exception(f'"{self.id.value}" is already defined in the symbol table')
+
+        expected_type = self.type
+        rhs_type = self.rhs.type_check(symbol_table)
+
+        if isinstance(rhs_type.type, type(expected_type.type)) and rhs_type == expected_type:
+            return Type(PrimitiveType('void'))
+        else:
+            raise Exception(f'"{self.rhs}" is not "{expected_type.type}" type')
 
 # -------- ASIGNACIONES --------
 class Assign(AST):
-    def __init__(self, _id: object, value: object):
+    def __init__(self, _id: object, rhs: object):
         self.id = _id
-        self.value = value
+        self.rhs = rhs
 
     def __str__(self) -> str:
-        return f'Assign({self.id}, {self.value})'
+        return f'Assign({self.id}, {self.rhs})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
             return (self.id == other.id
-                and self.value == other.value)
+                and self.rhs == other.rhs)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def type_check(self, symbol_table):
+        var_type = self.id.type_check(symbol_table)
+        rhs_type = self.rhs.type_check(symbol_table)
+
+        if isinstance(rhs_type.type, type(var_type.type)) and rhs_type == var_type:
+            return Type(PrimitiveType('void'))
+        else:
+            raise Exception(f'"{self.rhs}" is not "{var_type.type}" type,'
+            f' at assigning value to variable "{self.id}"')
 
 class AssignArrayElement(AST):
-    def __init__(self, arrayAccess: object, value: object):
+    def __init__(self, arrayAccess: object, rhs: object):
         self.id = arrayAccess.id
         self.index = arrayAccess.index
-        self.value = value
+        self.rhs = rhs
 
     def __str__(self) -> str:
-        return f'AssignArrayElement({self.id}, {self.index} , {self.value})'
+        return f'AssignArrayElement({self.id}, {self.index} , {self.rhs})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
             return (self.id == other.id
                 and self.index == other.index
-                and self.value == other.value)
+                and self.rhs == other.rhs)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def type_check(self, symbol_table):
+        array_type = self.id.type_check(symbol_table)
+        index_type = self.index.type_check(symbol_table)
+        rhs_type = self.rhs.type_check(symbol_table)
+
+        # Tratar de acceder a algo que no es de tipo arreglo
+        if not isinstance(array_type.type, TypeArray):
+            raise Exception(f'{self.id} is not an array')
+
+        # Tratar de usar un indice que no es un numero
+        if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
+            raise Exception(f'{self.index} is not num type, bad array access')
+
+        # Comprobar que el tipo del arreglo es el mismo tipo que el rhs
+        if isinstance(rhs_type.type, type(array_type.type.type)) and rhs_type.type == array_type.type.type:
+            return Type(PrimitiveType('void'))
+        else:
+            raise Exception(f'"{self.rhs}" is not "{array_type.type}" type')
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -317,13 +360,14 @@ class ArrayAccess(AST):
 
     def type_check(self, symbol_table): 
         array_type = self.id.type_check(symbol_table)
+        index_type = self.index.type_check(symbol_table)
 
         # Tratar de acceder a algo que no es de tipo arreglo
         if not isinstance(array_type.type, TypeArray):
             raise Exception(f'{self.id} is not an array')
 
         # Tratar de usar un indice que no es un numero
-        if self.index.type_check(symbol_table) != Type(PrimitiveType('num')):
+        if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
             raise Exception(f'{self.index} is not num type, bad array access')
 
         return Type(array_type.type.type)

@@ -107,12 +107,46 @@ test_sol.append(Type(PrimitiveType('num')))
 test_cases.append('[1, unNumero]')
 test_sol.append(Type(TypeArray(PrimitiveType('num'))))
 
+# ----------- Definiciones ---------------
+test_cases.append('num h := 2;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('bool j := true;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('[num] k := [2,3,4];')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('[bool] m := [true, false, true];')
+test_sol.append(Type(PrimitiveType('void')))
+
+# ------------ Asignaciones ----------------
+test_cases.append('unNumero := 3;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('unBooleano := true;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('arregloDeNumeros[4] := 3;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('arregloDeBooleanos[1] := false;')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('arregloDeNumeros := [1, 2, 5 ,1];')
+test_sol.append(Type(PrimitiveType('void')))
+
+test_cases.append('arregloDeBooleanos := [false, true, false];')
+test_sol.append(Type(PrimitiveType('void')))
+
 
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
 def test_type_check(test_case:str, test_sol:object):
     symbols = {
+        'x': Type(PrimitiveType('num')),
+        'y': Type(PrimitiveType('bool')),
         'unNumero': Type(PrimitiveType('num')),
         'unBooleano': Type(PrimitiveType('bool')),
         'arregloDeNumeros': Type(TypeArray(PrimitiveType('num'))),
