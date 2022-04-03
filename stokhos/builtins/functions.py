@@ -17,11 +17,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import imp
-from ..utils.custom_exceptions import SemanticError
-from .. import AST
-from ..VM import StokhosVM
+from math import floor
 from random import uniform
+from time import time
+
+from .. import AST
+from ..utils.custom_exceptions import SemanticError
+from ..VM import StokhosVM
+
 
 def stk_type(ast: AST.AST, sym_table: dict) -> AST.Type:
     '''Retorna el tipo de una expresión.
@@ -64,4 +67,52 @@ def stk_reset(vm: StokhosVM) -> AST.Boolean:
     vm.symbols.clear()
     return AST.Boolean(True)
 
-def stk_uniform() -> AST.Number
+def stk_uniform() -> AST.Number:
+    '''Retorna un número aleatorio entre 0 y 1.
+    '''
+    return AST.Number(uniform(0, 1))
+
+def stk_floor(x: AST.Number) -> AST.Number:
+    '''Retorna el máximo entero menor o igual a x.
+    
+    Args:
+        x: Número a redondear.
+    '''
+    return floor(x)
+
+def stk_length(a: AST.Array) -> AST.Number:
+    '''Retorna el tamaño de una lista.
+    
+    Args:
+        l: Lista a evaluar.
+    '''
+    return len(a)
+
+def stk_sum(a: AST.Array) -> AST.Number:
+    '''Retorna la suma de los elementos de un arreglo de Number
+    
+    Args:
+        l: Arreglo a evaluar.
+    '''
+    return sum(a, AST.Number(0))
+
+def stk_avg(a: AST.Array) -> AST.Number:
+    '''Retorna la media de los elementos de un arreglo de Number, o 0 si el
+    arreglo está vacío.
+    
+    Args:
+        a: Arreglo a evaluar.
+    '''
+    return stk_sum(a) / stk_length(a) if a else 0
+
+def stk_pi() -> AST.Number:
+    '''Retorna el valor de pi en formato de doble precisión (IEEE754).'''
+    return AST.Number(3.141592653589793)
+
+def stk_now() -> AST.Number:
+    '''Retorna un Number correspondiente al los milisegundos transcurridos
+    desde un punto de referencia en el tiempo.
+    
+    La implementación interna es la de currentmillis.com sugerida para Python.
+    '''
+    return AST.Number(int(round(time() * 1000)))
