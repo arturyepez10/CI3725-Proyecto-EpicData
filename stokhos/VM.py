@@ -24,7 +24,7 @@ import stokhos.grammar as grammar
 import stokhos.tokenrules as tokenrules
 
 from . import AST
-from .utils.custom_exceptions import ParseError
+from .utils.custom_exceptions import ParseError, SemanticError
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
 
@@ -75,27 +75,18 @@ class StokhosVM:
                 donde <mensaje> es un mensaje de error descriptivo.
         """
         ast = self.parse(command)
-
         if isinstance(ast, AST.Error):
             return f'ERROR: {ast.cause}'
         
-        ast.type_check(self.symbols)
+        valid = self.validate(ast)
+        if isinstance(valid, AST.Error):
+            return f'ERROR: {valid.cause}'
 
+        # Si se llega a esta línea de código, el AST era válido
         # --- FORMA 1 ---
-        # ast = self.validate(ast)
         # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
         #     res = self.execute(ast)
         #     return f'ACK: {command} ==> {res}'
-        # elif type(ast) == AST.Error:
-        #     return f'ERROR: {ast.cause}'
-        # else:
-        #     res = self.eval(ast)
-        #     return f'OK: {res}'
-
-        # --- FORMA 2 ---
-        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
-        #     res = self.execute(ast)
-        #     return f'ACK: {command}'
         # else:
         #     res = self.eval(ast)
         #     return f'OK: {res}'
@@ -179,6 +170,19 @@ class StokhosVM:
             return f'ERROR: {out.cause}'
         
         return f'OK: ast("{command}") ==> {out}'
+
+    def validate(self, ast: AST.AST) -> AST.AST:
+        """Valida un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el tipo del AST validado, si el arbol
+            de entrada era válido, o un árbol de Error con la causa en
+            caso contrario.
+        """
+        try:
+            return ast.type_check(self.symbols)
+        except SemanticError as e:
+            return AST.Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):
