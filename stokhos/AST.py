@@ -97,16 +97,21 @@ class UnOp(AST):
         expected_type = self.expected_type()
         term_type = self.term.type_check(symbol_table)
 
-        if isinstance(term_type.type, type(expected_type.type)) and term_type == expected_type:
-            return self.return_type()
-        else:
-            raise SemanticError(f'"{self.term}" is not "{expected_type.type}" type')
+        try:
+            if term_type == expected_type:
+                return self.return_type()
+            else:
+                raise SemanticError(f'"{self.op}" no se puede aplicar a '
+                    f'operando de tipo {term_type.type}')
+        except TypeError as e:
+            raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
+                f' de tipo {term_type.type}')
 
     def expected_type(self):
-        if self.op in ['+', '-']:
-            return Type(PrimitiveType('num'))
-        else:
+        if self.op == '!':
             return Type(PrimitiveType('bool'))
+        else:
+            return Type(PrimitiveType('num'))
 
     def return_type(self):
         return self.expected_type()
