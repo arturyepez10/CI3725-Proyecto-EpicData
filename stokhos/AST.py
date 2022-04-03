@@ -16,6 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from math import floor
+from tkinter.messagebox import NO
 
 class AST:
     def __repr__(self) -> str:
@@ -120,7 +122,47 @@ class Terminal(AST):
 
 class Number(Terminal):
     def type_check(self, symbol_table):
-        return Type(PrimitiveType('num'))        
+        return Type(PrimitiveType('num'))
+    
+    # Sobrecarga de operadores para números de Stókhos
+    def __add__(self, other):
+        return Number(self.value + other.value)
+
+    def __sub__(self, other):
+        return Number(self.value - other.value)
+    
+    def __mul__(self, other):
+        return Number(self.value * other.value)
+    
+    def __truediv__(self, other):
+        return Number(self.value / other.value)
+    
+    def __mod__(self, other):
+        return Number(self.value % other.value)
+    
+    def __pow__(self, other):
+        return Number(self.value ** other.value)
+
+    def __neg__(self):
+        return Number(-self.value)
+    
+    def __pos__(self):
+        return self
+    
+    def __lt__(self, other):
+        return Boolean(self.value < other.value)
+
+    def __le__(self, other):
+        return Boolean(self.value <= other.value)
+    
+    def __gt__(self, other):
+        return Boolean(self.value > other.value)
+    
+    def __ge__(self, other):
+        return Boolean(self.value >= other.value)
+
+    def __floor__(self):
+        return Number(floor(self.value))
 
 class Id(Terminal):
     def type_check(self, symbol_table):
@@ -133,7 +175,11 @@ class Id(Terminal):
 
 class Boolean(Terminal):
     def type_check(self, symbol_table):
-        return Type(PrimitiveType('bool'))  
+        return Type(PrimitiveType('bool'))
+
+    # Sobrecarga de operadores para Boolean de Stókhos
+    def __bool__(self):
+        return self.value
 
 # -------- TIPOS --------
 class Type(AST):
@@ -326,6 +372,13 @@ class Array(AST):
             
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    # Soporte de indexing y cálculo de longitud
+    def __len__(self) -> Number:
+        return len(self.list)
+
+    def __getitem__(self, index: int) -> object:
+        return self.list[index]
     
     def type_check(self, symbol_table):
         if len(self.list.elements) == 0:
@@ -349,7 +402,7 @@ class ArrayAccess(AST):
         self.index = _index
 
     def __str__(self) -> str:
-        return f'ArrayAcces({self.id}, {self.index})'
+        return f'ArrayAccess({self.id}, {self.index})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -392,7 +445,7 @@ class Function(AST):
 
 class ElemList(AST):
     def __init__(self, el: object):
-        self.elements = [el] if el else []
+        self.elements = [] if el is None else [el]
 
     def append(self, el:object):
         return self.elements.insert(0, el)
@@ -406,6 +459,13 @@ class ElemList(AST):
              
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    # Soporte de indexing y cálculo de longitud
+    def __len__(self) -> int:
+        return len(self.elements)
+    
+    def __getitem__(self, index):
+        return self.elements[index]
 
 
     # Metodo usado para debug
