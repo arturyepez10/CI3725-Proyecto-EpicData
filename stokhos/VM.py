@@ -45,6 +45,8 @@ class StokhosVM:
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
 
+        self.symbols = {}
+
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
 

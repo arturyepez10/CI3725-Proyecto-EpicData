@@ -205,8 +205,8 @@ test_sol.append([simulate_error_failed_format(error_invalid_id('1Ramon', 1))])
 test_cases.append([r'.Cabaiero'])
 test_sol.append([simulate_error_failed_format(error_nonexistent_special_command())])
 
-test_cases.append([r'2+2;'])
-test_sol.append([simulate_error_failed_format(error_non_implemented_interpretation())])
+# test_cases.append([r'2+2;'])
+# test_sol.append([simulate_error_failed_format(error_non_implemented_interpretation())])
 
 # --- Errores derivados por el .load -------
 

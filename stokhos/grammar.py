@@ -231,7 +231,11 @@ def p_funcion(p):
 def p_booleano(p):
     '''booleano : TkTrue
         | TkFalse'''
-    p[0] = AST.Boolean(p[1])
+    if p[1] == 'true':
+        p[0] = AST.Boolean(True)
+    else:
+        p[0] = AST.Boolean(False)
+        
 
 # <tipo> -> <tipo_primitivo> | <tipo_arreglo>
 def p_tipo(p):

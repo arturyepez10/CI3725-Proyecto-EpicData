@@ -17,11 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from stokhos.utils.custom_exceptions import SemanticError
+import imp
+from ..utils.custom_exceptions import SemanticError
 from .. import AST
+from ..VM import StokhosVM
+from random import uniform
 
-
-def _type(ast: AST.AST, sym_table: dict) -> AST.Type:
+def stk_type(ast: AST.AST, sym_table: dict) -> AST.Type:
     '''Retorna el tipo de una expresión.
     
     Args:
@@ -52,3 +54,14 @@ def _type(ast: AST.AST, sym_table: dict) -> AST.Type:
             return AST.Number
     
     return ast.type
+
+def stk_reset(vm: StokhosVM) -> AST.Boolean:
+    '''Resetea la tabla de símbolos de la vm dada.
+    
+    Args:
+        vm: Instancia de VM de Stókhos.
+    '''
+    vm.symbols.clear()
+    return AST.Boolean(True)
+
+def stk_uniform() -> AST.Number
