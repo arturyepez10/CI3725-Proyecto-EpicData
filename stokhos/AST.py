@@ -17,14 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from math import floor
-from tkinter.messagebox import NO
+
+from stokhos.utils.custom_exceptions import SemanticError
 
 class AST:
     def __repr__(self) -> str:
         return self.__str__()
     
     def type_check(self, symbol_table):
-        raise Exception('Type check not implemented')
+        raise SemanticError('Type check not implemented')
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -38,7 +39,7 @@ class BinOp(AST):
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return (self.op == other.op 
+            return (self.op == other.op
                 and self.lhs_term == other.lhs_term 
                 and self.rhs_term == other.rhs_term)
         else:
@@ -49,11 +50,15 @@ class BinOp(AST):
         lhs_type = self.lhs_term.type_check(symbol_table)
         rhs_type = self.rhs_term.type_check(symbol_table)
         
-        if (isinstance(lhs_type.type, type(rhs_type.type)) and lhs_type == rhs_type 
-            and isinstance(rhs_type.type, type(expected_type.type)) and rhs_type == expected_type):
-            return self.return_type()
-        else:
-            raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
+        try:
+            if lhs_type == expected_type and rhs_type == expected_type:
+                return self.return_type()
+            else:
+                raise SemanticError(f'"{self.op}" no se puede aplicar a '
+                    f'operandos de tipo {lhs_type.type} y {rhs_type.type}')
+        except TypeError:
+            raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                f'de tipo {lhs_type.type} y {rhs_type.type}')
 
     def expected_type(self):
         if self.op in ['&&', '||']:
@@ -95,7 +100,7 @@ class UnOp(AST):
         if isinstance(term_type.type, type(expected_type.type)) and term_type == expected_type:
             return self.return_type()
         else:
-            raise Exception(f'"{self.term}" is not "{expected_type.type}" type')
+            raise SemanticError(f'"{self.term}" is not "{expected_type.type}" type')
 
     def expected_type(self):
         if self.op in ['+', '-']:
@@ -121,9 +126,6 @@ class Terminal(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
 class Number(Terminal):
-    def type_check(self, symbol_table):
-        return Type(PrimitiveType('num'))
-    
     # Sobrecarga de operadores para números de Stókhos
     def __add__(self, other):
         return Number(self.value + other.value)
@@ -164,22 +166,26 @@ class Number(Terminal):
     def __floor__(self):
         return Number(floor(self.value))
 
-class Id(Terminal):
+    # Caso base del type checking
     def type_check(self, symbol_table):
+        return Type(PrimitiveType('num'))
 
-        if symbol_table.get(self.value):
-            return symbol_table.get(self.value)
-
+class Id(Terminal):
+    # Caso base del type checking
+    def type_check(self, symbol_table):
+        if self.value in symbol_table:
+            return symbol_table[self.value].type
         else:
-            raise Exception(f'No existe "{self.value}" en la tabla de simbolos')
+            raise SemanticError(f'Variable "{self.value}" no definida')
 
 class Boolean(Terminal):
-    def type_check(self, symbol_table):
-        return Type(PrimitiveType('bool'))
-
     # Sobrecarga de operadores para Boolean de Stókhos
     def __bool__(self):
         return self.value
+
+    # Caso base del type checking
+    def type_check(self, symbol_table):
+        return Type(PrimitiveType('bool'))
 
 # -------- TIPOS --------
 class Type(AST):
@@ -249,7 +255,7 @@ class SymDef(AST):
     def type_check(self, symbol_table):
 
         if symbol_table.get(self.id.value):
-            raise Exception(f'"{self.id.value}" is already defined in the symbol table')
+            raise SemanticError(f'"{self.id.value}" is already defined in the symbol table')
 
         expected_type = self.type
         rhs_type = self.rhs.type_check(symbol_table)
@@ -257,7 +263,7 @@ class SymDef(AST):
         if isinstance(rhs_type.type, type(expected_type.type)) and rhs_type == expected_type:
             return Type(PrimitiveType('void'))
         else:
-            raise Exception(f'"{self.rhs}" is not "{expected_type.type}" type')
+            raise SemanticError(f'"{self.rhs}" is not "{expected_type.type}" type')
 
 # -------- ASIGNACIONES --------
 class Assign(AST):
@@ -283,7 +289,7 @@ class Assign(AST):
         if isinstance(rhs_type.type, type(var_type.type)) and rhs_type == var_type:
             return Type(PrimitiveType('void'))
         else:
-            raise Exception(f'"{self.rhs}" is not "{var_type.type}" type,'
+            raise SemanticError(f'"{self.rhs}" is not "{var_type.type}" type,'
             f' at assigning value to variable "{self.id}"')
 
 class AssignArrayElement(AST):
@@ -310,17 +316,17 @@ class AssignArrayElement(AST):
 
         # Tratar de acceder a algo que no es de tipo arreglo
         if not isinstance(array_type.type, TypeArray):
-            raise Exception(f'{self.id} is not an array')
+            raise SemanticError(f'{self.id} is not an array')
 
         # Tratar de usar un indice que no es un numero
         if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
-            raise Exception(f'{self.index} is not num type, bad array access')
+            raise SemanticError(f'{self.index} is not num type, bad array access')
 
         # Comprobar que el tipo del arreglo es el mismo tipo que el rhs
         if isinstance(rhs_type.type, type(array_type.type.type)) and rhs_type.type == array_type.type.type:
             return Type(PrimitiveType('void'))
         else:
-            raise Exception(f'"{self.rhs}" is not "{array_type.type}" type')
+            raise SemanticError(f'"{self.rhs}" is not "{array_type.type}" type')
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -382,7 +388,7 @@ class Array(AST):
     
     def type_check(self, symbol_table):
         if len(self.list.elements) == 0:
-            raise Exception('Not enough information to infer type')
+            raise SemanticError('Not enough information to infer type')
 
         array_type = self.list.elements[0].type_check(symbol_table)
 
@@ -391,7 +397,7 @@ class Array(AST):
             # Quiero tratar de reportar cuál es el primer elemento que falla la aserción
             assert all([x.type_check(symbol_table) == array_type for x in self.list.elements])
         except (TypeError, AssertionError):
-            raise Exception('non-homogeneous array')
+            raise SemanticError('non-homogeneous array')
         
         return Type(TypeArray(array_type.type)) 
 
@@ -417,11 +423,11 @@ class ArrayAccess(AST):
 
         # Tratar de acceder a algo que no es de tipo arreglo
         if not isinstance(array_type.type, TypeArray):
-            raise Exception(f'{self.id} is not an array')
+            raise SemanticError(f'{self.id} is not an array')
 
         # Tratar de usar un indice que no es un numero
         if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
-            raise Exception(f'{self.index} is not num type, bad array access')
+            raise SemanticError(f'{self.index} is not num type, bad array access')
 
         return Type(array_type.type.type)
 

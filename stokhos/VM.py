@@ -79,6 +79,8 @@ class StokhosVM:
         if isinstance(ast, AST.Error):
             return f'ERROR: {ast.cause}'
         
+        ast.type_check(self.symbols)
+
         # --- FORMA 1 ---
         # ast = self.validate(ast)
         # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
