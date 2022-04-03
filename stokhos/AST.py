@@ -416,6 +416,14 @@ class ElemList(AST):
     # El chequeo de tipos de esta clase se hace por medio de las clases funciones
     # de funciones o arreglos
 
+# --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
+class Symbol(AST):
+    def __init__(self, _type: object, value: object):
+        self.type = _type
+        self.value = value
+
+# --- CLASE DE ERROR ---
+
 class Error(AST):
     def __init__(self, cause: str):
         self.cause = cause
