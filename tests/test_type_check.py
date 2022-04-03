@@ -139,12 +139,18 @@ cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
 def test_type_check(test_case:str, test_sol:object):
     symbols = {
-        'x': Type(PrimitiveType('num')),
-        'y': Type(PrimitiveType('bool')),
-        'unNumero': Type(PrimitiveType('num')),
-        'unBooleano': Type(PrimitiveType('bool')),
-        'arregloDeNumeros': Type(TypeArray(PrimitiveType('num'))),
-        'arregloDeBooleanos': Type(TypeArray(PrimitiveType('bool')))
-    }    
+        'x':
+            Symbol(Type(PrimitiveType('num')), Number(42)),
+        'y':
+            Symbol(Type(PrimitiveType('bool')), Boolean(True)),
+        'unNumero':
+            Symbol(Type(PrimitiveType('num')), Number(616)),
+        'unBooleano':
+            Symbol(Type(PrimitiveType('bool')), Boolean(False)),
+        'arregloDeNumeros':
+            Symbol(Type(TypeArray(PrimitiveType('num'))), Array(ElemList(Number(42)))),
+        'arregloDeBooleanos': 
+            Symbol(Type(TypeArray(PrimitiveType('bool'))), Array(ElemList(Boolean(False))))
+    }
     out = parser.parse(test_case).type_check(symbols)
     assert out == test_sol
