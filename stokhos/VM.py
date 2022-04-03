@@ -72,13 +72,32 @@ class StokhosVM:
 
                 donde <mensaje> es un mensaje de error descriptivo.
         """
+        ast = self.parse(command)
 
-        try:
-            raise NotImplementedError
-        except NotImplementedError:
-            prefix = 'ERROR'
-            suffix = 'interpretación no implementada'
+        if isinstance(ast, AST.Error):
+            return f'ERROR: {ast.cause}'
         
+        # --- FORMA 1 ---
+        # ast = self.validate(ast)
+        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
+        #     res = self.execute(ast)
+        #     return f'ACK: {command} ==> {res}'
+        # elif type(ast) == AST.Error:
+        #     return f'ERROR: {ast.cause}'
+        # else:
+        #     res = self.eval(ast)
+        #     return f'OK: {res}'
+
+        # --- FORMA 2 ---
+        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
+        #     res = self.execute(ast)
+        #     return f'ACK: {command}'
+        # else:
+        #     res = self.eval(ast)
+        #     return f'OK: {res}'
+
+        prefix = 'OK'
+        suffix = 'TODO'
         return f'{prefix}: {suffix}'
 
     def lextest(self, command: str) -> str:
