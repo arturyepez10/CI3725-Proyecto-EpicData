@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from stokhos.utils.custom_exceptions import SemanticError
 from .. import AST
 
 
@@ -35,7 +36,10 @@ def _type(ast: AST.AST, sym_table: dict) -> AST.Type:
     
     # Si es una variable, se obtiene su tipo de la tabla de símbolos.
     if type(ast) == AST.Id:
-        return sym_table[ast.id.value]
+        if ast.id.value in sym_table:
+            return sym_table[ast.id.value].type
+        else:
+            raise SemanticError('Variable no definida')
     
     # Si es una función, se obtiene su tipo de retorno de la tabla de símbolos.
     # TODO

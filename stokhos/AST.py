@@ -280,7 +280,6 @@ class Error(AST):
 
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
 class Symbol(AST):
-    def __init__(self, _id: object, _type: object, value: object):
-        self.id = _id
+    def __init__(self, _type: object, value: object):
         self.type = _type
         self.value = value

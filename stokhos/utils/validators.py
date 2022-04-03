@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from re import I
 from ..builtins.functions import _type
 from .. import AST
 from .custom_exceptions import SemanticError
@@ -59,7 +60,7 @@ def validate_vardef(ast: AST.SymDef, sym_table: dict) -> None:
         raise SemanticError(f'Variable {ast.id} ya definida')
 
     # Se valida el tipo del lado derecho de la asignación
-    validate_type(ast.type, ast.value, sym_table)
+    type_check(ast.type, ast.value, sym_table)
 
 def validate_assign(ast: AST.Assign, sym_table: dict) -> None:
     # Se valida que la variable a la que se le asigna sea previamente
@@ -81,8 +82,18 @@ def validate_expr(ast: AST.AST, sym_table: dict) -> None:
     else:
         return ast
 
-def validate_type(type: AST.Type, ast: AST.AST, sym_table: dict) -> None:
+def type_check(_type: AST.Type, ast: AST.AST, sym_table: dict) -> None:
     # Se valida que el ast sea del mismo tipo que type, independientemente de
     # si sus variables existen o el ast es semánticamente correcto
-    if ast.type != _type(ast):
-        raise Exception(f'Expresión no es de tipo booleano')
+    if _type != _type(ast):
+        raise SemanticError(f'Tipos no compatibles')
+
+    # Casos base: ast es un terminal
+    if issubclass(type(ast), AST.Terminal):
+        return
+
+    # Si ast es un operador binario
+    if issubclass(type(ast), AST.BinOp):
+        type_check(_type, ast.lhs_term, sym_table)
+        type_check(_type, ast.rhs_term, sym_table)
+        return
