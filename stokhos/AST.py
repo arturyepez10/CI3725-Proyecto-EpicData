@@ -17,9 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from array import ArrayType
-
-
 class AST:
     def __repr__(self) -> str:
         return self.__str__()
@@ -233,6 +230,7 @@ class Assign(AST):
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
     def type_check(self, symbol_table):
+        # Añadir qeu la variable exista en la tabla de simbolos
         var_type = self.id.type_check(symbol_table)
         rhs_type = self.rhs.type_check(symbol_table)
 
@@ -336,7 +334,9 @@ class Array(AST):
         array_type = self.list.elements[0].type_check(symbol_table)
 
         try: 
-            assert not any([x.type_check(symbol_table) != array_type for x in self.list.elements])
+            # Hacer mejor diseño
+            # Quiero tratar de reportar cuál es el primer elemento que falla la aserción
+            assert all([x.type_check(symbol_table) == array_type for x in self.list.elements])
         except (TypeError, AssertionError):
             raise Exception('non-homogeneous array')
         
