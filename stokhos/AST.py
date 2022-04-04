@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from curses import tparm
 from math import floor
 
 from stokhos.utils.custom_exceptions import SemanticError
@@ -24,8 +25,8 @@ class AST:
     def __repr__(self) -> str:
         return self.__str__()
     
-    def type_check(self, symbol_table):
-        raise SemanticError('Type check not implemented')
+    def type_check(self, symbol_table: dict):
+        raise SemanticError('Chequeo de tipos no implementado')
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -45,7 +46,7 @@ class BinOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         expected_type = self.expected_type()
         lhs_type = self.lhs_term.type_check(symbol_table)
         rhs_type = self.rhs_term.type_check(symbol_table)
@@ -53,10 +54,9 @@ class BinOp(AST):
         try:
             if lhs_type == expected_type and rhs_type == expected_type:
                 return self.return_type()
-            else:
-                raise SemanticError(f'"{self.op}" no se puede aplicar a '
-                    f'operandos de tipo {lhs_type.type} y {rhs_type.type}')
         except TypeError:
+            pass
+        else:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
                 f'de tipo {lhs_type.type} y {rhs_type.type}')
 
@@ -93,17 +93,16 @@ class UnOp(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
     
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         expected_type = self.expected_type()
         term_type = self.term.type_check(symbol_table)
 
         try:
             if term_type == expected_type:
                 return self.return_type()
-            else:
-                raise SemanticError(f'"{self.op}" no se puede aplicar a '
-                    f'operando de tipo {term_type.type}')
-        except TypeError as e:
+        except TypeError:
+            pass
+        else:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
                 f' de tipo {term_type.type}')
 
@@ -172,12 +171,12 @@ class Number(Terminal):
         return Number(floor(self.value))
 
     # Caso base del type checking
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         return Type(PrimitiveType('num'))
 
 class Id(Terminal):
     # Caso base del type checking
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         if self.value in symbol_table:
             return symbol_table[self.value].type
         else:
@@ -189,7 +188,7 @@ class Boolean(Terminal):
         return self.value
 
     # Caso base del type checking
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         return Type(PrimitiveType('bool'))
 
 # -------- TIPOS --------
@@ -237,7 +236,6 @@ class PrimitiveType(AST):
             return self.type == other.type
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-    
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -257,18 +255,21 @@ class SymDef(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
-
-        if symbol_table.get(self.id.value):
-            raise SemanticError(f'"{self.id.value}" is already defined in the symbol table')
+    def type_check(self, symbol_table: dict):
+        if self.id.value in symbol_table:
+            raise SemanticError(f'Variable "{self.id.value}" ya definida anteriormente')
 
         expected_type = self.type
         rhs_type = self.rhs.type_check(symbol_table)
 
-        if isinstance(rhs_type.type, type(expected_type.type)) and rhs_type == expected_type:
-            return Type(PrimitiveType('void'))
+        try:
+            if expected_type == rhs_type:
+                return Type(PrimitiveType('void'))
+        except TypeError:
+            pass
         else:
-            raise SemanticError(f'"{self.rhs}" is not "{expected_type.type}" type')
+            raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
+                f'esperaba {expected_type.type}')
 
 # -------- ASIGNACIONES --------
 class Assign(AST):
@@ -286,52 +287,50 @@ class Assign(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
-        # Añadir qeu la variable exista en la tabla de simbolos
+    def type_check(self, symbol_table: dict):
+        if self.id.value not in symbol_table:
+            raise SemanticError(f'Variable "{self.id.value}" no definida '
+                'anteriormente')
+        
         var_type = self.id.type_check(symbol_table)
         rhs_type = self.rhs.type_check(symbol_table)
 
-        if isinstance(rhs_type.type, type(var_type.type)) and rhs_type == var_type:
-            return Type(PrimitiveType('void'))
+        try:
+            if var_type == rhs_type:
+                return Type(PrimitiveType('void'))
+        except TypeError:
+            pass
         else:
-            raise SemanticError(f'"{self.rhs}" is not "{var_type.type}" type,'
-            f' at assigning value to variable "{self.id}"')
+            raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
+                f'esperaba {var_type}')
 
 class AssignArrayElement(AST):
     def __init__(self, arrayAccess: object, rhs: object):
-        self.id = arrayAccess.id
-        self.index = arrayAccess.index
+        self.array_access = arrayAccess.expr
         self.rhs = rhs
 
     def __str__(self) -> str:
-        return f'AssignArrayElement({self.id}, {self.index} , {self.rhs})'
+        return f'AssignArrayElement({self.array_access}, {self.index} , {self.rhs})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return (self.id == other.id
-                and self.index == other.index
+            return (self.array_access == other.array_access
                 and self.rhs == other.rhs)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
-        array_type = self.id.type_check(symbol_table)
-        index_type = self.index.type_check(symbol_table)
+    def type_check(self, symbol_table: dict):
+        array_type = self.array_access.type_check(symbol_table)
         rhs_type = self.rhs.type_check(symbol_table)
 
-        # Tratar de acceder a algo que no es de tipo arreglo
-        if not isinstance(array_type.type, TypeArray):
-            raise SemanticError(f'{self.id} is not an array')
-
-        # Tratar de usar un indice que no es un numero
-        if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
-            raise SemanticError(f'{self.index} is not num type, bad array access')
-
-        # Comprobar que el tipo del arreglo es el mismo tipo que el rhs
-        if isinstance(rhs_type.type, type(array_type.type.type)) and rhs_type.type == array_type.type.type:
-            return Type(PrimitiveType('void'))
+        try:
+            if rhs_type.type == array_type.type.type:
+                return Type(PrimitiveType('void'))
+        except TypeError:
+            pass    
         else:
-            raise SemanticError(f'"{self.rhs}" is not "{array_type.type}" type')
+            raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
+                f'esperaba {array_type.type.type}')
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -348,7 +347,7 @@ class Parentheses(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
 
 
@@ -366,7 +365,7 @@ class Quoted(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table):
+    def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
 
 # -------- ARREGLOS --------
@@ -391,51 +390,56 @@ class Array(AST):
     def __getitem__(self, index: int) -> object:
         return self.list[index]
     
-    def type_check(self, symbol_table):
-        if len(self.list.elements) == 0:
-            raise SemanticError('Not enough information to infer type')
+    def type_check(self, symbol_table: dict):
+        if not self:
+            raise SemanticError('No hay suficiente información para inferir '
+                'el tipo del arreglo')
 
-        array_type = self.list.elements[0].type_check(symbol_table)
+        array_type = self[0].type_check(symbol_table)
 
-        try: 
-            # Hacer mejor diseño
-            # Quiero tratar de reportar cuál es el primer elemento que falla la aserción
-            assert all([x.type_check(symbol_table) == array_type for x in self.list.elements])
+        try:
+            # Tratar de mejorar diseño para reportar especificamente qué
+            # elemento falla
+            if all([el.type_check(symbol_table) == array_type for el in self]):
+                return Type(TypeArray(array_type.type))
         except (TypeError, AssertionError):
-            raise SemanticError('non-homogeneous array')
+            pass
+        else:
+            raise SemanticError('Arreglo de tipos no homogéneos')
         
-        return Type(TypeArray(array_type.type)) 
-
-
 class ArrayAccess(AST):
-    def __init__(self, _id:object, _index:object) -> None:
-        self.id = _id
+    def __init__(self, expr: object, _index:object) -> None:
+        self.expr = expr
         self.index = _index
 
     def __str__(self) -> str:
-        return f'ArrayAccess({self.id}, {self.index})'
+        return f'ArrayAccess({self.expr}, {self.index})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return (self.id == other.id
+            return (self.expr == other.expr
                 and self.index == other.index)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def type_check(self, symbol_table): 
-        array_type = self.id.type_check(symbol_table)
+    def type_check(self, symbol_table: dict):
+        array_type = self.expr.type_check(symbol_table)
         index_type = self.index.type_check(symbol_table)
 
-        # Tratar de acceder a algo que no es de tipo arreglo
+        # Verifica que se intente acceder a un arreglo
         if not isinstance(array_type.type, TypeArray):
-            raise SemanticError(f'{self.id} is not an array')
+            raise SemanticError('No se permite el acceso a arreglo para '
+                f'expresión de tipo {array_type.type}')
 
-        # Tratar de usar un indice que no es un numero
-        if not isinstance(index_type.type, PrimitiveType) or index_type != Type(PrimitiveType('num')):
-            raise SemanticError(f'{self.index} is not num type, bad array access')
-
-        return Type(array_type.type.type)
-
+        try:
+            # Verifica que se el índice de acceso sea un número
+            if index_type == Type(PrimitiveType('num')):
+                return Type(array_type.type.type)
+        except TypeError:
+            pass
+        else:
+            raise SemanticError(f'El tipo inferido del índice es '
+                f'{index_type.type}, pero se esperaba num')
 
 class Function(AST):
     def __init__(self, _id:object, _args:object) -> None:
@@ -449,7 +453,6 @@ class Function(AST):
         if isinstance(other, type(self)):
             return (self.id == other.id
                 and self.args == other.args)
-             
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
@@ -478,7 +481,6 @@ class ElemList(AST):
     def __getitem__(self, index):
         return self.elements[index]
 
-
     # Metodo usado para debug
     def __debug_Init__(self, elements:object):
         self.elements = elements
@@ -501,5 +503,3 @@ class Error(AST):
     
     def __str__(self) -> str:
         return f'''Error('{self.cause}')'''
-
-
