@@ -136,7 +136,6 @@ test_sol.append(Type(PrimitiveType('void')))
 test_cases.append('arregloDeBooleanos := [false, true, false];')
 test_sol.append(Type(PrimitiveType('void')))
 
-
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
@@ -155,5 +154,16 @@ def test_type_check(test_case:str, test_sol:object):
         'arregloDeBooleanos': 
             Symbol(Type(TypeArray(PrimitiveType('bool'))), Array(ElemList(Boolean(False))))
     }
+    out = parser.parse(test_case).type_check(symbols)
+    assert out == test_sol
+
+
+# -------------- Pruebas de reporte de errores ----------
+test_cases, test_sol = [], []
+
+cases = list(zip(test_cases, test_sol))
+@pytest.mark.parametrize("test_case,test_sol", cases)
+def test_type_check(test_case:str, test_sol:object):
+    symbols = {}
     out = parser.parse(test_case).type_check(symbols)
     assert out == test_sol

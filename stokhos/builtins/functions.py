@@ -44,7 +44,7 @@ def stk_length(a: Array) -> Number:
     Args:
         l: Lista a evaluar.
     '''
-    return len(a)
+    return Number(len(a))
 
 def stk_sum(a: Array) -> Number:
     '''Retorna la suma de los elementos de un arreglo de Number
@@ -111,6 +111,6 @@ PRELOADED_FUNCTIONS = {
         ),
     'now': Symbol(
             NUM,
-            FunctionSignature(stk_pi)
+            FunctionSignature(stk_now)
         ),
 }

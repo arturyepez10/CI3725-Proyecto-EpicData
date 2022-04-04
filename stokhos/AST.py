@@ -80,7 +80,7 @@ class BinOp(AST):
                 self.lhs_term.evaluate(symbol_table).value, 
                 self.rhs_term.evaluate(symbol_table).value)
         )
-        
+
 
 class Comparison(BinOp):
     def expected_type(self):
@@ -189,7 +189,7 @@ class Terminal(AST):
 
 class Number(Terminal):
     # Sobrecarga de operadores para números de Stókhos
-    """
+
     def __add__(self, other):
         return Number(self.value + other.value)
 
@@ -228,7 +228,7 @@ class Number(Terminal):
 
     def __floor__(self):
         return Number(floor(self.value))
-    """
+
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         return NUM
@@ -659,6 +659,10 @@ class Function(AST):
 
         return symbol_table[self.id.value].type
 
+    def evaluate(self, symbol_table: dict):
+        function = symbol_table[self.id.value].value.callable
+        return function(*self.args)
+
 class ElemList(AST):
     def __init__(self, el: object):
         self.elements = [] if el is None else [el]
@@ -732,7 +736,7 @@ BINARY_OP = {
     '*': operator.mul,
     '^': operator.pow,
     '%': operator.mod,
-    '/': operator.floordiv,
+    '/': operator.truediv,
     '<': operator.lt,
     '<=': operator.le,
     '>': operator.gt,
