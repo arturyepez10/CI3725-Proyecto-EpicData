@@ -24,7 +24,7 @@ import stokhos.grammar as grammar
 import stokhos.tokenrules as tokenrules
 
 from . import AST
-from .utils.custom_exceptions import ParseError, SemanticError
+from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
 
@@ -181,7 +181,7 @@ class StokhosVM:
         """
         try:
             return ast.type_check(self.symbols)
-        except SemanticError as e:
+        except (SemanticError, NotEnoughInfoError) as e:
             return AST.Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply

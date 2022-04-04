@@ -402,15 +402,17 @@ class Array(AST):
 
         array_type = self[0].type_check(symbol_table)
 
-        try:
-            # Tratar de mejorar diseño para reportar especificamente qué
-            # elemento falla
-            if all([el.type_check(symbol_table) == array_type for el in self]):
-                return Type(TypeArray(array_type.type))
-        except (TypeError, AssertionError):
-            pass
-        else:
-            raise SemanticError('Arreglo de tipos no homogéneos')
+        for el in self:
+            # Chequea que no haya arreglos anidados
+            if isinstance(el, Array):
+                raise SemanticError('Arreglos anidados no están permitidos')
+            
+            # Chequea que todos los elementos sean del mismo tipo
+            if el.type_check(symbol_table) != array_type:
+                raise SemanticError(f'El tipo de todos los elementos del '
+                    f'arreglo debe ser {array_type.type}')
+        return Type(TypeArray(array_type.type))
+            
         
 class ArrayAccess(AST):
     def __init__(self, expr: object, _index:object) -> None:
