@@ -83,7 +83,7 @@ class StokhosVM:
             return f'ERROR: {valid.cause}'
 
         # Si se llega a esta línea de código, el AST era válido
-        if type(ast) in [AST.SymDef, AST.Assign]:
+        if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArrayElement]:
             res = self.execute(ast)
             return f'ACK: {command} ==> {res}'
         else:

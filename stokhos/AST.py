@@ -341,7 +341,7 @@ class SymDef(AST):
             if expected_type == rhs_type:
                 return VOID
         except TypeError:
-            pass
+            return Error(f"El tipo esperado {expected_type} no concuerda con el tipo {rhs_type}")
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {expected_type.type}')
@@ -352,9 +352,22 @@ class SymDef(AST):
             _type = NUM
         elif type(val) == Boolean:
             _type = BOOL
+        
+        elif type(val[0]) == Number:
+            _type = NUM_ARRAY
+        
+        elif type(val[0]) == Boolean:
+            _type = BOOL_ARRAY
+
+        else: # Esta exception deberia ser inaccesible
+            Exception("Error de tipos")           
 
         symbol_table[self.id.value] = Symbol(_type, val)
-        return f'{self.type.type} {self.id.value} := {val.value}'
+
+        if isinstance(val, PrimitiveType):
+            return f'{self.type.type} {self.id.value} := {val.value}'
+        else:
+            return f'{self.type.type} {self.id.value} := {val}'
 
 # -------- ASIGNACIONES --------
 class Assign(AST):
@@ -387,7 +400,7 @@ class Assign(AST):
             if var_type == rhs_type:
                 return VOID
         except TypeError:
-            pass
+            return Error(f"El tipo esperado {var_type} no concuerda con el tipo {rhs_type}")
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
                 f'esperaba {var_type}')
@@ -395,35 +408,56 @@ class Assign(AST):
     def execute(self, symbol_table: dict) -> str:
         val = self.rhs.evaluate(symbol_table)
         symbol_table[self.id.value].value = val
-        return f'{self.id.value} := {val.value}'
+
+        if isinstance(val, PrimitiveType):
+            return f'{self.id.value} := {val.value}'
+        else:
+            return f'{self.id.value} := {val}'
 
 class AssignArrayElement(AST):
     def __init__(self, arrayAccess: object, rhs: object):
-        self.array_access = arrayAccess.expr
+        self.id = arrayAccess.id
+        self.index = arrayAccess.index
         self.rhs = rhs
 
     def __str__(self) -> str:
-        return f'AssignArrayElement({self.array_access}, {self.index} , {self.rhs})'
+        return f'AssignArrayElement({self.id}, {self.index} , {self.rhs})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return (self.array_access == other.array_access
+            return (self.id == other.id and self.index == other.index
                 and self.rhs == other.rhs)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
     def type_check(self, symbol_table: dict):
-        array_type = self.array_access.type_check(symbol_table)
+
+        array_type = self.id.type_check(symbol_table)
         rhs_type = self.rhs.type_check(symbol_table)
 
         try:
             if rhs_type.type == array_type.type.type:
                 return VOID
         except TypeError:
-            pass    
+            return Error(f"El tipo esperado {array_type} no concuerda con el tipo {rhs_type}")
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {array_type.type.type}')
+
+    def execute(self, symbol_table: dict) -> str:        
+        
+        # Evaluar el indice
+        index = self.index.evaluate(symbol_table)        
+
+        # Comprobar que no este fuera del rango
+        arr = symbol_table[self.id.value].value
+        if index.value < 0 or index.value >= len(arr.list.elements):
+            return Error(f"indice {index} fuera de rango para arreglo {self.id.value}")
+
+        val = self.rhs.evaluate(symbol_table)
+        symbol_table[self.id.value].value.list.elements[index.value] = val
+        return f'{self.id.value} := {val.value}'
+
 
 # -------- AGRUPACIONES --------
 class Parentheses(AST):
@@ -445,7 +479,6 @@ class Parentheses(AST):
 
     def evaluate(self, symbol_table: dict):
         return self.expr.evaluate(symbol_table)
-
 
 class Quoted(AST):
     def __init__(self, expr: object):
@@ -506,25 +539,35 @@ class Array(AST):
                 raise SemanticError(f'El tipo de todos los elementos del '
                     f'arreglo debe ser {array_type.type}')
         return Type(TypeArray(array_type.type))
-            
+
+    def evaluate(self, symbol_table: dict):
+        # Se evaluan todas las expresiones dentro del arreglo
+        evaluated_list = []
+        for expr in self.list:
+            evaluated_list.append(expr.evaluate(symbol_table))
+        # Se retorna un arreglo cuya lista es la lista de expresiones
+        # evaluadas
+        
+        # Se retorna un arreglo con su lista de elementos evaluada        
+        return Array(ElemList(None).__debug_Init__(evaluated_list))
         
 class ArrayAccess(AST):
-    def __init__(self, expr: object, _index:object) -> None:
-        self.expr = expr
+    def __init__(self, id: object, _index:object) -> None:
+        self.id = id
         self.index = _index
 
     def __str__(self) -> str:
-        return f'ArrayAccess({self.expr}, {self.index})'
+        return f'ArrayAccess({self.id}, {self.index})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return (self.expr == other.expr
+            return (self.id == other.id
                 and self.index == other.index)
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
     def type_check(self, symbol_table: dict):
-        array_type = self.expr.type_check(symbol_table)
+        array_type = self.id.type_check(symbol_table)
         index_type = self.index.type_check(symbol_table)
 
         # Verifica que se intente acceder a un arreglo
@@ -541,6 +584,18 @@ class ArrayAccess(AST):
         else:
             raise SemanticError(f'El tipo inferido del índice es '
                 f'{index_type.type}, pero se esperaba num')
+
+    def evaluate(self, symbol_table: dict):
+        # Evaluar el indice
+        index = self.index.evaluate(symbol_table)        
+
+        # Comprobar que no este fuera del rango
+        arr = symbol_table[self.id.value].value
+        if index.value < 0 or index.value >= len(arr.list.elements):
+            return Error(f"indice {index} fuera de rango para arreglo {self.id.value}")
+        
+        return symbol_table[self.id.value].value.list.elements[index.value]
+
 
 class Function(AST):
     def __init__(self, _id:object, _args:object) -> None:
@@ -690,10 +745,3 @@ UNARY_OP = {
     '-': operator.neg,
     '!': operator.not_ 
 }
-
-
-NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
-BOOL_BIN_OPS = ['&&', '||']
-COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
-BOOL_UN_OPS = ['!']
-NUM_UN_OPS = ['+', '-']
