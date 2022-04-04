@@ -60,6 +60,9 @@ test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(BOOL_BIN_OPS))])
 test_cases.extend([f'3 {comparison} unNumero' for comparison in COMPARISONS])
 test_sol.extend([Type(PrimitiveType('bool')) for i in range(len(COMPARISONS))])
 
+test_cases.extend([f'true {comparison} unBooleano' for comparison in ['<>', '=']])
+test_sol.extend([Type(PrimitiveType('bool')) for i in range(2)])
+
 # ------------ Parentesis ---------
 test_cases.extend([f'((3) {numOp} (5))' for numOp in NUM_BIN_OPS])
 test_sol.extend([Type(PrimitiveType('num')) for i in range(len(NUM_BIN_OPS))])
