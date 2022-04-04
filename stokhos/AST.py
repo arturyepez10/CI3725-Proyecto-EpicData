@@ -443,6 +443,9 @@ class Parentheses(AST):
     def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
 
+    def evaluate(self, symbol_table: dict):
+        return self.expr.evaluate(symbol_table)
+
 
 class Quoted(AST):
     def __init__(self, expr: object):
