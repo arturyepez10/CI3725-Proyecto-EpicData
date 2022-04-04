@@ -76,6 +76,33 @@ class Comparison(BinOp):
     def return_type(self):
         return Type(PrimitiveType('bool'))
 
+    def type_check(self, symbol_table: dict):
+        lhs_type = self.lhs_term.type_check(symbol_table)
+        rhs_type = self.rhs_term.type_check(symbol_table)
+        
+        if self.op in ['<>', '=']:
+            try:
+                if isinstance(rhs_type.type, PrimitiveType) and rhs_type == lhs_type:
+                    return self.return_type()
+            except TypeError:
+                pass
+            else:
+                raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                    f'de tipo {lhs_type.type} y {rhs_type.type}')
+        else:
+            expected_type = self.expected_type()
+            lhs_type = self.lhs_term.type_check(symbol_table)
+            rhs_type = self.rhs_term.type_check(symbol_table)
+            
+            try:
+                if lhs_type == expected_type and rhs_type == expected_type:
+                    return self.return_type()
+            except TypeError:
+                pass
+            else:
+                raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                    f'de tipo {lhs_type.type} y {rhs_type.type}')
+
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
     def __init__(self, op: str, term: object):
