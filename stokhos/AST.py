@@ -502,6 +502,11 @@ class Symbol(AST):
         self.type = _type
         self.value = value
 
+class FunctionSignature(AST):
+    def __init__(self, _args: list[AST.Type], callable: object):
+        self.args = _args
+        self.callable = callable
+
 # --- CLASE DE ERROR ---
 
 class Error(AST):
