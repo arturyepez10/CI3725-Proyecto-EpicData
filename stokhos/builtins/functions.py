@@ -82,7 +82,7 @@ PRELOADED_FUNCTIONS = {
         ),
     'floor': Symbol(
             NUM,
-            FunctionSignature(stk_floor, [NUM])
+            FunctionSignature(stk_floor, [[NUM]])
         ),
     'length': Symbol(
             NUM,
@@ -95,14 +95,14 @@ PRELOADED_FUNCTIONS = {
             NUM,
             FunctionSignature(
                 stk_sum,
-                [NUM_ARRAY]
+                [[NUM_ARRAY]]
             )
         ),
     'avg': Symbol(
             NUM,
             FunctionSignature(
                 stk_sum,
-                [NUM_ARRAY]
+                [[NUM_ARRAY]]
             )
         ),
     'pi': Symbol(

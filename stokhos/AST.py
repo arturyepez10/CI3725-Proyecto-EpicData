@@ -501,28 +501,36 @@ class Function(AST):
         expected_args = symbol_table[self.id.value].value.args
         
         if expected_args:
-            if len(self.args) != len(expected_args):
-                raise SemanticError(f'La función "{self.id.value}" esperaba '
-                    f'{len(expected_args)} argumentos, pero se recibieron '
-                    f'{len(self.args)}')
-            try:
-                for i, expected_arg_type in enumerate(expected_args):
-                    cur_arg_type = self.args[i].type_check(symbol_table)
-                    if cur_arg_type != expected_arg_type:
-                        raise TypeError
-            except TypeError:
-                expected_args_overload = symbol_table[self.id.value].value.overload
-                if expected_args_overload:
-                    for overload_args in expected_args_overload:
-                        for i, expected_arg_type in enumerate(overload_args):
-                            cur_arg_type = self.args[i].type_check(symbol_table)
-                            if cur_arg_type != expected_arg_type:
-                                raise TypeError
-                            
-            except TypeError:
-                raise SemanticError(f'El tipo del argumento #{i + 1} es '
-                    f'{cur_arg_type.type}, pero se esperaba {expected_arg_type.type}')
-                
+            for k, arg_list in enumerate(expected_args):
+                # Si no coincide el número de argumentos
+                if len(self.args) != len(arg_list):
+                    # Si hay sobrecarga se pasa a la siguiente
+                    if k != len(expected_args) - 1:
+                        continue
+                    
+                    # Si ya no quedan sobrecargan se lanza el error
+                    raise SemanticError(f'La función "{self.id.value}" esperaba '
+                        f'{len(arg_list)} argumentos, pero se recibieron '
+                        f'{len(self.args)}')
+                try:
+                    # Se verifica argumento a argumento
+                    for i, expected_arg_type in enumerate(arg_list):
+                        cur_arg_type = self.args[i].type_check(symbol_table)
+                        if cur_arg_type != expected_arg_type:
+                            raise TypeError
+
+                    # Si se llega hasta acá, todos los argumentos han sido 
+                    # validados correctamente
+                    return symbol_table[self.id.value].type
+                except TypeError:
+                    # Si hay sobrecarga se pasa a la siguiente
+                    if k != len(expected_args) - 1:
+                        continue
+
+                    # Si ya no quedan sobrecargas se lanza el error
+                    raise SemanticError(f'El tipo del argumento #{i + 1} es '
+                        f'{cur_arg_type.type}, pero se esperaba '
+                        f' {expected_arg_type.type}')
         else:
             if len(self.args) != 0:
                 raise SemanticError(f'La función "{self.id.value}" esperaba '
