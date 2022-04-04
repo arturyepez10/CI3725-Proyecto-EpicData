@@ -26,7 +26,6 @@ from ..utils.custom_exceptions import SemanticError
 from ..VM import StokhosVM
 from ..utils.constants import *
 
-
 def stk_type(ast: AST, sym_table: dict) -> Type:
     '''Retorna el tipo de una expresión.
     
@@ -121,30 +120,45 @@ def stk_now() -> Number:
 PRELOADED_FUNCTIONS = {
     'reset': 
         Symbol(
-            Type(PrimitiveType('void')),
-            FunctionSignature([], stk_reset,)
+            VOID,
+            FunctionSignature(stk_reset)
         ),
     'uniform': Symbol(
-            Type(PrimitiveType('num')),
-            FunctionSignature([], stk_uniform)
+            NUM,
+            FunctionSignature(stk_uniform)
         ),
     'floor': Symbol(
-            Type(PrimitiveType('num')),
-            FunctionSignature(
-                [Type(PrimitiveType('num'))],
-                stk_floor
-            )
+            NUM,
+            FunctionSignature(stk_floor, [NUM])
         ),
     'length': Symbol(
-            Type(PrimitiveType('num')),
+            NUM,
             FunctionSignature(
-                [Type(TypeArray(PrimitiveType(('num'))))],
-                stk_floor,
-                [[Type(TypeArray(PrimitiveType(('num'))))]]
+                stk_length,
+                [NUM_ARRAY],
+                [[BOOL_ARRAY]]
             )
         ),
-    'sum': stk_sum,
-    'avg': stk_avg,
-    'pi': stk_pi,
-    'now': stk_now,
+    'sum': Symbol(
+            NUM,
+            FunctionSignature(
+                stk_sum,
+                [NUM_ARRAY]
+            )
+        ),
+    'avg': Symbol(
+            NUM,
+            FunctionSignature(
+                stk_sum,
+                [NUM_ARRAY]
+            )
+        ),
+    'pi': Symbol(
+            NUM,
+            FunctionSignature(stk_pi)
+        ),
+    'now': Symbol(
+            NUM,
+            FunctionSignature(stk_pi)
+        ),
 }
