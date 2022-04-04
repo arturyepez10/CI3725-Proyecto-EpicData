@@ -87,6 +87,18 @@ class StokhosCMD(Cmd):
         out = self.vm.lextest(command)
         self.handle_output(out)
 
+    def send_ast(self, command: str):
+        """Envía un comando al analizador sintáctico de Stókhos.
+
+        El analizador procesa la entrada y construye un árbol de sintaxis abstracta
+        en base a la entrada del usuario.
+        
+        Imprime el retorno de la VM en la salida estándar.
+        """
+        # Análisis lexicográfico de la entrada por la VM
+        out = self.vm.testparser(command)
+        self.handle_output(out)
+
     def send_process(self, command: str):
         """Envia un comando al intérprete de Stókhos.
 
@@ -155,11 +167,6 @@ class StokhosCMD(Cmd):
             self.handle_output(prefix_error(error_is_a_directory()))
             self.exit = True
             self.panic_exit_all_context()
-
-    def send_ast(self, command: str):
-        # Análisis lexicográfico de la entrada por la VM
-        out = self.vm.testparser(command)
-        self.handle_output(out)
 
     def send_failed(self):
         """Imprime por salida estándar una lista de errores almacenados hasta
