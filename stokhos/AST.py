@@ -16,7 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import operator
 from math import floor
+
 
 from .utils.custom_exceptions import NotEnoughInfoError, SemanticError
 from .utils.constants import *
@@ -26,7 +28,10 @@ class AST:
         return self.__str__()
     
     def type_check(self, symbol_table: dict):
-        raise SemanticError('Chequeo de tipos no implementado')
+        raise SemanticError(f'Chequeo de tipos no implementado para {type(self)}')
+
+    def evaluate(self, symbol_table: dict):
+        raise SemanticError(f'Evaluacion no implementada para {type(self)}')
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -70,22 +75,12 @@ class BinOp(AST):
         return self.expected_type()
 
     def evaluate(self, symbol_table: dict):
-        if self.op == '+':
-            return self.lhs_term.evaluate(symbol_table) + self.rhs_term.evaluate(symbol_table)
-        elif self.op == '-':
-            return self.lhs_term.evaluate(symbol_table) - self.rhs_term.evaluate(symbol_table)
-        elif self.op == '*':
-            return self.lhs_term.evaluate(symbol_table) * self.rhs_term.evaluate(symbol_table)
-        elif self.op == '/':
-            return self.lhs_term.evaluate(symbol_table) / self.rhs_term.evaluate(symbol_table)
-        elif self.op == '%':
-            return self.lhs_term.evaluate(symbol_table) % self.rhs_term.evaluate(symbol_table)
-        elif self.op == '^':
-            return self.lhs_term.evaluate(symbol_table) ** self.rhs_term.evaluate(symbol_table)
-        elif self.op == '&&':
-            return self.lhs_term.evaluate(symbol_table) and self.rhs_term.evaluate(symbol_table)
-        else:
-            return self.lhs_term.evaluate(symbol_table) or self.rhs_term.evaluate(symbol_table)
+        return Number(
+            BINARY_OP[self.op](
+                self.lhs_term.evaluate(symbol_table).value, 
+                self.rhs_term.evaluate(symbol_table).value)
+        )
+        
 
 class Comparison(BinOp):
     def expected_type(self):
@@ -120,6 +115,13 @@ class Comparison(BinOp):
             else:
                 raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
                     f'de tipo {lhs_type.type} y {rhs_type.type}')
+
+    def evaluate(self, symbol_table: dict):
+        return Boolean(
+            BINARY_OP[self.op](
+                self.lhs_term.evaluate(symbol_table).value, 
+                self.rhs_term.evaluate(symbol_table).value)
+        )
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -159,6 +161,18 @@ class UnOp(AST):
     def return_type(self):
         return self.expected_type()
 
+    def evaluate(self, symbol_table: dict):
+        if self.op == '!':
+            return Boolean( 
+                UNARY_OP['!'](
+                    self.term.evaluate(symbol_table).value)
+                    )
+        else:
+            return Number(
+                UNARY_OP[self.op](
+                    self.term.evaluate(symbol_table).value)
+                    )
+
 # -------- TERMINALES --------
 class Terminal(AST):
     def __init__(self, value: object):
@@ -175,6 +189,7 @@ class Terminal(AST):
 
 class Number(Terminal):
     # Sobrecarga de operadores para números de Stókhos
+    """
     def __add__(self, other):
         return Number(self.value + other.value)
 
@@ -213,7 +228,7 @@ class Number(Terminal):
 
     def __floor__(self):
         return Number(floor(self.value))
-
+    """
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         return NUM
@@ -650,3 +665,32 @@ BOOL = Type(PrimitiveType('bool'))
 VOID = Type(PrimitiveType('void'))
 NUM_ARRAY = Type(TypeArray(PrimitiveType('num')))
 BOOL_ARRAY = Type(TypeArray(PrimitiveType('bool')))
+
+# Diccionarios de operadores
+
+BINARY_OP = {
+    '+': operator.add,
+    '-': operator.sub,
+    '*': operator.mul,
+    '^': operator.pow,
+    '%': operator.mod,
+    '/': operator.floordiv,
+    '<': operator.lt,
+    '<=': operator.le,
+    '>': operator.gt,
+    '>=': operator.ge,
+    '=': operator.eq,
+    '<>': operator.ne
+}
+UNARY_OP = {
+    '+': operator.pos,
+    '-': operator.neg,
+    '!': operator.not_ 
+}
+
+
+NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
+BOOL_BIN_OPS = ['&&', '||']
+COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
+BOOL_UN_OPS = ['!']
+NUM_UN_OPS = ['+', '-']
