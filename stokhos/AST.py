@@ -496,8 +496,32 @@ class Function(AST):
         if self.id.value not in symbol_table:
             raise SemanticError(f'Variable "{self.value}" no definida')
 
+        # Verifica que cada argumento sea del tipo correspondiente según la 
+        # firma de la función
+        expected_args = symbol_table[self.id.value].value.args
+        
+        print(f'Supuestamente se esperan: {expected_args}')
 
-        return symbol_table[self.value].type
+        if expected_args:
+            if len(self.args) != len(expected_args):
+                raise SemanticError(f'La función "{self.id.value}" esperaba '
+                    f'{len(expected_args)} argumentos, pero se recibieron '
+                    f'{len(self.args)}')
+            try:
+                for i, expected_arg_type in enumerate(expected_args):
+                    cur_arg_type = self.args[i].type_check(symbol_table)
+                    if cur_arg_type != expected_arg_type:
+                        raise TypeError
+            except TypeError:
+                raise SemanticError(f'El tipo del argumento #{i + 1} es '
+                    f'{cur_arg_type.type}, pero se esperaba {expected_arg_type.type}')
+                
+        else:
+            if len(self.args) != 0:
+                raise SemanticError(f'La función "{self.id.value}" esperaba '
+                    f'0 argumentos, pero se recibieron {len(self.args)}')
+
+        return symbol_table[self.id.value].type
 
 class ElemList(AST):
     def __init__(self, el: object):
