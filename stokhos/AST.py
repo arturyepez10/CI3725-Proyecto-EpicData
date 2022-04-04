@@ -60,7 +60,8 @@ class BinOp(AST):
             if lhs_type == expected_type and rhs_type == expected_type:
                 return self.return_type()
         except TypeError:
-            pass
+            raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                f'de tipo {lhs_type.type} y {rhs_type.type}')
         else:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
                 f'de tipo {lhs_type.type} y {rhs_type.type}')
@@ -98,7 +99,8 @@ class Comparison(BinOp):
                 if isinstance(rhs_type.type, PrimitiveType) and rhs_type == lhs_type:
                     return self.return_type()
             except TypeError:
-                pass
+                raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                    f'de tipo {lhs_type.type} y {rhs_type.type}')
             else:
                 raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
                     f'de tipo {lhs_type.type} y {rhs_type.type}')
@@ -111,7 +113,8 @@ class Comparison(BinOp):
                 if lhs_type == expected_type and rhs_type == expected_type:
                     return self.return_type()
             except TypeError:
-                pass
+                SemanticError(f'"{self.op}" no se puede aplicar a operandos '
+                    f'de tipo {lhs_type.type} y {rhs_type.type}')
             else:
                 raise SemanticError(f'"{self.op}" no se puede aplicar a operandos '
                     f'de tipo {lhs_type.type} y {rhs_type.type}')
@@ -147,7 +150,8 @@ class UnOp(AST):
             if term_type == expected_type:
                 return self.return_type()
         except TypeError:
-            pass
+            raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
+                f' de tipo {term_type.type}')
         else:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
                 f' de tipo {term_type.type}')
@@ -580,7 +584,8 @@ class ArrayAccess(AST):
             if index_type == NUM:
                 return Type(array_type.type.type)
         except TypeError:
-            pass
+            SemanticError(f'El tipo inferido del índice es '
+                f'{index_type.type}, pero se esperaba num')
         else:
             raise SemanticError(f'El tipo inferido del índice es '
                 f'{index_type.type}, pero se esperaba num')
