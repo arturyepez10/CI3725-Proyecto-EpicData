@@ -503,7 +503,7 @@ class Symbol(AST):
         self.value = value
 
 class FunctionSignature(AST):
-    def __init__(self, _args: list[AST.Type], callable: object):
+    def __init__(self, _args: list[Type], callable: object):
         self.args = _args
         self.callable = callable
 
