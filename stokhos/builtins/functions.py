@@ -21,12 +21,13 @@ from math import floor
 from random import uniform
 from time import time
 
-from .. import AST
+from ..AST import *
 from ..utils.custom_exceptions import SemanticError
 from ..VM import StokhosVM
+from ..utils.constants import *
 
 
-def stk_type(ast: AST.AST, sym_table: dict) -> AST.Type:
+def stk_type(ast: AST, sym_table: dict) -> Type:
     '''Retorna el tipo de una expresión.
     
     Args:
@@ -36,11 +37,11 @@ def stk_type(ast: AST.AST, sym_table: dict) -> AST.Type:
         El tipo de la expresión.
     '''
     # Si es una constante, se obtiene su tipo.
-    if type(ast) in [AST.Number, AST.Boolean]:
+    if type(ast) in [Number, Boolean]:
         return type(ast)
     
     # Si es una variable, se obtiene su tipo de la tabla de símbolos.
-    if type(ast) == AST.Id:
+    if type(ast) == Id:
         if ast.id.value in sym_table:
             return sym_table[ast.id.value].type
         else:
@@ -50,29 +51,29 @@ def stk_type(ast: AST.AST, sym_table: dict) -> AST.Type:
     # TODO
 
     # Si es una expresión binaria, se obtiene el tipo de la operación.
-    if type(ast) == AST.BinOp:
+    if type(ast) == BinOp:
         if ast.op in ['&&', '||']:
-            return AST.Boolean
+            return Boolean
         else:
-            return AST.Number
+            return Number
     
     return ast.type
 
-def stk_reset(vm: StokhosVM) -> AST.Boolean:
+def stk_reset(vm: StokhosVM) -> Boolean:
     '''Resetea la tabla de símbolos de la vm dada.
     
     Args:
         vm: Instancia de VM de Stókhos.
     '''
     vm.symbols.clear()
-    return AST.Boolean(True)
+    return Boolean(True)
 
-def stk_uniform() -> AST.Number:
+def stk_uniform() -> Number:
     '''Retorna un número aleatorio entre 0 y 1.
     '''
-    return AST.Number(uniform(0, 1))
+    return Number(uniform(0, 1))
 
-def stk_floor(x: AST.Number) -> AST.Number:
+def stk_floor(x: Number) -> Number:
     '''Retorna el máximo entero menor o igual a x.
     
     Args:
@@ -80,7 +81,7 @@ def stk_floor(x: AST.Number) -> AST.Number:
     '''
     return floor(x)
 
-def stk_length(a: AST.Array) -> AST.Number:
+def stk_length(a: Array) -> Number:
     '''Retorna el tamaño de una lista.
     
     Args:
@@ -88,15 +89,15 @@ def stk_length(a: AST.Array) -> AST.Number:
     '''
     return len(a)
 
-def stk_sum(a: AST.Array) -> AST.Number:
+def stk_sum(a: Array) -> Number:
     '''Retorna la suma de los elementos de un arreglo de Number
     
     Args:
         l: Arreglo a evaluar.
     '''
-    return sum(a, AST.Number(0))
+    return sum(a, Number(0))
 
-def stk_avg(a: AST.Array) -> AST.Number:
+def stk_avg(a: Array) -> Number:
     '''Retorna la media de los elementos de un arreglo de Number, o 0 si el
     arreglo está vacío.
     
@@ -105,14 +106,45 @@ def stk_avg(a: AST.Array) -> AST.Number:
     '''
     return stk_sum(a) / stk_length(a) if a else 0
 
-def stk_pi() -> AST.Number:
+def stk_pi() -> Number:
     '''Retorna el valor de pi en formato de doble precisión (IEEE754).'''
-    return AST.Number(3.141592653589793)
+    return Number(3.141592653589793)
 
-def stk_now() -> AST.Number:
+def stk_now() -> Number:
     '''Retorna un Number correspondiente al los milisegundos transcurridos
     desde un punto de referencia en el tiempo.
     
     La implementación interna es la de currentmillis.com sugerida para Python.
     '''
-    return AST.Number(int(round(time() * 1000)))
+    return Number(int(round(time() * 1000)))
+
+PRELOADED_FUNCTIONS = {
+    'reset': 
+        Symbol(
+            Type(PrimitiveType('void')),
+            FunctionSignature([], stk_reset,)
+        ),
+    'uniform': Symbol(
+            Type(PrimitiveType('num')),
+            FunctionSignature([], stk_uniform)
+        ),
+    'floor': Symbol(
+            Type(PrimitiveType('num')),
+            FunctionSignature(
+                [Type(PrimitiveType('num'))],
+                stk_floor
+            )
+        ),
+    'length': Symbol(
+            Type(PrimitiveType('num')),
+            FunctionSignature(
+                [Type(TypeArray(PrimitiveType(('num'))))],
+                stk_floor,
+                [[Type(TypeArray(PrimitiveType(('num'))))]]
+            )
+        ),
+    'sum': stk_sum,
+    'avg': stk_avg,
+    'pi': stk_pi,
+    'now': stk_now,
+}

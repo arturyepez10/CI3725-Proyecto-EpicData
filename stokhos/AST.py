@@ -499,13 +499,23 @@ class ElemList(AST):
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
 class Symbol(AST):
     def __init__(self, _type: object, value: object):
+        # Si es una función, tiene el tipo de retorno de la misma
         self.type = _type
         self.value = value
 
 class FunctionSignature(AST):
-    def __init__(self, _args: list[Type], callable: object):
-        self.args = _args
+    def __init__(self, callable: object, _args: list[Type] = None,
+        overloads: list[list[Type]] = None):
+        # Función llamable de Python con la implementación de la misma
         self.callable = callable
+
+        # Lista donde el i-ésimo elemento es el tipo del i-ésimo argumento
+        # que acepta la función. None si no tiene argumentos
+        self.args = _args
+
+        # Lista donde cada elemento tiene la forma de args (lista de listas)
+        # None si la función no se sobrecarga
+        self.overloads = overloads
 
 # --- CLASE DE ERROR ---
 
