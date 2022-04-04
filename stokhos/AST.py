@@ -76,18 +76,10 @@ class BinOp(AST):
         return self.expected_type()
 
     def evaluate(self, symbol_table: dict):
-        if self.op in ['&&', '||']:
-            return Boolean(
-            BINARY_OP[self.op](
-                self.lhs_term.evaluate(symbol_table).value, 
-                self.rhs_term.evaluate(symbol_table).value))
-        else:
-            return Number(
-                BINARY_OP[self.op](
-                    self.lhs_term.evaluate(symbol_table).value, 
-                    self.rhs_term.evaluate(symbol_table).value)
-            )
-
+        return BINARY_OP[self.op](
+            self.lhs_term.evaluate(symbol_table), 
+            self.rhs_term.evaluate(symbol_table)
+        )
 
 class Comparison(BinOp):
     def expected_type(self):
@@ -126,10 +118,9 @@ class Comparison(BinOp):
                     f'de tipo {lhs_type.type} y {rhs_type.type}')
 
     def evaluate(self, symbol_table: dict):
-        return Boolean(
-            BINARY_OP[self.op](
-                self.lhs_term.evaluate(symbol_table).value, 
-                self.rhs_term.evaluate(symbol_table).value)
+        return BINARY_OP[self.op](
+            self.lhs_term.evaluate(symbol_table),
+            self.rhs_term.evaluate(symbol_table)
         )
 
 # -------- OPERACIONES UNARIAS --------
@@ -157,10 +148,10 @@ class UnOp(AST):
                 return self.return_type()
         except TypeError:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
-                f' de tipo {term_type.type}')
+                f'de tipo {term_type.type}')
         else:
             raise SemanticError(f'"{self.op}" no se puede aplicar a operando '
-                f' de tipo {term_type.type}')
+                f'de tipo {term_type.type}')
 
     def expected_type(self):
         if self.op == '!':
@@ -172,16 +163,9 @@ class UnOp(AST):
         return self.expected_type()
 
     def evaluate(self, symbol_table: dict):
-        if self.op == '!':
-            return Boolean( 
-                UNARY_OP['!'](
-                    self.term.evaluate(symbol_table).value)
-                    )
-        else:
-            return Number(
-                UNARY_OP[self.op](
-                    self.term.evaluate(symbol_table).value)
-                    )
+        return UNARY_OP[self.op](
+                self.term.evaluate(symbol_table)
+            )
 
 # -------- TERMINALES --------
 class Terminal(AST):
@@ -244,7 +228,7 @@ class Number(Terminal):
         return NUM
 
     def evaluate(self, symbol_table: dict):
-        return Number(self.value)
+        return self
 
 class Id(Terminal):
     # Caso base del type checking
@@ -271,7 +255,7 @@ class Boolean(Terminal):
         return BOOL
     
     def evaluate(self, symbol_table: dict):
-        return Boolean(self.value)
+        return self
 
 # -------- TIPOS --------
 class Type(AST):
@@ -741,6 +725,12 @@ BOOL_ARRAY = Type(TypeArray(PrimitiveType('bool')))
 
 # Diccionarios de operadores
 
+stk_and = lambda p, q: p and q
+stk_or = lambda p, q: p or q
+stk_not = lambda p: Boolean(not p)
+stk_eq = lambda p, q: Boolean(p == q)
+stk_neq = lambda p, q: Boolean(p != q)
+
 BINARY_OP = {
     '+': operator.add,
     '-': operator.sub,
@@ -752,14 +742,14 @@ BINARY_OP = {
     '<=': operator.le,
     '>': operator.gt,
     '>=': operator.ge,
-    '=': operator.eq,
-    '<>': operator.ne,
-    '&&': operator.and_,
-    '||': operator.or_
-
+    '=': stk_eq,
+    '<>': stk_neq,
+    '&&': stk_and,
+    '||': stk_or
 }
+
 UNARY_OP = {
     '+': operator.pos,
     '-': operator.neg,
-    '!': operator.not_ 
+    '!': stk_not
 }
