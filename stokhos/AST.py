@@ -500,8 +500,6 @@ class Function(AST):
         # firma de la función
         expected_args = symbol_table[self.id.value].value.args
         
-        print(f'Supuestamente se esperan: {expected_args}')
-
         if expected_args:
             if len(self.args) != len(expected_args):
                 raise SemanticError(f'La función "{self.id.value}" esperaba '
@@ -512,6 +510,15 @@ class Function(AST):
                     cur_arg_type = self.args[i].type_check(symbol_table)
                     if cur_arg_type != expected_arg_type:
                         raise TypeError
+            except TypeError:
+                expected_args_overload = symbol_table[self.id.value].value.overload
+                if expected_args_overload:
+                    for overload_args in expected_args_overload:
+                        for i, expected_arg_type in enumerate(overload_args):
+                            cur_arg_type = self.args[i].type_check(symbol_table)
+                            if cur_arg_type != expected_arg_type:
+                                raise TypeError
+                            
             except TypeError:
                 raise SemanticError(f'El tipo del argumento #{i + 1} es '
                     f'{cur_arg_type.type}, pero se esperaba {expected_arg_type.type}')
@@ -563,18 +570,14 @@ class Symbol(AST):
         self.value = value
 
 class FunctionSignature(AST):
-    def __init__(self, callable: object, _args: list[Type] = None,
-        overloads: list[list[Type]] = None):
+    def __init__(self, callable: object, _args: list[Type] = None):
         # Función llamable de Python con la implementación de la misma
         self.callable = callable
 
-        # Lista donde el i-ésimo elemento es el tipo del i-ésimo argumento
+        # Lista de listas donde cada elemento tiene la siguiente forma:
+        # El i-ésimo elemento es el tipo del i-ésimo argumento
         # que acepta la función. None si no tiene argumentos
         self.args = _args
-
-        # Lista donde cada elemento tiene la forma de args (lista de listas)
-        # None si la función no se sobrecarga
-        self.overloads = overloads
 
 # --- CLASE DE ERROR ---
 

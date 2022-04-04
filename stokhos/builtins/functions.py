@@ -88,8 +88,7 @@ PRELOADED_FUNCTIONS = {
             NUM,
             FunctionSignature(
                 stk_length,
-                [NUM_ARRAY],
-                [[BOOL_ARRAY]]
+                [[NUM_ARRAY], [BOOL_ARRAY]]
             )
         ),
     'sum': Symbol(
