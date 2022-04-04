@@ -16,10 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from curses import tparm
 from math import floor
 
-from stokhos.utils.custom_exceptions import SemanticError
+from stokhos.utils.custom_exceptions import NotEnoughInfoError, SemanticError
 
 class AST:
     def __repr__(self) -> str:
@@ -260,7 +259,10 @@ class SymDef(AST):
             raise SemanticError(f'Variable "{self.id.value}" ya definida anteriormente')
 
         expected_type = self.type
-        rhs_type = self.rhs.type_check(symbol_table)
+        try:
+            rhs_type = self.rhs.type_check(symbol_table)
+        except NotEnoughInfoError:
+            rhs_type = expected_type
 
         try:
             if expected_type == rhs_type:
@@ -293,7 +295,10 @@ class Assign(AST):
                 'anteriormente')
         
         var_type = self.id.type_check(symbol_table)
-        rhs_type = self.rhs.type_check(symbol_table)
+        try:
+            rhs_type = self.rhs.type_check(symbol_table)
+        except NotEnoughInfoError:
+            rhs_type = var_type
 
         try:
             if var_type == rhs_type:
@@ -392,7 +397,7 @@ class Array(AST):
     
     def type_check(self, symbol_table: dict):
         if not self:
-            raise SemanticError('No hay suficiente información para inferir '
+            raise NotEnoughInfoError('No hay suficiente información para inferir '
                 'el tipo del arreglo')
 
         array_type = self[0].type_check(symbol_table)
