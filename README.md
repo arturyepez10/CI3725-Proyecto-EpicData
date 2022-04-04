@@ -59,20 +59,21 @@ El archivo base para probar Stókhos desde su linea de comandos es **Stokhos.py*
 
 Actualmente, los archivos y directorios principales del proyecto son los siguiente:
 
-* **Stokhos.py**: Convergencia de distintos módulos para la ejecución del proyecto. Archivo ejecutable (indicado en la seccion de **Comenzando 🔧**).
-* **VM.py**: Declaración de la clase que implementa la VM (Virtual Machine) que servirá de intérprete del lenguaje Stókhos.
-* **REPL.py**: Declaración de clase que implementa el shell interactivo de Stókhos y su conexión directa a la VM.
-* **tokenrules.py**: Módulo que define las reglas para el tokenizer de Stókhos.
-* **grammar.py**: Módulo que define la gramática para el parser de Stókhos, este hace uso del tokenizer.
-* **AST.py**: Declaración de la clase AST que implementa el Árbol de Sintaxis Abstracta de Stókhos, y de todas sus subclases.
-* **gramatica.md**: Archivo de marcado que contiene una descripción sencilla de la gramática del lenguaje Stókhos.
-* **ply**: Librería utilizada con la implementación del tokenizer y parser.
+* **Stokhos.py**: Convergencia de los distintos módulos para la ejecución del proyecto. Archivo ejecutable (indicado en la seccion de **Comenzando 🔧**).
+* **stokhos** (directorio):
+  * **REPL.py**: Declaración de clase que implementa el shell interactivo de Stókhos y su conexión directa a la VM.
+  * **VM.py**: Declaración de la clase que implementa la VM (Virtual Machine) que servirá de intérprete del lenguaje Stókhos.
+  * **AST.py**: Declaración de la clase AST que implementa el Árbol de Sintaxis Abstracta de Stókhos, y de todas sus subclases.
+  * **tokenrules.py**: Módulo que define las reglas para el tokenizer de Stókhos.
+  * **grammar.py**: Módulo que define la gramática para el parser de Stókhos, este hace uso del tokenizer.
+  * **utils** (directorio): Distintos scripts de objetivos misceláneos para el contexto del proyecto.
+    * **constants.py**: Módulo con constantes útiles para el proyecto.
+    * **custom_exceptions.py**: Módulo donde se declaran excepciones personalizadas.
+    * **helpers.py**: Módulo con funciones y clases de utilidad.
+    * **err_strings.py**: Módulo donde se definen todas las strings de error mostradas en el REPL.
+* **ply** (directorio): Librería utilizada con la implementación del tokenizer y parser.
 * **tests** (diretorio): Todas las pruebas unitarias que existen sobre los distintos modulos de la implementacion de Stókhos.
-* **utils** (directorio): Distintos scripts de objetivos misceláneos para el contexto del proyecto.
-  * **constants.py**: Módulo con constantes útiles para el proyecto.
-  * **custom_exceptions.py**: Módulo donde se declaran excepciones personalizadas.
-  * **helpers.py**: Módulo con funciones y clases de utilidad.
-  * **err_strings.py**: Módulo donde se definen todas las strings de error mostradas en el REPL.
+* **gramatica.md**: Archivo de marcado que contiene una descripción sencilla de la gramática del lenguaje Stókhos.
 
 ## Pruebas
 
