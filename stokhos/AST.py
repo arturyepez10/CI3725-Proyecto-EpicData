@@ -18,7 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from math import floor
 
-from stokhos.utils.custom_exceptions import NotEnoughInfoError, SemanticError
+from .utils.custom_exceptions import NotEnoughInfoError, SemanticError
+from .utils.constants import *
 
 class AST:
     def __repr__(self) -> str:
@@ -61,9 +62,9 @@ class BinOp(AST):
 
     def expected_type(self):
         if self.op in ['&&', '||']:
-            return Type(PrimitiveType('bool'))
+            return BOOL
         else:
-            return Type(PrimitiveType('num'))
+            return NUM
 
     def return_type(self):
         return self.expected_type()
@@ -71,10 +72,10 @@ class BinOp(AST):
 
 class Comparison(BinOp):
     def expected_type(self):
-        return Type(PrimitiveType('num'))
+        return NUM
 
     def return_type(self):
-        return Type(PrimitiveType('bool'))
+        return BOOL
 
     def type_check(self, symbol_table: dict):
         lhs_type = self.lhs_term.type_check(symbol_table)
@@ -134,9 +135,9 @@ class UnOp(AST):
 
     def expected_type(self):
         if self.op == '!':
-            return Type(PrimitiveType('bool'))
+            return BOOL
         else:
-            return Type(PrimitiveType('num'))
+            return NUM
 
     def return_type(self):
         return self.expected_type()
@@ -198,7 +199,7 @@ class Number(Terminal):
 
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
-        return Type(PrimitiveType('num'))
+        return NUM
 
 class Id(Terminal):
     # Caso base del type checking
@@ -215,7 +216,7 @@ class Boolean(Terminal):
 
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
-        return Type(PrimitiveType('bool'))
+        return BOOL
 
 # -------- TIPOS --------
 class Type(AST):
@@ -293,7 +294,7 @@ class SymDef(AST):
 
         try:
             if expected_type == rhs_type:
-                return Type(PrimitiveType('void'))
+                return VOID
         except TypeError:
             pass
         else:
@@ -329,7 +330,7 @@ class Assign(AST):
 
         try:
             if var_type == rhs_type:
-                return Type(PrimitiveType('void'))
+                return VOID
         except TypeError:
             pass
         else:
@@ -357,7 +358,7 @@ class AssignArrayElement(AST):
 
         try:
             if rhs_type.type == array_type.type.type:
-                return Type(PrimitiveType('void'))
+                return VOID
         except TypeError:
             pass    
         else:
@@ -467,7 +468,7 @@ class ArrayAccess(AST):
 
         try:
             # Verifica que se el índice de acceso sea un número
-            if index_type == Type(PrimitiveType('num')):
+            if index_type == NUM:
                 return Type(array_type.type.type)
         except TypeError:
             pass
@@ -490,6 +491,13 @@ class Function(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
+    def type_check(self, symbol_table: dict):
+        # Verifica que la función exista
+        if self.id.value not in symbol_table:
+            raise SemanticError(f'Variable "{self.value}" no definida')
+
+
+        return symbol_table[self.value].type
 
 class ElemList(AST):
     def __init__(self, el: object):
@@ -552,3 +560,10 @@ class Error(AST):
     
     def __str__(self) -> str:
         return f'''Error('{self.cause}')'''
+
+# Alias para los tipos de datos
+NUM = Type(PrimitiveType('num'))
+BOOL = Type(PrimitiveType('bool'))
+VOID = Type(PrimitiveType('void'))
+NUM_ARRAY = Type(TypeArray(PrimitiveType('num')))
+BOOL_ARRAY = Type(TypeArray(PrimitiveType('bool')))

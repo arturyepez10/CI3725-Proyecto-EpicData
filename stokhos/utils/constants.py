@@ -15,10 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-
-from stokhos.AST import Type, PrimitiveType, TypeArray
-
-
 VERSION = '0.1.3'
 
 # Lista de colores a utilizar para la impresión
@@ -26,10 +22,3 @@ BOLD = '\033[1m'
 BLUE = '\033[94m'
 RESET = '\033[0m'
 RED = '\033[91m'
-
-# Abreviaturas para los tipos de datos
-NUM = Type(PrimitiveType('num'))
-BOOL = Type(PrimitiveType('bool'))
-VOID = Type(PrimitiveType('void'))
-NUM_ARRAY = Type(TypeArray(PrimitiveType('num')))
-BOOL_ARRAY = Type(TypeArray(PrimitiveType('bool')))
