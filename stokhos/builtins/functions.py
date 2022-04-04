@@ -23,49 +23,7 @@ from time import time
 
 from ..AST import *
 from ..utils.custom_exceptions import SemanticError
-from ..VM import StokhosVM
 from ..utils.constants import *
-
-def stk_type(ast: AST, sym_table: dict) -> Type:
-    '''Retorna el tipo de una expresión.
-    
-    Args:
-        Un árbol de  una expresión de Stókhos.
-    
-    Retorna:
-        El tipo de la expresión.
-    '''
-    # Si es una constante, se obtiene su tipo.
-    if type(ast) in [Number, Boolean]:
-        return type(ast)
-    
-    # Si es una variable, se obtiene su tipo de la tabla de símbolos.
-    if type(ast) == Id:
-        if ast.id.value in sym_table:
-            return sym_table[ast.id.value].type
-        else:
-            raise SemanticError('Variable no definida')
-    
-    # Si es una función, se obtiene su tipo de retorno de la tabla de símbolos.
-    # TODO
-
-    # Si es una expresión binaria, se obtiene el tipo de la operación.
-    if type(ast) == BinOp:
-        if ast.op in ['&&', '||']:
-            return Boolean
-        else:
-            return Number
-    
-    return ast.type
-
-def stk_reset(vm: StokhosVM) -> Boolean:
-    '''Resetea la tabla de símbolos de la vm dada.
-    
-    Args:
-        vm: Instancia de VM de Stókhos.
-    '''
-    vm.symbols.clear()
-    return Boolean(True)
 
 def stk_uniform() -> Number:
     '''Retorna un número aleatorio entre 0 y 1.
@@ -118,11 +76,6 @@ def stk_now() -> Number:
     return Number(int(round(time() * 1000)))
 
 PRELOADED_FUNCTIONS = {
-    'reset': 
-        Symbol(
-            VOID,
-            FunctionSignature(stk_reset)
-        ),
     'uniform': Symbol(
             NUM,
             FunctionSignature(stk_uniform)
