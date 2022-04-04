@@ -83,17 +83,12 @@ class StokhosVM:
             return f'ERROR: {valid.cause}'
 
         # Si se llega a esta línea de código, el AST era válido
-        # --- FORMA 1 ---
-        # if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArray]:
-        #     res = self.execute(ast)
-        #     return f'ACK: {command} ==> {res}'
-        # else:
-        #     res = self.eval(ast)
-        #     return f'OK: {res}'
-
-        prefix = 'OK'
-        suffix = 'TODO'
-        return f'{prefix}: {suffix}'
+        if type(ast) in [AST.SymDef, AST.Assign]:
+            res = self.execute(ast)
+            return f'ACK: {command} ==> {res}'
+        else:
+            res = self.eval(ast)
+            return f'OK: {command} ==> {res}'
 
     def lextest(self, command: str) -> str:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
@@ -181,6 +176,32 @@ class StokhosVM:
         """
         try:
             return ast.type_check(self.symbols)
+        except (SemanticError, NotEnoughInfoError) as e:
+            return AST.Error(e.message)
+
+    def execute(self, ast: AST.AST) -> AST.AST:
+        """Ejecuta un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el resultado de ejecutar el Árbol de
+            Sintaxis Abstracta pasado como argumento.
+        """
+        try:
+            return ast.execute(self.symbols)
+        except (SemanticError, NotEnoughInfoError) as e:
+            return AST.Error(e.message)
+
+    def eval(self, ast: AST.AST) -> AST.AST:
+        """Evalúa un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el resultado de evaluar el Árbol de
+            Sintaxis Abstracta pasado como argumento.
+        """
+        # Casi se garantiza que no puede haber errores en este punto,
+        # pero no! todavía es posible
+        try:
+            return ast.evaluate(self.symbols)
         except (SemanticError, NotEnoughInfoError) as e:
             return AST.Error(e.message)
 

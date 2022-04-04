@@ -69,6 +69,23 @@ class BinOp(AST):
     def return_type(self):
         return self.expected_type()
 
+    def evaluate(self, symbol_table: dict):
+        if self.op == '+':
+            return self.lhs_term.evaluate(symbol_table) + self.rhs_term.evaluate(symbol_table)
+        elif self.op == '-':
+            return self.lhs_term.evaluate(symbol_table) - self.rhs_term.evaluate(symbol_table)
+        elif self.op == '*':
+            return self.lhs_term.evaluate(symbol_table) * self.rhs_term.evaluate(symbol_table)
+        elif self.op == '/':
+            return self.lhs_term.evaluate(symbol_table) / self.rhs_term.evaluate(symbol_table)
+        elif self.op == '%':
+            return self.lhs_term.evaluate(symbol_table) % self.rhs_term.evaluate(symbol_table)
+        elif self.op == '^':
+            return self.lhs_term.evaluate(symbol_table) ** self.rhs_term.evaluate(symbol_table)
+        elif self.op == '&&':
+            return self.lhs_term.evaluate(symbol_table) and self.rhs_term.evaluate(symbol_table)
+        else:
+            return self.lhs_term.evaluate(symbol_table) or self.rhs_term.evaluate(symbol_table)
 
 class Comparison(BinOp):
     def expected_type(self):
@@ -201,12 +218,22 @@ class Number(Terminal):
     def type_check(self, symbol_table: dict):
         return NUM
 
+    def evaluate(self, symbol_table: dict):
+        return Number(self.value)
+
 class Id(Terminal):
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         if self.value in symbol_table:
             return symbol_table[self.value].type
         else:
+            raise SemanticError(f'Variable "{self.value}" no definida')
+
+    def evaluate(self, symbol_table: dict):
+        if self.value in symbol_table:
+            return symbol_table[self.value].value
+        else:
+            # Verificar si en algún caso hace falta esto
             raise SemanticError(f'Variable "{self.value}" no definida')
 
 class Boolean(Terminal):
@@ -217,6 +244,9 @@ class Boolean(Terminal):
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         return BOOL
+    
+    def evaluate(self, symbol_table: dict):
+        return Boolean(self.value)
 
 # -------- TIPOS --------
 class Type(AST):
@@ -301,6 +331,16 @@ class SymDef(AST):
             raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {expected_type.type}')
 
+    def execute(self, symbol_table: dict) -> str:
+        val = self.rhs.evaluate(symbol_table)
+        if type(val) == Number:
+            _type = NUM
+        elif type(val) == Boolean:
+            _type = BOOL
+
+        symbol_table[self.id.value] = Symbol(_type, val)
+        return f'{self.type.type} {self.id.value} := {val.value}'
+
 # -------- ASIGNACIONES --------
 class Assign(AST):
     def __init__(self, _id: object, rhs: object):
@@ -336,6 +376,11 @@ class Assign(AST):
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
                 f'esperaba {var_type}')
+
+    def execute(self, symbol_table: dict) -> str:
+        val = self.rhs.evaluate(symbol_table)
+        symbol_table[self.id.value].value = val
+        return f'{self.id.value} := {val.value}'
 
 class AssignArrayElement(AST):
     def __init__(self, arrayAccess: object, rhs: object):
@@ -400,6 +445,9 @@ class Quoted(AST):
 
     def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
+
+    def evaluate(self, symbol_table: dict) -> str:
+        return self.expr
 
 # -------- ARREGLOS --------
 class Array(AST):
