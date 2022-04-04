@@ -27,7 +27,7 @@ from . import AST
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
-
+from .builtins.functions import PRELOADED_FUNCTIONS
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -45,7 +45,7 @@ class StokhosVM:
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
 
-        self.symbols = {}
+        self.symbols = PRELOADED_FUNCTIONS
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
