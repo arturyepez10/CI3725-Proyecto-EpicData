@@ -101,7 +101,7 @@ PRELOADED_FUNCTIONS = {
     'avg': Symbol(
             NUM,
             FunctionSignature(
-                stk_sum,
+                stk_avg,
                 [[NUM_ARRAY]]
             )
         ),

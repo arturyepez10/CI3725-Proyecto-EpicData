@@ -167,7 +167,6 @@ def test_type_check(test_case:str, test_sol:object):
 test_cases, test_sol = [], []
 VM = SVM()
 
-# Agregar algunas variables
 # Operaciones binarias y unarias con errores en semantica
 test_cases.extend([f'2 {binOp} true' for binOp in ALL_BIN_OPS])
 test_cases.extend([f'false {binOp} 3.6' for binOp in ALL_BIN_OPS])
@@ -200,11 +199,13 @@ test_cases.append(f'[bool] x := [3, -1, 4];')
 
 # Faltan las asignaciones
 
-# llamadas a funciones en operaciones con problemas de tipo
+# llamadas a funciones en operaciones con problemas de tipo (y que no explotan
+# la a VM)
 test_cases.append(f'uniform() - true')
 test_cases.append(f'pi(uniform())')
 test_cases.append(f'length([1,2,3])^[2,3]')
 test_cases.append(f'sum([1,2,3])+true')
+test_cases.append(f'avg([1,2,3]) * 3 + [2]')
 
 cases = list(zip(test_cases, test_cases))
 @pytest.mark.parametrize("test_case,test_sol", cases)

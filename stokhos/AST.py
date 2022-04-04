@@ -76,11 +76,17 @@ class BinOp(AST):
         return self.expected_type()
 
     def evaluate(self, symbol_table: dict):
-        return Number(
+        if self.op in ['&&', '||']:
+            return Boolean(
             BINARY_OP[self.op](
                 self.lhs_term.evaluate(symbol_table).value, 
-                self.rhs_term.evaluate(symbol_table).value)
-        )
+                self.rhs_term.evaluate(symbol_table).value))
+        else:
+            return Number(
+                BINARY_OP[self.op](
+                    self.lhs_term.evaluate(symbol_table).value, 
+                    self.rhs_term.evaluate(symbol_table).value)
+            )
 
 
 class Comparison(BinOp):
@@ -747,7 +753,10 @@ BINARY_OP = {
     '>': operator.gt,
     '>=': operator.ge,
     '=': operator.eq,
-    '<>': operator.ne
+    '<>': operator.ne,
+    '&&': operator.and_,
+    '||': operator.or_
+
 }
 UNARY_OP = {
     '+': operator.pos,
