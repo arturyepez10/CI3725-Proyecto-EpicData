@@ -87,7 +87,7 @@ class StokhosVM:
             res = self.execute(ast)
             if isinstance(res, AST.Error):
                 return f'ERROR: {res.cause}'
-            return f'ACK: {command} ==> {res}'
+            return f'ACK: {res}'
         else:
             res = self.eval(ast)
             if isinstance(res, AST.Error):

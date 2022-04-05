@@ -25,3 +25,12 @@ arr_b[0]
 # Acceder a arreglo mal
 arr_b[0.5]
 arr_b[10]
+
+# DEFINIR VARIABLES Y METERLAS EN ARREGLO
+num x := 5/2;
+num y := 1 + 1/2 + 1/6 + 1/24 + 1/120 + 1/720 + 1/5040 + 1/40320 + 1/362880 + 1/3628800;
+num z := 2^7;
+num w := 5%2;
+
+arr_b := [x, y, w, x && w];
+arr := [x, y, z, w, w + 5, y^w];
