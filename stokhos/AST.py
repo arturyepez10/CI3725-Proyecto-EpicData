@@ -374,13 +374,17 @@ class Assign(AST):
         if self.id.value not in symbol_table:
             raise SemanticError(f'Variable "{self.id.value}" no definida '
                 'anteriormente')
+
+        if self.id.value in PRELOADED_FUNCTIONS:
+            raise SemanticError(f'Variable "{self.id.value}" es una función '
+                'precargada, no se puede asignar')
         
         var_type = self.id.type_check(symbol_table)
         try:
             rhs_type = self.rhs.type_check(symbol_table)
         except NotEnoughInfoError:
             rhs_type = var_type
-
+        
         try:
             if var_type == rhs_type:
                 return VOID
@@ -733,7 +737,6 @@ stk_or = lambda p, q: p or q
 stk_not = lambda p: Boolean(not p)
 stk_eq = lambda p, q: Boolean(p == q)
 stk_neq = lambda p, q: Boolean(p != q)
-
 BINARY_OP = {
     '+': operator.add,
     '-': operator.sub,
@@ -750,9 +753,9 @@ BINARY_OP = {
     '&&': stk_and,
     '||': stk_or
 }
-
 UNARY_OP = {
     '+': operator.pos,
     '-': operator.neg,
     '!': stk_not
 }
+PRELOADED_FUNCTIONS = set(['uniform', 'floor', 'length', 'sum', 'avg', 'pi', 'now'])
