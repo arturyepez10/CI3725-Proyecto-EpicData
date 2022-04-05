@@ -126,7 +126,7 @@ def p_expresion(p):
     '''expresion : TkOpenPar expresion TkClosePar
         | TkQuote expresion TkQuote'''
     if p[1] == '(':
-        p[0] = AST.Parentheses(p[2])
+        p[0] = p[2]
     else:
         p[0] = AST.Quoted(p[2])
 
@@ -273,7 +273,6 @@ def p_error(p):
 
         elif p.type == 'IllegalID':
             raise ParseError(error_invalid_id(p.value, p.lexpos + 1))
-
 
         raise ParseError(error_invalid_syntax_generic(p.value, p.lexpos + 1))
 
