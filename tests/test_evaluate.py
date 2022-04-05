@@ -94,7 +94,7 @@ test_cases.append('sum([1,2,3,-3])')
 test_sol.append(Number(3))
 
 test_cases.append('avg([1,2,3,-3])')
-test_sol.append(Number(3))
+test_sol.append(Number(0.75))
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)

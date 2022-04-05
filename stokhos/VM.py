@@ -85,9 +85,13 @@ class StokhosVM:
         # Si se llega a esta línea de código, el AST era válido
         if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArrayElement]:
             res = self.execute(ast)
+            if isinstance(res, AST.Error):
+                return f'ERROR: {res.cause}'
             return f'ACK: {command} ==> {res}'
         else:
             res = self.eval(ast)
+            if isinstance(res, AST.Error):
+                return f'ERROR: {res.cause}'
             return f'OK: {command} ==> {res}'
 
     def lextest(self, command: str) -> str:
@@ -188,7 +192,7 @@ class StokhosVM:
         """
         try:
             return ast.execute(self.symbols)
-        except (SemanticError, NotEnoughInfoError) as e:
+        except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
             return AST.Error(e.message)
 
     def eval(self, ast: AST.AST) -> AST.AST:
@@ -202,7 +206,7 @@ class StokhosVM:
         # pero no! todavía es posible
         try:
             return ast.evaluate(self.symbols)
-        except (SemanticError, NotEnoughInfoError) as e:
+        except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
             return AST.Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply

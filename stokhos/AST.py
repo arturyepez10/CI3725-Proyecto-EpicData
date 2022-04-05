@@ -20,7 +20,7 @@ import operator
 from math import floor
 
 
-from .utils.custom_exceptions import NotEnoughInfoError, SemanticError
+from .utils.custom_exceptions import *
 from .utils.constants import *
 
 class AST:
@@ -164,8 +164,8 @@ class UnOp(AST):
 
     def evaluate(self, symbol_table: dict):
         return UNARY_OP[self.op](
-                self.term.evaluate(symbol_table)
-            )
+            self.term.evaluate(symbol_table)
+        )
 
 # -------- TERMINALES --------
 class Terminal(AST):
@@ -180,6 +180,9 @@ class Terminal(AST):
             return self.value == other.value
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def evaluate(self, symbol_table: dict):
+        return self
 
 class Number(Terminal):
     # Sobrecarga de operadores para números de Stókhos
@@ -227,9 +230,6 @@ class Number(Terminal):
     def type_check(self, symbol_table: dict):
         return NUM
 
-    def evaluate(self, symbol_table: dict):
-        return self
-
 class Id(Terminal):
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
@@ -253,9 +253,6 @@ class Boolean(Terminal):
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         return BOOL
-    
-    def evaluate(self, symbol_table: dict):
-        return self
 
 # -------- TIPOS --------
 class Type(AST):
@@ -335,30 +332,21 @@ class SymDef(AST):
             if expected_type == rhs_type:
                 return VOID
         except TypeError:
-            return Error(f"El tipo esperado {expected_type} no concuerda con el tipo {rhs_type}")
+            raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
+                f'esperaba {expected_type.type}')
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {expected_type.type}')
 
     def execute(self, symbol_table: dict) -> str:
-        val = self.rhs.evaluate(symbol_table)
-        if type(val) == Number:
-            _type = NUM
-        elif type(val) == Boolean:
-            _type = BOOL
+        val = self.rhs.evaluate(symbol_table)   
         
-        elif type(val[0]) == Number:
-            _type = NUM_ARRAY
-        
-        elif type(val[0]) == Boolean:
-            _type = BOOL_ARRAY
+        # Se agrega el símbolo a la tabla de símbolos
+        # No se verifica el tipo de val porque solo es posible
+        # execute luego de una evaluación
+        symbol_table[self.id.value] = Symbol(self.type, val)
 
-        else: # Esta exception deberia ser inaccesible
-            Exception("Error de tipos")           
-
-        symbol_table[self.id.value] = Symbol(_type, val)
-
-        if isinstance(val, PrimitiveType):
+        if issubclass(type(val), Terminal):
             return f'{self.type.type} {self.id.value} := {val.value}'
         else:
             return f'{self.type.type} {self.id.value} := {val}'
@@ -394,7 +382,8 @@ class Assign(AST):
             if var_type == rhs_type:
                 return VOID
         except TypeError:
-            return Error(f"El tipo esperado {var_type} no concuerda con el tipo {rhs_type}")
+            raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
+                f'esperaba {var_type}')
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
                 f'esperaba {var_type}')
@@ -403,7 +392,7 @@ class Assign(AST):
         val = self.rhs.evaluate(symbol_table)
         symbol_table[self.id.value].value = val
 
-        if isinstance(val, PrimitiveType):
+        if issubclass(type(val), Terminal):
             return f'{self.id.value} := {val.value}'
         else:
             return f'{self.id.value} := {val}'
@@ -433,24 +422,28 @@ class AssignArrayElement(AST):
             if rhs_type.type == array_type.type.type:
                 return VOID
         except TypeError:
-            return Error(f"El tipo esperado {array_type} no concuerda con el tipo {rhs_type}")
+            raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
+                f'esperaba {array_type.type.type}')
         else:
             raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {array_type.type.type}')
 
     def execute(self, symbol_table: dict) -> str:        
         
-        # Evaluar el indice
+        # Evaluar el indice y lado derecho
         index = self.index.evaluate(symbol_table)        
-
-        # Comprobar que no este fuera del rango
-        arr = symbol_table[self.id.value].value
-        if index.value < 0 or index.value >= len(arr.list.elements):
-            return Error(f"indice {index} fuera de rango para arreglo {self.id.value}")
-
         val = self.rhs.evaluate(symbol_table)
-        symbol_table[self.id.value].value.list.elements[index.value] = val
-        return f'{self.id.value} := {val.value}'
+
+        try:
+            symbol_table[self.id.value].value[index.value].value = val.value
+        except IndexError:
+            raise RuntimeError(f'El indice {index.value} no está dentro del rango '
+                f'de la variable {self.id.value}')
+        except TypeError:
+            raise RuntimeError(f'Se esperaba un índice entero, pero se '
+                f'obtuvo {index.value}')
+
+        return f'{self.id.value}[{index.value}] := {val.value}'
 
 
 # -------- AGRUPACIONES --------
@@ -537,7 +530,7 @@ class Array(AST):
     def evaluate(self, symbol_table: dict):
         # Se evaluan todas las expresiones dentro del arreglo
         evaluated_list = []
-        for expr in self.list:
+        for expr in self:
             evaluated_list.append(expr.evaluate(symbol_table))
         # Se retorna un arreglo cuya lista es la lista de expresiones
         # evaluadas
@@ -584,13 +577,14 @@ class ArrayAccess(AST):
         # Evaluar el indice
         index = self.index.evaluate(symbol_table)        
 
-        # Comprobar que no este fuera del rango
-        arr = symbol_table[self.id.value].value
-        if index.value < 0 or index.value >= len(arr.list.elements):
-            return Error(f"indice {index} fuera de rango para arreglo {self.id.value}")
-        
-        return symbol_table[self.id.value].value.list.elements[index.value]
-
+        try:
+            return symbol_table[self.id.value].value[index.value].value
+        except IndexError:
+            raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
+                f'de la variable {self.id.value}')
+        except TypeError:
+            raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
+                f'obtuvo {index.value}')
 
 class Function(AST):
     def __init__(self, _id:object, _args:object) -> None:
@@ -647,6 +641,10 @@ class Function(AST):
                     raise SemanticError(f'El tipo del argumento #{i + 1} es '
                         f'{cur_arg_type.type}, pero se esperaba '
                         f' {expected_arg_type.type}')
+                except NotEnoughInfoError:
+                    # Inferencia de tipos sobre arreglo vacío
+                    if isinstance(expected_arg_type, TypeArray):
+                        pass
         else:
             if len(self.args) != 0:
                 raise SemanticError(f'La función "{self.id.value}" esperaba '
@@ -655,8 +653,10 @@ class Function(AST):
         return symbol_table[self.id.value].type
 
     def evaluate(self, symbol_table: dict):
-        function = symbol_table[self.id.value].value.callable
-        return function(*self.args)
+        args = [arg.evaluate(symbol_table) for arg in self.args]
+        f = symbol_table[self.id.value].value.callable
+        
+        return f(*args)
 
 class ElemList(AST):
     def __init__(self, el: object):

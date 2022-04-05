@@ -1,0 +1,27 @@
+# --- NUMBER ---
+
+# Definicion de arreglo
+[num] arr := [5, 6, 6];
+
+# Asignación a elemento
+arr[0] := 6;
+
+# Como variable
+arr
+arr[0]
+
+# --- BOOL ---
+
+# Definicion de arreglo
+[bool] arr_b := [true && false, false, true || false];
+
+# Asignación a elemento
+arr_b[0] := true;
+
+# Como variable
+arr_b
+arr_b[0]
+
+# Acceder a arreglo mal
+arr_b[0.5]
+arr_b[10]
