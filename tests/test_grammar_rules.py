@@ -109,7 +109,7 @@ test_cases.append("'y'")
 test_sol.append(AST.Quoted(AST.Id('y')))
 
 test_cases.append('(y)')
-test_sol.append(AST.Parentheses(AST.Id('y')))
+test_sol.append(AST.Id('y'))
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
