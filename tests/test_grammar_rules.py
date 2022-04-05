@@ -35,7 +35,7 @@ test_cases = [
 ]
 test_sol = [
     AST.Number(2),
-    AST.Boolean('true'),
+    AST.Boolean(True),
     AST.Id('Ramon'),
 ]
 # Operaciones Binarias numericas
@@ -45,7 +45,7 @@ test_sol.extend(list(AST.BinOp(op, AST.Number(3), AST.Number(3)) for op in NUM_B
 
 # Operaciones Binarias Booleanas
 test_cases.extend(list((f'true{binOp}false' for binOp in BOOL_BIN_OPS)))
-test_sol.extend(list(AST.BinOp(op, AST.Boolean('true'), AST.Boolean('false')) for op in BOOL_BIN_OPS))
+test_sol.extend(list(AST.BinOp(op, AST.Boolean(True), AST.Boolean(False)) for op in BOOL_BIN_OPS))
 
 
 # Comparaciones
@@ -69,9 +69,9 @@ test_cases.extend(
 # Definiciones
 test_sol.extend([
     AST.SymDef(AST.Type(AST.PrimitiveType('num')), AST.Id('x'), AST.Number(3)), 
-    AST.SymDef(AST.Type(AST.PrimitiveType('bool')), AST.Id('x'), AST.Boolean('true')),
+    AST.SymDef(AST.Type(AST.PrimitiveType('bool')), AST.Id('x'), AST.Boolean(True)),
     AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('num'))), AST.Id('r'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)]))),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Boolean('true'), AST.Boolean('false')])))
+    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Boolean(True), AST.Boolean(False)])))
     ])
 
 # Asignaciones 
@@ -84,7 +84,7 @@ test_cases.extend(
     ])
 test_sol.extend([
     AST.Assign(AST.Id('x'), AST.Number(2)),
-    AST.Assign(AST.Id('y'), AST.Boolean('false')),
+    AST.Assign(AST.Id('y'), AST.Boolean(False)),
     AST.Assign(AST.Id('z'), AST.Id('esto_cansa')),
     AST.Assign(AST.Id('arr'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(3), AST.Number(1), AST.Number(2)]))),
     AST.AssignArrayElement(AST.ArrayAccess(AST.Id('arreglo'), AST.Number(2)), AST.Number(5))
@@ -102,7 +102,7 @@ test_cases.extend(
 test_sol.extend([
     AST.Function(AST.Id('h'), AST.ElemList(None)),
     AST.Function(AST.Id('hola'), AST.ElemList(AST.Number(2))),
-    AST.Function(AST.Id('unosCuantos'), AST.ElemList(None).__debug_Init__([AST.Number(2), AST.Boolean('true'), AST.Id('qlq')]))])
+    AST.Function(AST.Id('unosCuantos'), AST.ElemList(None).__debug_Init__([AST.Number(2), AST.Boolean(True), AST.Id('qlq')]))])
 
 # Parentesis y acotado
 test_cases.append("'y'")

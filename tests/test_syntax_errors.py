@@ -1,8 +1,6 @@
 import os
 import sys
-
 sys.path.insert(1, os.path.abspath('.'))
-
 import pytest
 from stokhos.REPL import StokhosCMD
 from stokhos.utils.constants import *

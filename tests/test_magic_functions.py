@@ -1,10 +1,8 @@
 import os
-
 import pytest
 from stokhos.REPL import StokhosCMD
 from stokhos.utils.constants import *
 from stokhos.utils.err_strings import *
-
 
 def lex_error_invalid_char(char:str) -> str:
     return f'Caracter inválido ("{char}")'
@@ -207,8 +205,8 @@ test_sol.append([simulate_error_failed_format(error_invalid_id('1Ramon', 1))])
 test_cases.append([r'.Cabaiero'])
 test_sol.append([simulate_error_failed_format(error_nonexistent_special_command())])
 
-test_cases.append([r'2+2;'])
-test_sol.append([simulate_error_failed_format(error_non_implemented_interpretation())])
+# test_cases.append([r'2+2;'])
+# test_sol.append([simulate_error_failed_format(error_non_implemented_interpretation())])
 
 # --- Errores derivados por el .load -------
 

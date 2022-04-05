@@ -24,10 +24,10 @@ import stokhos.grammar as grammar
 import stokhos.tokenrules as tokenrules
 
 from . import AST
-from .utils.custom_exceptions import ParseError
+from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
-
+from .builtins.functions import PRELOADED_FUNCTIONS
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -44,6 +44,8 @@ class StokhosVM:
         # No se imprime ningún mensaje que pueda generar ply
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
+
+        self.symbols = PRELOADED_FUNCTIONS
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -72,14 +74,25 @@ class StokhosVM:
 
                 donde <mensaje> es un mensaje de error descriptivo.
         """
-
-        try:
-            raise NotImplementedError
-        except NotImplementedError:
-            prefix = 'ERROR'
-            suffix = 'interpretación no implementada'
+        ast = self.parse(command)
+        if isinstance(ast, AST.Error):
+            return f'ERROR: {ast.cause}'
         
-        return f'{prefix}: {suffix}'
+        valid = self.validate(ast)
+        if isinstance(valid, AST.Error):
+            return f'ERROR: {valid.cause}'
+
+        # Si se llega a esta línea de código, el AST era válido
+        if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArrayElement]:
+            res = self.execute(ast)
+            if isinstance(res, AST.Error):
+                return f'ERROR: {res.cause}'
+            return f'ACK: {res}'
+        else:
+            res = self.eval(ast)
+            if isinstance(res, AST.Error):
+                return f'ERROR: {res.cause}'
+            return f'OK: {command} ==> {res}'
 
     def lextest(self, command: str) -> str:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
@@ -156,6 +169,45 @@ class StokhosVM:
             return f'ERROR: {out.cause}'
         
         return f'OK: ast("{command}") ==> {out}'
+
+    def validate(self, ast: AST.AST) -> AST.AST:
+        """Valida un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el tipo del AST validado, si el arbol
+            de entrada era válido, o un árbol de Error con la causa en
+            caso contrario.
+        """
+        try:
+            return ast.type_check(self.symbols)
+        except (SemanticError, NotEnoughInfoError) as e:
+            return AST.Error(e.message)
+
+    def execute(self, ast: AST.AST) -> AST.AST:
+        """Ejecuta un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el resultado de ejecutar el Árbol de
+            Sintaxis Abstracta pasado como argumento.
+        """
+        try:
+            return ast.execute(self.symbols)
+        except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
+            return AST.Error(e.message)
+
+    def eval(self, ast: AST.AST) -> AST.AST:
+        """Evalúa un Árbol de Sintaxis Abstracta.
+
+        Retorna:
+            Una subclase de AST con el resultado de evaluar el Árbol de
+            Sintaxis Abstracta pasado como argumento.
+        """
+        # Casi se garantiza que no puede haber errores en este punto,
+        # pero no! todavía es posible
+        try:
+            return ast.evaluate(self.symbols)
+        except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
+            return AST.Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):
