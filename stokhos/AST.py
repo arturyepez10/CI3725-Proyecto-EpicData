@@ -173,7 +173,7 @@ class Terminal(AST):
         self.value = value
 
     def __str__(self) -> str:
-        return f'{type(self).__name__}({self.value})'
+        return f'{self.value}'
 
     def __eq__(self, other) -> str:
         if isinstance(other, type(self)):
@@ -253,6 +253,9 @@ class Boolean(Terminal):
     # Caso base del type checking
     def type_check(self, symbol_table: dict):
         return BOOL
+
+    def __str__(self) -> str:
+        return f'{self.value.__str__().lower()}'
 
 # -------- TIPOS --------
 class Type(AST):
@@ -493,7 +496,7 @@ class Array(AST):
         self.list = list
 
     def __str__(self) -> str:
-        return f'Array({self.list})'
+        return f'{self.list}'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -666,7 +669,7 @@ class ElemList(AST):
         return self.elements.insert(0, el)
 
     def __str__(self) -> str:
-        return f'ElemList({", ".join([str(el) for el in self.elements])})'
+        return f'[{", ".join([str(el) for el in self.elements])}]'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
