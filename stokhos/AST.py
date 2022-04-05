@@ -313,10 +313,7 @@ class SymDef(AST):
         self.rhs = rhs
         
     def ast2str(self) -> str:
-        return f'SymDef({self.type}, {self.id}, {self.rhs})'
-
-    def ast2str(self) -> str:
-        return f'({self.type}, {self.id}, {self.rhs.ast2str()})'
+        return f'SymDef({self.type}, {self.id}, {self.rhs.ast2str()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
