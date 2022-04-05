@@ -26,12 +26,104 @@ from .utils.constants import *
 class AST:
     def __repr__(self) -> str:
         return self.__str__()
+
+    def ast2str(self) -> str:
+        return self.__str__()
     
     def type_check(self, symbol_table: dict):
         raise SemanticError(f'Chequeo de tipos no implementado para {type(self)}')
 
     def evaluate(self, symbol_table: dict):
         raise SemanticError(f'Evaluacion no implementada para {type(self)}')
+
+# -------- TERMINALES --------
+class Terminal(AST):
+    def __init__(self, value: object):
+        self.value = value
+
+    def __str__(self) -> str:
+        return f'{self.value}'
+
+    def __eq__(self, other) -> str:
+        if isinstance(other, type(self)):
+            return self.value == other.value
+        else:
+            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+
+    def evaluate(self, symbol_table: dict):
+        return self
+
+class Number(Terminal):
+    # Sobrecarga de operadores para números de Stókhos
+    def __add__(self, other):
+        return Number(self.value + other.value)
+
+    def __sub__(self, other):
+        return Number(self.value - other.value)
+    
+    def __mul__(self, other):
+        return Number(self.value * other.value)
+    
+    def __truediv__(self, other):
+        return Number(self.value / other.value)
+    
+    def __mod__(self, other):
+        return Number(self.value % other.value)
+    
+    def __pow__(self, other):
+        return Number(self.value ** other.value)
+
+    def __neg__(self):
+        return Number(-self.value)
+    
+    def __pos__(self):
+        return self
+    
+    def __lt__(self, other):
+        return Boolean(self.value < other.value)
+
+    def __le__(self, other):
+        return Boolean(self.value <= other.value)
+    
+    def __gt__(self, other):
+        return Boolean(self.value > other.value)
+    
+    def __ge__(self, other):
+        return Boolean(self.value >= other.value)
+
+    def __floor__(self):
+        return Number(floor(self.value))
+
+    # Caso base del type checking
+    def type_check(self, symbol_table: dict):
+        return NUM
+
+class Id(Terminal):
+    # Caso base del type checking
+    def type_check(self, symbol_table: dict):
+        if self.value in symbol_table:
+            return symbol_table[self.value].type
+        else:
+            raise SemanticError(f'Variable "{self.value}" no definida')
+
+    def evaluate(self, symbol_table: dict):
+        if self.value in symbol_table:
+            return symbol_table[self.value].value
+        else:
+            # Verificar si en algún caso hace falta esto
+            raise SemanticError(f'Variable "{self.value}" no definida')
+
+class Boolean(Terminal):
+    def __str__(self) -> str:
+        return f'{self.value.__str__().lower()}'
+
+    # Sobrecarga de operadores para Boolean de Stókhos
+    def __bool__(self):
+        return self.value
+
+    # Caso base del type checking
+    def type_check(self, symbol_table: dict):
+        return BOOL
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -41,7 +133,10 @@ class BinOp(AST):
         self.rhs_term = rhs_term
 
     def __str__(self) -> str:
-        return f'({self.lhs_term} {self.op} {self.rhs_term})'
+        return f'{self.lhs_term} {self.op} {self.rhs_term}'
+
+    def ast2str(self) -> str:
+        return f'({self.lhs_term.ast2str()} {self.op} {self.rhs_term.ast2str()})'
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -130,7 +225,10 @@ class UnOp(AST):
         self.term = term
 
     def __str__(self) -> str:
-        return f'({self.op}{self.term})'
+        return f'{self.op}{self.term}'
+
+    def ast2str(self) -> str:
+        return f'({self.op}{self.term.ast2str()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -167,103 +265,13 @@ class UnOp(AST):
             self.term.evaluate(symbol_table)
         )
 
-# -------- TERMINALES --------
-class Terminal(AST):
-    def __init__(self, value: object):
-        self.value = value
-
-    def __str__(self) -> str:
-        return f'{self.value}'
-
-    def __eq__(self, other) -> str:
-        if isinstance(other, type(self)):
-            return self.value == other.value
-        else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
-    def evaluate(self, symbol_table: dict):
-        return self
-
-class Number(Terminal):
-    # Sobrecarga de operadores para números de Stókhos
-
-    def __add__(self, other):
-        return Number(self.value + other.value)
-
-    def __sub__(self, other):
-        return Number(self.value - other.value)
-    
-    def __mul__(self, other):
-        return Number(self.value * other.value)
-    
-    def __truediv__(self, other):
-        return Number(self.value / other.value)
-    
-    def __mod__(self, other):
-        return Number(self.value % other.value)
-    
-    def __pow__(self, other):
-        return Number(self.value ** other.value)
-
-    def __neg__(self):
-        return Number(-self.value)
-    
-    def __pos__(self):
-        return self
-    
-    def __lt__(self, other):
-        return Boolean(self.value < other.value)
-
-    def __le__(self, other):
-        return Boolean(self.value <= other.value)
-    
-    def __gt__(self, other):
-        return Boolean(self.value > other.value)
-    
-    def __ge__(self, other):
-        return Boolean(self.value >= other.value)
-
-    def __floor__(self):
-        return Number(floor(self.value))
-
-    # Caso base del type checking
-    def type_check(self, symbol_table: dict):
-        return NUM
-
-class Id(Terminal):
-    # Caso base del type checking
-    def type_check(self, symbol_table: dict):
-        if self.value in symbol_table:
-            return symbol_table[self.value].type
-        else:
-            raise SemanticError(f'Variable "{self.value}" no definida')
-
-    def evaluate(self, symbol_table: dict):
-        if self.value in symbol_table:
-            return symbol_table[self.value].value
-        else:
-            # Verificar si en algún caso hace falta esto
-            raise SemanticError(f'Variable "{self.value}" no definida')
-
-class Boolean(Terminal):
-    # Sobrecarga de operadores para Boolean de Stókhos
-    def __bool__(self):
-        return self.value
-
-    # Caso base del type checking
-    def type_check(self, symbol_table: dict):
-        return BOOL
-
-    def __str__(self) -> str:
-        return f'{self.value.__str__().lower()}'
-
 # -------- TIPOS --------
 class Type(AST):
     def __init__(self, _type: object):
         self.type = _type
 
     def __str__(self) -> str:
-        return f'Type({self.type.__str__()})'
+        return f'{self.type.__str__()}'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -276,7 +284,7 @@ class TypeArray(AST):
         self.type = type        
 
     def __str__(self) -> str:
-        return f'Array({self.type})'
+        return f'[{self.type}]'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -284,18 +292,12 @@ class TypeArray(AST):
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
-    def __repr__(self) -> str:
-        return f'TypeArray({self.type})'
-
 class PrimitiveType(AST):
     def __init__(self, type: object):
         self.type = type        
 
     def __str__(self) -> str:
         return f'{self.type}'
-
-    def __repr__(self) -> str:
-        return f'PrimitiveType({self.type})'    
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -310,8 +312,11 @@ class SymDef(AST):
         self.id = _id
         self.rhs = rhs
         
-    def __str__(self) -> str:
+    def ast2str(self) -> str:
         return f'SymDef({self.type}, {self.id}, {self.rhs})'
+
+    def ast2str(self) -> str:
+        return f'({self.type}, {self.id}, {self.rhs.ast2str()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -360,8 +365,8 @@ class Assign(AST):
         self.id = _id
         self.rhs = rhs
 
-    def __str__(self) -> str:
-        return f'Assign({self.id}, {self.rhs})'
+    def ast2str(self) -> str:
+        return f'Assign({self.id}, {self.rhs.ast2str()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -410,8 +415,8 @@ class AssignArrayElement(AST):
         self.index = arrayAccess.index
         self.rhs = rhs
 
-    def __str__(self) -> str:
-        return f'AssignArrayElement({self.id}, {self.index} , {self.rhs})'
+    def ast2str(self) -> str:
+        return f'Assign({self.id}[{self.index.ast2str()}], {self.rhs.ast2str()})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -459,7 +464,7 @@ class Parentheses(AST):
         self.expr = expr
 
     def __str__(self) -> str:
-        return f'{self.expr}'
+        return f'({self.expr})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -500,7 +505,7 @@ class Array(AST):
         self.list = list
 
     def __str__(self) -> str:
-        return f'{self.list}'
+        return f'[{self.list}]'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -551,7 +556,7 @@ class ArrayAccess(AST):
         self.index = _index
 
     def __str__(self) -> str:
-        return f'ArrayAccess({self.id}, {self.index})'
+        return f'{self.id}[{self.index}]'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -599,7 +604,7 @@ class Function(AST):
         self.args = _args
 
     def __str__(self) -> str:
-        return f'Function({self.id}, {self.args})'
+        return f'{self.id}({self.args})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -673,7 +678,7 @@ class ElemList(AST):
         return self.elements.insert(0, el)
 
     def __str__(self) -> str:
-        return f'[{", ".join([str(el) for el in self.elements])}]'
+        return f'{", ".join([str(el) for el in self])}'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -698,6 +703,7 @@ class ElemList(AST):
     # de funciones o arreglos
 
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
+
 class Symbol(AST):
     def __init__(self, _type: object, value: object):
         # Si es una función, tiene el tipo de retorno de la misma
