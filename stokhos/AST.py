@@ -28,12 +28,6 @@ class AST:
 
     def ast2str(self) -> str:
         return self.__str__()
-    
-    def type_check(self, symbol_table: dict):
-        raise SemanticError(f'Chequeo de tipos no implementado para {type(self)}')
-
-    def evaluate(self, symbol_table: dict):
-        raise SemanticError(f'Evaluacion no implementada para {type(self)}')
 
 # -------- TERMINALES --------
 class Terminal(AST):
