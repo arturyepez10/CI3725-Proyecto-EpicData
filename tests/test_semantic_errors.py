@@ -68,7 +68,7 @@ def test_type_check_semantic_errors(test_case:str, test_sol:object):
     try:
         out = VM.validate(VM.parse(test_case))
     except SemanticError: 
-        assert True        
+        assert True
     else:
         if not isinstance(out, Error):
             assert False 
