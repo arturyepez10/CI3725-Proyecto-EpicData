@@ -1,0 +1,17 @@
+num n := 7;
+[num] a := [ 6 * n, 'n + 1' ];
+
+ltype(n)
+# ==> num
+
+ltype(a)
+# ==> [num]
+
+ltype(a[n - 3])
+# ==> num
+
+ltype(n + 1)
+# ==> ERROR: la expresion ‘n + 1’ no tiene LVALUE
+
+ltype(42)
+# ==> ERROR: la expresion ‘n + 1’ no tiene LVALUE
