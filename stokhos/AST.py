@@ -47,7 +47,7 @@ class Terminal(AST):
         if isinstance(other, type(self)):
             return self.value == other.value
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def evaluate(self, symbol_table: dict):
         return self
@@ -139,7 +139,7 @@ class BinOp(AST):
                 and self.lhs_term == other.lhs_term 
                 and self.rhs_term == other.rhs_term)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         expected_type = self.expected_type()
@@ -230,7 +230,7 @@ class UnOp(AST):
             return (self.op == other.op 
                 and self.term == other.term)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
     
     def type_check(self, symbol_table: dict):
         expected_type = self.expected_type()
@@ -272,7 +272,7 @@ class Type(AST):
         if isinstance(other, type(self)):
             return self.type == other.type
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
 class TypeArray(AST):
     def __init__(self, type: object):
@@ -285,7 +285,7 @@ class TypeArray(AST):
         if isinstance(other, type(self)):
             return self.type == other.type
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
 class PrimitiveType(AST):
     def __init__(self, type: object):
@@ -298,7 +298,7 @@ class PrimitiveType(AST):
         if isinstance(other, type(self)):
             return self.type == other.type
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
 # -------- DEFINICIONES --------
 class SymDef(AST):
@@ -316,7 +316,7 @@ class SymDef(AST):
                 and self.id == other.id
                 and self.rhs == other.rhs)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         if self.id.value in symbol_table:
@@ -365,7 +365,7 @@ class Assign(AST):
             return (self.id == other.id
                 and self.rhs == other.rhs)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         if self.id.value not in symbol_table:
@@ -415,7 +415,7 @@ class AssignArrayElement(AST):
             return (self.id == other.id and self.index == other.index
                 and self.rhs == other.rhs)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
 
@@ -463,7 +463,7 @@ class Parentheses(AST):
             return self.expr == other.expr
                
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
@@ -483,7 +483,7 @@ class Quoted(AST):
             return self.expr == other.expr
                
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         return self.expr.type_check(symbol_table)
@@ -503,7 +503,7 @@ class Array(AST):
         if isinstance(other, type(self)):
             return self.elements == other.elements
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     # Soporte de indexing y cálculo de longitud
     def __len__(self) -> Number:
@@ -554,7 +554,7 @@ class ArrayAccess(AST):
             return (self.id == other.id
                 and self.index == other.index)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         array_type = self.id.type_check(symbol_table)
@@ -603,7 +603,7 @@ class Function(AST):
             return (self.id == other.id
                 and self.args == other.args)
         else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
+            return False
 
     def type_check(self, symbol_table: dict):
         # Verifica que la función exista
