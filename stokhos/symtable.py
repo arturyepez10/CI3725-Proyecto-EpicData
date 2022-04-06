@@ -85,50 +85,51 @@ class SymTable:
         else:
             self.table = {}
 
-    def exists(self, id: str) -> bool:
-        return id in self.table
+    def exists(self, _id: str) -> bool:
+        return _id in self.table
 
-    def insert(self, id: str, s: Symbol) -> bool:
-        if not self.exists(id):
-            self.table[id] = s
+    def insert(self, _id: str, s: Symbol) -> bool:
+        if not self.exists(_id):
+            self.table[_id] = s
             return True
 
         return False
 
-    def update(self, id: str, value: AST) -> Symbol:
-        if self.exists(id):
-            self.table[id].value = value
-        
-        raise UndefinedSymbolError(id)
+    def update(self, _id: str, value: AST) -> bool:
+        if self.exists(_id):
+            self.table[_id].value = value
+            return True
+
+        return False
     
-    def lookup(self, id: str) -> Symbol:
-        if self.exists(id):
-            return self.table[id]
+    def lookup(self, _id: str) -> Symbol:
+        if self.exists(_id):
+            return self.table[_id]
 
-        raise UndefinedSymbolError(id)
+        raise UndefinedSymbolError(_id)
 
-    def get_type(self, id: str) -> Type:
-        s = self.lookup(id)
+    def get_type(self, _id: str) -> Type:
+        s = self.lookup(_id)
         if isinstance(s, SymVar):
             return s.type
         else:
             return s.return_type
     
-    def get_value(self, id: str) -> Type:
-        s = self.lookup(id)
+    def get_value(self, _id: str) -> Type:
+        s = self.lookup(_id)
         if isinstance(s, SymVar):
             return s.value
         else:
             return s.callable
 
-    def get_args(self, id: str) -> Union[list[list[Type]], list[Type]]:
-        s = self.lookup(id)
+    def get_args(self, _id: str) -> Union[list[list[Type]], list[Type]]:
+        s = self.lookup(_id)
         if isinstance(s, SymFunctionSignature):
             return s.args
-        raise NotAFunctionError(id)
+        raise NotAFunctionError(_id)
 
-    def is_function(self, id: str) -> bool:
-        s = self.lookup(id)
+    def is_function(self, _id: str) -> bool:
+        s = self.lookup(_id)
         return isinstance(s, SymFunctionSignature) 
 
     def clear(self):
