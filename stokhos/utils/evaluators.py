@@ -157,8 +157,11 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
         expr: Expresión a obtener el tipo.
     '''
     if isinstance(expr, Id):
-        _type = evaluator.sym_table.get_type(expr.value)
-    else:    
+        if evaluator.sym_table.is_function(expr.value):
+            return Type(PrimitiveType('function'))
+        else:
+            _type = evaluator.sym_table.get_type(expr.value)
+    else:
         _type = expr.type
 
     if _type is VOID_ARRAY:
