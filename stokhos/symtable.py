@@ -81,24 +81,51 @@ class SymTable:
     def __init__(self):
         self.table = PRELOADED_FUNCTIONS
 
-    def insert(self, id: str, s: Symbol):
-        if not id in self.table:
+    def exists(self, id: str) -> bool:
+        return id in self.table
+
+    def insert(self, id: str, s: Symbol) -> bool:
+        if not self.exists(id):
             self.table[id] = s
             return True
 
         return False
 
-    def update(self, id: str, value: AST):
-        if id in self.table:
+    def update(self, id: str, value: AST) -> Symbol:
+        if self.exists(id):
             self.table[id].value = value
         
         raise UndefinedSymbolError(id)
     
-    def lookup(self, id: str):
-        if id in self.table:
+    def lookup(self, id: str) -> Symbol:
+        if self.exists(id):
             return self.table[id]
 
         raise UndefinedSymbolError(id)
+
+    def get_type(self, id: str) -> Type:
+        s = self.lookup(id)
+        if isinstance(s, SymVar):
+            return s.type
+        else:
+            return s.return_type
+    
+    def get_value(self, id: str) -> Type:
+        s = self.lookup(id)
+        if isinstance(s, SymVar):
+            return s.value
+        else:
+            return s.callable
+
+    def get_args(self, id: str) -> Union[list[list[Type]], list[Type]]:
+        s = self.lookup(id)
+        if isinstance(s, SymFunctionSignature):
+            return s.args
+        raise NotAFunctionError(id)
+
+    def is_function(self, id: str) -> bool:
+        s = self.lookup(id)
+        return isinstance(s, SymFunctionSignature) 
 
     def clear(self):
         self.table = PRELOADED_FUNCTIONS

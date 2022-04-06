@@ -21,11 +21,6 @@ class ParseError(Exception):
         self.message = message
         super().__init__(self.message)
 
-class UndefinedSymbolError(Exception):
-    def __init__(self, _id: str):
-        # Se guarda solo la id del símbolo que no se encontró
-        self.id = _id
-        super().__init__(self._id)
 
 class SemanticError(Exception):
     def __init__(self, message: str):
@@ -41,3 +36,16 @@ class StkRuntimeError(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
+
+# Errores de validadores semánticos
+class UndefinedSymbolError(Exception):
+    def __init__(self, _id: str):
+        # Se guarda solo la id del símbolo que no se encontró
+        self.id = _id
+        super().__init__(self._id)
+
+class NotAFunctionError(Exception):
+    def __init__(self, _id: str):
+        # Se guarda solo la id de la función que se intentó llamar
+        self.id = _id
+        super().__init__(self._id)

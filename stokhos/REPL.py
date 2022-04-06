@@ -23,8 +23,6 @@ from cmd import Cmd
 from textwrap import dedent
 from typing import Union
 
-from stokhos.builtins.functions import PRELOADED_FUNCTIONS
-
 from .utils.constants import *
 from .utils.err_strings import *
 from .utils.helpers import *
@@ -196,8 +194,7 @@ class StokhosCMD(Cmd):
         """Vacía la lista de errores de la sesión."""
         self.errors.clear()
         self.handle_output('OK: Lista de errores vaciada correctamente')
-        self.vm.symbols.clear()
-        self.vm.symbols.update(PRELOADED_FUNCTIONS)
+        self.vm.symbol_table.clear()
 
     # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):

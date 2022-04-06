@@ -19,18 +19,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import ply.lex as lex
 import ply.yacc as yacc
+from .utils.validators import ASTValidator
 
 from . import grammar
 from . import tokenrules
 
 from .AST import AST, SymDef, AssignArrayElement, Assign, Error
-from .builtins.functions import PRELOADED_FUNCTIONS
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
 from .symtable import SymTable
 # from .utils.validators import ASTValidator
-
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -48,6 +47,7 @@ class StokhosVM:
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
         self.symbol_table = SymTable()
+        self.validator = ASTValidator(self.symbol_table)
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -180,9 +180,8 @@ class StokhosVM:
             de entrada era válido, o un árbol de Error con la causa en
             caso contrario.
         """
-        validator = ASTValidator(ast, self.symbols)
         try:
-            return ast.type_check(self.symbols)
+            return self.validator.validate(ast)
         except (SemanticError, NotEnoughInfoError) as e:
             return Error(e.message)
 
@@ -194,7 +193,7 @@ class StokhosVM:
             Sintaxis Abstracta pasado como argumento.
         """
         try:
-            return ast.execute(self.symbols)
+            return ast.execute(self.symbol_table)
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
             return Error(e.message)
 
@@ -208,7 +207,7 @@ class StokhosVM:
         # Casi se garantiza que no puede haber errores en este punto,
         # pero no! todavía es posible
         try:
-            return ast.evaluate(self.symbols)
+            return ast.evaluate(self.symbol_table)
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
             return Error(e.message)
 
