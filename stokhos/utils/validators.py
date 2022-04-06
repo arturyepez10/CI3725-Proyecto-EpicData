@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import re
 from typing import overload
 
 from urllib3 import Retry
@@ -25,6 +26,10 @@ from .helpers import ASTNodeVisitor
 
 
 class ASTValidator(ASTNodeVisitor):
+    '''Subclase que implementa el patrón de diseño de Visitor para visitar
+    recursivamente todos los tipo nodos de AST, tranformando en cada paso
+    los árboles (anotándolos con su tipo si es válida la expresión)
+    '''
     def __init__(self, sym_table: SymTable):
         self.sym_table = sym_table
 
@@ -38,7 +43,9 @@ class ASTValidator(ASTNodeVisitor):
     def visit_Id(self, ast: Id) -> Type:
         # Verifica la existencia de la Id en la tabla de símbolos
         if self.sym_table.exists(ast.value):
-            return self.sym_table.get_type(ast.value)
+            _type = self.sym_table.get_type(ast.value)
+            ast.type = _type
+            return _type
         
         raise SemanticError(f'Variable "{ast.value}" no definida '
             'anteriormente')
@@ -53,6 +60,7 @@ class ASTValidator(ASTNodeVisitor):
         expected_type = BOOL if ast.op in ['&&', '||'] else NUM
 
         if lhs_type == expected_type and rhs_type == expected_type:
+            ast.type = expected_type
             return expected_type
         
         raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
@@ -66,9 +74,11 @@ class ASTValidator(ASTNodeVisitor):
         if ast.op in ['<>', '=']:
             if lhs_type == rhs_type:
                 if lhs_type in [NUM, BOOL]:
+                    ast.type = BOOL
                     return BOOL
         else:
             if lhs_type == NUM and rhs_type == NUM:
+                ast.type = BOOL
                 return BOOL
         
         raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
@@ -80,6 +90,7 @@ class ASTValidator(ASTNodeVisitor):
         expected_type = BOOL if ast.op == '!' else NUM
 
         if term_type == expected_type:
+            ast.type = expected_type
             return expected_type
 
         raise SemanticError(f'"{ast.op} no se puede aplicar a operando '
@@ -96,7 +107,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
         
         if rhs_type == expected_type:
-            return VOID, expected_type
+            return VOID
 
         raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {expected_type.type}')
@@ -114,7 +125,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
 
         if expected_type == rhs_type:
-            return VOID, expected_type
+            return VOID
 
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {expected_type}')
@@ -125,18 +136,22 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
 
         if array_type == rhs_type:
-            return VOID, array_type
+            return VOID
         
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {array_type}')
 
     # ---- OTRAS EXPRESIONES ----
     def visit_Quoted(self, ast: Quoted) -> Type:
-        return self.visit(ast.expr)
+        _type = self.visit(ast.expr)
+        ast.type = _type
+        return _type
 
     def visit_Array(self, ast: Array) -> Type:
         # Si el arreglo es vacío puede ser de cualquier tipo
         if not ast:
+            # Debe dar erro cuando se pide type([])
+            self.type = VOID_ARRAY
             return VOID_ARRAY
 
         expected_type = self.visit(ast[0])
@@ -151,8 +166,10 @@ class ASTValidator(ASTNodeVisitor):
             if el_type != expected_type:
                 raise SemanticError(f'El tipo de todos los elementos del '
                     f'arreglo debe ser {expected_type}, pero {el} es de tipo {el_type}')
-
-        return NUM_ARRAY if expected_type == NUM else BOOL_ARRAY
+        
+        _type = NUM_ARRAY if expected_type == NUM else BOOL_ARRAY
+        ast.type = _type
+        return _type
 
     def visit_ArrayAccess(self, ast: ArrayAccess) -> Type:
         # Verifica que la Id corresponda a un arreglo
@@ -164,7 +181,9 @@ class ASTValidator(ASTNodeVisitor):
 
         index_type = self.visit(ast.index)
         if index_type == NUM:
-            return Type(id_type.type.type)
+            _type = Type(id_type.type.type)
+            ast.type = _type
+            return _type
         
         raise SemanticError(f'El tipo inferido del índice es '
             f'{index_type.type}, pero se esperaba num')
@@ -179,7 +198,9 @@ class ASTValidator(ASTNodeVisitor):
 
         f_args = self.sym_table.get_args(ast.id.value)
         if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
-            return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *[return_type, ast.args])
+            _type = SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *[return_type, ast.args])
+            ast.type = _type
+            return _type
 
         # Si la lista de argumentos de la función no es vacía y la función tiene sobrecargas
         if f_args and isinstance(f_args[0], list):
@@ -230,6 +251,7 @@ class ASTValidator(ASTNodeVisitor):
                     raise SemanticError(f'El tipo del argumento #{i + 1} es '
                         f'{arg_type}, pero se esperaba {expected_type}')
 
+        ast.type = return_type
         return return_type
                         
     def generic_visit(self, ast: AST):
