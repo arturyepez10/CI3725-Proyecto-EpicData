@@ -110,7 +110,8 @@ class ASTValidator(ASTNodeVisitor):
             return VOID
 
         raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
-                f'esperaba {expected_type.type}')
+            f'esperaba {expected_type.type}')
+        
 
     def visit_Assign(self, ast: Assign):
         # Verifica que ya exista la variables en la tabla de símbolos
