@@ -152,7 +152,7 @@ class ASTValidator(ASTNodeVisitor):
         # Si el arreglo es vacío puede ser de cualquier tipo
         if not ast:
             # Debe dar erro cuando se pide type([])
-            self.type = VOID_ARRAY
+            ast.type = VOID_ARRAY
             return VOID_ARRAY
 
         expected_type = self.visit(ast[0])
@@ -302,6 +302,7 @@ def if_handler(validator: ASTValidator, *args):
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'type': pass_handler,
+    'ltype': pass_handler,
     'reset': pass_handler,
     'if': if_handler,
 }
