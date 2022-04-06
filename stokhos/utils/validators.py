@@ -198,7 +198,11 @@ class ASTValidator(ASTNodeVisitor):
 
         f_args = self.sym_table.get_args(ast.id.value)
         if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
-            _type = SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *[return_type, ast.args])
+            _type = SPECIAL_FUNCTION_HANDLERS[ast.id.value](
+                self,
+                *[return_type, ast.args, f_args, ast.id.value]
+            )
+            
             ast.type = _type
             return _type
 
@@ -262,6 +266,15 @@ class ASTValidator(ASTNodeVisitor):
 
 # Handlers de funciones especiales
 def pass_handler(validator: ASTValidator, *args):
+    # Valida igualmente cada argumento
+    # (Número correcto y expresiones semánticamente válidas)
+    if len(args[1]) != len(args[2]):
+        raise SemanticError(f'La función "{args[3]}" esperaba '
+            f'{len(args[2])} argumentos, pero se recibieron '
+            f'{len(args[1])}')
+
+    for arg in args[1]:
+        validator.validate(arg)
     return args[0]
 
 def if_handler(validator: ASTValidator, *args):
@@ -287,6 +300,7 @@ def if_handler(validator: ASTValidator, *args):
 
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
+    'type': pass_handler,
     'reset': pass_handler,
     'if': if_handler,
 }
