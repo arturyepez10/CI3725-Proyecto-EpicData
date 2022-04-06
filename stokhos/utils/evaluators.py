@@ -15,212 +15,100 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from typing import Union
+from ..AST import *
+from ..symtable import SymTable
+from .helpers import ASTNodeVisitor
 
-class ASTValidator(ASTNodeVisitor):
+# Diccionarios de operadores
+BINARY_OP = {
+    '+': operator.add,
+    '-': operator.sub,
+    '*': operator.mul,
+    '^': operator.pow,
+    '%': operator.mod,
+    '/': operator.truediv,
+    '<': operator.lt,
+    '<=': operator.le,
+    '>': operator.gt,
+    '>=': operator.ge,
+    '=': lambda p, q: Boolean(p == q),
+    '<>': lambda p, q: Boolean(p != q),
+    '&&': lambda p, q: p and q,
+    '||': lambda p, q: p or q
+}
+UNARY_OP = {
+    '+': operator.pos,
+    '-': operator.neg,
+    '!': lambda p: Boolean(not p)
+}
+
+class ASTEvaluator(ASTNodeVisitor):
     def __init__(self, sym_table: SymTable):
         self.sym_table = sym_table
 
     # ---- CASOS BASE (TERMINALES) ----
-    def visit_Number(self, ast: Number) -> Type:
-        return NUM
+    def visit_Number(self, ast: Number) -> Number:
+        return ast
     
-    def visit_Boolean(self, ast: Boolean) -> Type:
-        return BOOL
+    def visit_Boolean(self, ast: Boolean) -> Boolean:
+        return ast
 
-    def visit_Id(self, ast: Id) -> Type:
-        # Verifica la existencia de la Id en la tabla de símbolos
-        if self.sym_table.exists(ast.value):
-            return self.sym_table.get_type(ast.value)
-        
-        raise SemanticError(f'Variable "{self.id}" no definida '
-            'anteriormente')
+    def visit_Id(self, ast: Id) -> AST:
+        return self.sym_table.get_value(ast.value)
 
     # ---- NODOS RECURSIVOS ----
 
     # ---- OPERADORES ----
-    def visit_BinOp(self, ast: BinOp) -> Type:
-        # Verifica que los operandos sean del mismo tipo según el operador
-        lhs_type = self.visit(ast.lhs_term)
-        rhs_type = self.visit(ast.rhs_term)
-        expected_type = BOOL if ast.op in ['&&', '||'] else NUM
+    def visit_BinOp(self, ast: BinOp) -> AST:
+        return BINARY_OP[ast.op](
+            self.visit(ast.lhs_term),
+            self.visit(ast.rhs_term)
+        )
 
-        if lhs_type == expected_type and rhs_type == expected_type:
-            return expected_type
-        
-        raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
-            f'de tipo {lhs_type.type} y {rhs_type.type}')
+    def visit_Comparison(self, ast: Comparison) -> AST:
+        return BINARY_OP[ast.op](
+            self.visit(ast.lhs_term),
+            self.visit(ast.rhs_term)
+        )
 
-    def visit_Comparison(self, ast: Comparison) -> Type:
-        # Verifica que los operandos sean del mismo tipo según el operador
-        lhs_type = self.visit(ast.lhs_term)
-        rhs_type = self.visit(ast.rhs_term)
-        
-        if ast.op in ['<>', '=']:
-            if lhs_type == rhs_type:
-                if lhs_type in [NUM, BOOL]:
-                    return BOOL
-        else:
-            if lhs_type == NUM and rhs_type == NUM:
-                return BOOL
-        
-        raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
-            f'de tipo {lhs_type.type} y {rhs_type.type}')            
-
-    def visit_UnOp(self, ast: UnOp) -> Type:
-        # Verifica que los operandos sean del tipo correcto según el operador
-        term_type = self.visit(ast.term)
-        expected_type = BOOL if ast.op == '!' else NUM
-
-        if term_type == expected_type:
-            return expected_type
-
-    # ---- DEFINICIONES Y ASIGNACIONES ----
-    def visit_SymDef(self, ast: SymDef) -> Type:
-        # Verifica que no exista la variables en la tabla de símbolos
-        if self.sym_table.exists(ast.id.value):
-            raise SemanticError(f'Variable "{self.id}" ya definida anteriormente')
-        
-        # Verifica que el tipo del lado derecho de la definición sea consistente
-        expected_type = ast.type
-        rhs_type = self.visit(ast.rhs_expr)
-        
-        if rhs_type == expected_type:
-            return VOID
-
-        raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
-                f'esperaba {expected_type.type}')
-
-    def visit_Assign(self, ast: Assign):
-        # Verifica que ya exista la variables en la tabla de símbolos
-        expected_type = self.visit(ast.id)
-        
-        # Verifica que no se intente asignar a una función
-        if self.sym_table.is_function(ast.id.value):
-            raise SemanticError(f'Variable "{self.id}" es una función '
-                'precargada, no se puede asignar')
-
-        # Verifica que el tipo del lado derecho de la asignación sea consistente
-        rhs_type = self.visit(ast.rhs_expr)
-
-        if expected_type == rhs_type:
-            return VOID
-
-        raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
-            f'esperaba {expected_type}')
-    
-    def visit_AssignArrayElement(self, ast: AssignArrayElement) -> Type:
-        # Verifica que el tipo del lado derecho de la asignación sea consistente
-        array_type = self.visit(ast.array_access)
-        rhs_type = self.visit(ast.rhs_expr)
-
-        if array_type == rhs_type:
-            return VOID
-        
-        raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
-            f'esperaba {array_type}')
+    def visit_UnOp(self, ast: UnOp) -> AST:
+        return UNARY_OP[ast.op](self.visit(ast.term))
 
     # ---- OTRAS EXPRESIONES ----
-    def visit_Quoted(self, ast: Quoted) -> Type:
+    def visit_Quoted(self, ast: Quoted) -> AST:
         return self.visit(ast.expr)
 
-    def visit_Array(self, ast: Array) -> Type:
-        # Si el arreglo es vacío puede ser de cualquier tipo
-        if not ast:
-            return VOID_ARRAY
-        
-        expected_type = self.visit(ast[0])
-        
-        for el in ast:
-            # Verifica que el tipo de cada elemento sea consistente# con el tipo
-            # del primer elemento
-            el_type = self.visit(el)
-            if isinstance(el_type, TypeArray):
-                raise SemanticError('Arreglos anidados no están permitidos')
-            
-            if el_type != expected_type:
-                raise SemanticError(f'El tipo de todos los elementos del '
-                    f'arreglo debe ser {expected_type}, pero {el} es de tipo {el_type}')
+    def visit_Array(self, ast: Array) -> AST:
+        # Se evaluan todas las expresiones dentro del arreglo
+        evaluated_list = []
+        for expr in ast:
+            evaluated_list.append(self.visit(expr))
 
-        return NUM_ARRAY if expected_type == NUM else BOOL_ARRAY
+        # Se retorna un arreglo con su lista de elementos evaluada        
+        return Array(evaluated_list)
 
-    def visit_ArrayAccess(self, ast: ArrayAccess) -> Type:
-        # Verifica que la Id corresponda a un arreglo
-        id_type = self.visit(ast.id)
+    def visit_ArrayAccess(self, ast: ArrayAccess) -> AST:
+        # Evaluar el indice
+        index = self.visit(ast.index)        
 
-        if not isinstance(id_type.type, TypeArray):
-            raise SemanticError('No se permite el acceso a arreglo para '
-                f'expresión de tipo {id_type}')
-
-        index_type = self.visit(ast.index)
-        if index_type == NUM:
-            return id_type.type.type
-        
-        raise SemanticError(f'El tipo inferido del índice es '
-            f'{index_type.type}, pero se esperaba num')
+        try:
+            return self.sym_table.get_value(ast.id.value)[index.value]
+        except IndexError:
+            raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
+                f'de la variable {self.id.value}')
+        except TypeError:
+            raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
+                f'obtuvo {index.value}')
 
     def visit_Function(self, ast: Function):
-        # Verifica que la id exista y sea una función
-        return_type = self.visit(ast.id)
-        
-        if not self.sym_table.is_function(ast.id.value):
-            raise SemanticError(f'Identificador "{ast.id}" no corresponde '
-                'a una función')
-        
-        f_args = self.sym_table.get_args(ast.id.value)
-
-        # Si la lista de argumentos de la función no es vacía
-        if f_args:
-            # Si la función tiene sobrecargas
-            if isinstance(f_args[0], list):
-                # Verifica si los argumentos hacen match con alguna 
-                # de las sobrecargas
-                for i, arg_list in enumerate(f_args):
-                    # Primero viendo el número de argumentos
-                    if len(arg_list) != len(ast.args):
-                        # Se pasa a la siguiente sobrecarga
-                        if i != len(f_args) - 1:
-                            continue
-                        
-                        # Si ya no quedan sobrecargas se lanza el error
-                        raise SemanticError(f'La función "{self.id}" esperaba '
-                            f'{len(arg_list)} argumentos, pero se recibieron '
-                            f'{len(self.args)}')
-                    
-                    # Luego viendo el tipo de cada argumento
-                    for j, expected_type in enumerate(arg_list):
-                        arg_type = self.visit(ast.args[j])
-                        if arg_type != expected_type:
-                            # Si ya no quedan sobrecargas se lanza el error
-                            if i == len(f_args) - 1:
-                                raise SemanticError(f'El tipo del argumento #{i + 1} es '
-                                    f'{arg_type}, pero se esperaba {expected_type}')
-            
-            # Si la función no tiene sobrecargas
-            else:
-                # Verifica si los argumentos hacen match
-                # Primero por su número
-                if len(f_args) != len(ast.args):
-                    raise SemanticError(f'La función "{self.id}" esperaba '
-                        f'{len(arg_list)} argumentos, pero se recibieron '
-                        f'{len(self.args)}')
-
-                # Luego por sus tipos
-                for i, expected_type in enumerate(f_args):
-                    arg_type = self.visit(ast.args[i])
-                    if arg_type != expected_type:
-                        raise SemanticError(f'El tipo del argumento #{i + 1} es '
-                            f'{arg_type}, pero se esperaba {expected_type}')
-        
-        # Si la función no espera argumentos
-        else:
-            if len(ast.args) != 0:
-                raise SemanticError(f'La función "{self.id.value}" esperaba '
-                    f'0 argumentos, pero se recibieron {len(self.args)}')
-        
-        return return_type
+        args = [self.visit(arg) for arg in ast.args]
+        f = self.sym_table.get_value(ast.id.value)
+        # print(f'\n\n\n\n\n\n\n\n\n\nFUNCION F: {f.__name__}\n\n\n\n\n\n\n\n\n\n')
+        return f(*args)
                         
     def generic_visit(self, ast: AST):
-        raise Exception(f'Validador de {type(ast).__name__} no implementado')
+        raise Exception(f'Evaluador de {type(ast).__name__} no implementado')
 
-    def validate(self, ast: AST) -> Type:
+    def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
