@@ -23,7 +23,7 @@ import ply.yacc as yacc
 from . import grammar
 from . import tokenrules
 
-from .AST import AST, VOID, ArrayAccess, Assign, AssignArrayElement, Error, Type
+from .AST import AST, VOID, Assign, AssignArrayElement, Error
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
@@ -214,7 +214,7 @@ class StokhosVM:
                 if isinstance(ast, Assign):
                     self.symbol_table.update(ast.id.value, res)
                     return f'{ast.id} := {res}'
-                
+
                 # Si es una definición
                 else:
                     new_symbol = SymVar(ast.type, res)

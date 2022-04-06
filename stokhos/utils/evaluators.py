@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import operator
 from typing import Union
 
 from ..AST import *
@@ -155,9 +156,12 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
     Args:
         expr: Expresión a obtener el tipo.
     '''
-    _type = expr.type
+    if isinstance(expr, Id):
+        _type = evaluator.sym_table.get_type(expr.value)
+    else:    
+        _type = expr.type
 
-    if _type == VOID_ARRAY:
+    if _type is VOID_ARRAY:
         raise SemanticError('No hay suficiente información para inferir el '
             'tipo del arreglo')
     

@@ -16,11 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import operator
 from math import floor
 
-from .utils.custom_exceptions import *
 from .utils.constants import *
+from .utils.custom_exceptions import *
+
 
 class AST:
     def __repr__(self) -> str:
@@ -202,19 +202,6 @@ class SymDef(AST):
                 and self.rhs_expr == other.rhs_expr)
         return False
 
-    def execute(self, symbol_table: dict) -> str:
-        val = self.rhs_expr.evaluate(symbol_table)   
-        
-        # Se agrega el símbolo a la tabla de símbolos
-        # No se verifica el tipo de val porque solo es posible
-        # execute luego de una evaluación
-        symbol_table[self.id.value] = Symbol(self.type, val)
-
-        if issubclass(type(val), Terminal):
-            return f'{self.type.type} {self.id.value} := {val.value}'
-        else:
-            return f'{self.type.type} {self.id.value} := {val}'
-
 # -------- ASIGNACIONES --------
 class Assign(AST):
     def __init__(self, _id: object, rhs_expr: object):
@@ -229,15 +216,6 @@ class Assign(AST):
             return (self.id == other.id
                 and self.rhs_expr == other.rhs_expr)
         return False
-
-    def execute(self, symbol_table: dict) -> str:
-        val = self.rhs.evaluate(symbol_table)
-        symbol_table[self.id.value].value = val
-
-        if issubclass(type(val), Terminal):
-            return f'{self.id.value} := {val.value}'
-        else:
-            return f'{self.id.value} := {val}'
 
 class AssignArrayElement(AST):
     def __init__(self, array_access: object, rhs_expr: object):
@@ -283,9 +261,6 @@ class Quoted(AST):
         if isinstance(other, type(self)):
             return self.expr == other.expr
         return False
-
-    def evaluate(self, symbol_table: dict) -> str:
-        return self.expr
 
 class Array(AST):
     def __init__(self, elements: list[object]):
@@ -337,12 +312,6 @@ class Function(AST):
             return (self.id == other.id
                 and self.args == other.args)
         return False
-
-    def evaluate(self, symbol_table: dict):
-        args = [arg.evaluate(symbol_table) for arg in self.args]
-        f = symbol_table[self.id.value].value.callable
-        
-        return f(*args)
 
 # --- AST DE ERROR ---
 class Error(AST):

@@ -126,6 +126,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
 
         if expected_type == rhs_type:
+            # Se anota el arbol del lado derecho con el tipo asignado
             return VOID
 
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
@@ -289,11 +290,13 @@ def if_handler(validator: ASTValidator, *args):
     if condition_type != BOOL:
         raise SemanticError(f'El tipo del argumento #1 es '
             f'{condition_type}, pero se esperaba {BOOL}')
-    
+
     exprT_type = validator.visit(args[1][1])
     exprF_type = validator.visit(args[1][2])
     
     if exprT_type == exprF_type:
+        if exprT_type is VOID_ARRAY:
+            return exprF_type
         return exprT_type
     
     raise SemanticError(f'El tipo del argumento #3 es '

@@ -49,6 +49,13 @@ class SymFunctionSignature(Symbol):
         self.args = _args
         self.return_type = return_type
 
+    def __str__(self) -> str:
+        return (f'{self.callable.__name__}({self.args}) '
+            f'-> {self.return_type}')
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 class SymVar(Symbol):
     '''Símbolo que representa una variable en la tabla de símbolos.
 
@@ -63,6 +70,12 @@ class SymVar(Symbol):
 
         # Un terminal o un AST en caso de que se guarde una expresión acotada
         self.value = value
+    
+    def __str__(self):
+        return f'({self.type} <--> {self.value})'
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 # Funciones precargadas de Stókhos
 dummy_function = lambda x: None
@@ -115,6 +128,7 @@ class SymTable:
 
     def get_type(self, _id: str) -> Type:
         s = self.lookup(_id)
+        # print(self.table)
         if isinstance(s, SymVar):
             return s.type
         else:
