@@ -68,7 +68,7 @@ class SymVar(Symbol):
 dummy_function = lambda x: None
 
 PRELOADED_FUNCTIONS = {
-    'type': SymFunctionSignature(dummy_function, [VOID], Type),
+    'type': SymFunctionSignature(dummy_function, [VOID], Type(PrimitiveType('type'))),
     'if': SymFunctionSignature(dummy_function, [], None),
     'reset': SymFunctionSignature(dummy_function, [], BOOL),
     'uniform': SymFunctionSignature(stk_uniform, [], NUM,),
