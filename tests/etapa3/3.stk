@@ -2,3 +2,13 @@
 type([])
 [1, 2, [1, 2]]
 [0, 1, 2][2.5]
+
+# Definir arreglo usando inferencia
+[num] x := [];
+# Ver su tipo
+type(x)
+
+# inferencia indirecta
+[bool] y := if(false, [], [1, 2]);
+[bool] y := if(false, [], []);
+type(y)
