@@ -202,7 +202,10 @@ class StokhosVM:
             # Falta tener cuidado del tema de la acotación,
             # ver que hacer con eso, reminder
             if isinstance(ast, AssignArrayElement):
-                self.symbol_table.update(ast.id.value, res)
+                array_access = ast.array_access
+                _id = array_access.id.value
+                index = array_access.index.value
+                self.symbol_table.lookup(_id).value.elements[index] = res
                 return f'{ast.array_access} := {res}'
             else:
                 if isinstance(ast, Assign):

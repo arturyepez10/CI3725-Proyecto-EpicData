@@ -17,8 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from typing import Union
 
-from stokhos.builtins.functions import stk_reset
-
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -109,11 +107,10 @@ class ASTEvaluator(ASTNodeVisitor):
     def visit_Function(self, ast: Function):
         # Tratamiento de funciones especiales
         if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
-            return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self)
+            return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *ast.args)
 
         args = [self.visit(arg) for arg in ast.args]
         f = self.sym_table.get_value(ast.id.value)
-
 
         return f(*args)
                         
@@ -123,11 +120,35 @@ class ASTEvaluator(ASTNodeVisitor):
     def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
 
-# Handlers de funciones especiales
-def handle_reset(evaluator: ASTEvaluator):
-    return stk_reset(evaluator.sym_table)
+# Funciones especiales
+# Son funciones que reciben el evaluador y pasan los argumentos
+# de la forma requerida, dándoles un tratamiento especial
+def stk_reset(evaluator: ASTEvaluator):
+    '''Resetea la tabla de símbolos.
+    
+    Args:
+        vm: Instancia de la tabla de símbolos a resetear.
+    '''
+    evaluator.sym_table.clear()
+    return Boolean(True)
+
+def stk_if(evaluator: ASTEvaluator,  condicion: AST, exprT: AST, exprF: AST) -> Union[Boolean, Number, Array]:
+    '''Retorna el resultado de evaluar exprT si se satisface la condición,
+    o exprF si no se satisface. Usa evaluación estricta
+    
+    Args:
+        evaluator: Instancia de evaluador de Stokhos.
+        condicion: La condición a evaluar.
+        exprT: Expresión a evaluarse si la condición se satisface.
+        exprF: Expresión a evaluarse si la condición no se satisface.
+    '''
+    if evaluator.evaluate(condicion):
+        return evaluator.evaluate(exprT)
+    else:
+        return evaluator.evaluate(exprF)
 
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
-    'reset': handle_reset
+    'reset': stk_reset,
+    'if': stk_if
 }

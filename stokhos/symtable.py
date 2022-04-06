@@ -65,9 +65,11 @@ class SymVar(Symbol):
         self.value = value
 
 # Funciones precargadas de Stókhos
+dummy_function = lambda x: None
 
 PRELOADED_FUNCTIONS = {
-    'reset': SymFunctionSignature(stk_reset, [], BOOL),
+    'if': SymFunctionSignature(dummy_function, [], None),
+    'reset': SymFunctionSignature(dummy_function, [], BOOL),
     'uniform': SymFunctionSignature(stk_uniform, [], NUM,),
     'floor': SymFunctionSignature(stk_floor, [NUM], NUM),
     'length': SymFunctionSignature(stk_length, [[NUM_ARRAY], [BOOL_ARRAY]], NUM),

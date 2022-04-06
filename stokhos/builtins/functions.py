@@ -19,21 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from math import floor
 from random import uniform
-from symtable import SymbolTable
 from time import time
-
 
 from ..AST import *
 from ..utils.constants import *
-
-def stk_reset(symbol_table: SymbolTable) -> Boolean:
-    '''Resetea la tabla de símbolos.
-    
-    Args:
-        vm: Instancia de la tabla de símbolos a resetear.
-    '''
-    symbol_table.clear()
-    return Boolean(True)
 
 def stk_uniform() -> Number:
     '''Retorna un número aleatorio entre 0 y 1.

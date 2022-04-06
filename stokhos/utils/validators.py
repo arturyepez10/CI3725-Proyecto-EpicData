@@ -17,6 +17,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from typing import overload
+
+from urllib3 import Retry
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -174,8 +176,10 @@ class ASTValidator(ASTNodeVisitor):
         if not self.sym_table.is_function(ast.id.value):
             raise SemanticError(f'Identificador "{ast.id}" no corresponde '
                 'a una función')
-        
+
         f_args = self.sym_table.get_args(ast.id.value)
+        if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
+            return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *[return_type, ast.args])
 
         # Si la lista de argumentos de la función no es vacía y la función tiene sobrecargas
         if f_args and isinstance(f_args[0], list):
@@ -233,3 +237,34 @@ class ASTValidator(ASTNodeVisitor):
 
     def validate(self, ast: AST) -> Type:
         return self.visit(ast)
+
+# Handlers de funciones especiales
+def pass_handler(validator: ASTValidator, *args):
+    return args[0]
+
+def if_handler(validator: ASTValidator, *args):
+    if len(args[1]) != 3:
+        raise SemanticError('La función "if" esperaba '
+            f'3 argumentos, pero se recibieron {len(args[1])}')
+
+    # Verifica que el primer argumento sea bool y los otros dos del mismo tipo
+    condition_type = validator.visit(args[1][0])
+
+    if condition_type != BOOL:
+        raise SemanticError(f'El tipo del argumento #1 es '
+            f'{condition_type}, pero se esperaba {BOOL}')
+    
+    exprT_type = validator.visit(args[1][1])
+    exprF_type = validator.visit(args[1][2])
+    
+    if exprT_type == exprF_type:
+        return exprT_type
+    
+    raise SemanticError(f'El tipo del argumento #3 es '
+        f'{exprF_type}, pero se esperaba {exprT_type}')
+
+# Diccionario de handlers de funciones especiales
+SPECIAL_FUNCTION_HANDLERS = {
+    'reset': pass_handler,
+    'if': if_handler,
+}
