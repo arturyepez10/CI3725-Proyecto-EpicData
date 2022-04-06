@@ -78,8 +78,12 @@ PRELOADED_FUNCTIONS = {
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---
 class SymTable:
-    def __init__(self):
-        self.table = PRELOADED_FUNCTIONS
+    def __init__(self, preloaded=True):
+        self.preloaded = preloaded
+        if self.preloaded:
+            self.table = PRELOADED_FUNCTIONS
+        else:
+            self.table = {}
 
     def exists(self, id: str) -> bool:
         return id in self.table
@@ -128,4 +132,7 @@ class SymTable:
         return isinstance(s, SymFunctionSignature) 
 
     def clear(self):
-        self.table = PRELOADED_FUNCTIONS
+        if self.preloaded:
+            self.table = PRELOADED_FUNCTIONS
+        else:
+            self.table = {}
