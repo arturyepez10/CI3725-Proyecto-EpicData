@@ -180,6 +180,12 @@ def stk_ltype(evaluator: ASTEvaluator,  expr: AST) -> Type:
     '''
     if not isinstance(expr, (Id, ArrayAccess)):
         raise SemanticError(f"La expresión '{expr}' no tiene LVALUE")
+    elif isinstance(expr, Id):
+        # En Stókhos no se puede asignar a una función
+        # Debería ?
+        if evaluator.sym_table.is_function(expr.value):
+            raise SemanticError(f"La expresión '{expr}' no tiene LVALUE")
+
     return expr.type
 
 # Diccionario de handlers de funciones especiales

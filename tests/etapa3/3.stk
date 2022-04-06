@@ -12,3 +12,15 @@ type(x)
 [bool] y := if(false, [], [1, 2]);
 [bool] y := if(false, [], []);
 type(y)
+
+# Tipo de funciones
+type(pi)
+type(length)
+
+# Tipo de type
+type(type(type(1)))
+
+# Lo mismo con ltype
+ltype(pi)
+ltype(length)
+ltype(ltype(ltype(1)))
