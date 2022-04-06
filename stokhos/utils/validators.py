@@ -121,6 +121,7 @@ class ASTValidator(ASTNodeVisitor):
         if array_type == rhs_type:
             return VOID
         
+        print(f'tipo izquierda: {type(array_type)}, tipo derecha: {type(rhs_type)}')
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {array_type}')
 
@@ -158,7 +159,7 @@ class ASTValidator(ASTNodeVisitor):
 
         index_type = self.visit(ast.index)
         if index_type == NUM:
-            return id_type.type.type
+            return Type(id_type.type.type)
         
         raise SemanticError(f'El tipo inferido del índice es '
             f'{index_type.type}, pero se esperaba num')
