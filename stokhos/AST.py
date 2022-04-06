@@ -31,9 +31,6 @@ class AST:
 
 # -------- TERMINALES --------
 class Terminal(AST):
-    def __init__(self, value: object):
-        self.value = value
-
     def __str__(self) -> str:
         return f'{self.value}'
 
@@ -43,6 +40,10 @@ class Terminal(AST):
         return False
 
 class Number(Terminal):
+    def __init__(self, value: object):
+        self.type = NUM
+        self.value = value
+        
     # Sobrecarga de operadores para números de Stókhos
     def __add__(self, other):
         return Number(self.value + other.value)
@@ -84,6 +85,10 @@ class Number(Terminal):
         return Number(floor(self.value))
 
 class Boolean(Terminal):
+    def __init__(self, value: object):
+        self.type = NUM
+        self.value = value
+
     def __str__(self) -> str:
         return f'{self.value.__str__().lower()}'
 
@@ -92,11 +97,15 @@ class Boolean(Terminal):
         return self.value
         
 class Id(Terminal):
+    def __init__(self, value: object):
+        self.type = None
+        self.value = value
     pass
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
     def __init__(self, op: str, lhs_term: object, rhs_term: object):
+        self.type = None
         self.op = op
         self.lhs_term = lhs_term
         self.rhs_term = rhs_term
@@ -120,6 +129,7 @@ class Comparison(BinOp):
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
     def __init__(self, op: str, term: object):
+        self.type = None
         self.op = op
         self.term = term
 
@@ -263,6 +273,7 @@ class AssignArrayElement(AST):
 # -------- OTRAS EXPRESIONES --------
 class Quoted(AST):
     def __init__(self, expr: object):
+        self.type = None
         self.expr = expr
 
     def __str__(self) -> str:
@@ -278,6 +289,7 @@ class Quoted(AST):
 
 class Array(AST):
     def __init__(self, elements: list[object]):
+        self.type = None
         self.elements = elements
 
     def __str__(self) -> str:
@@ -297,6 +309,7 @@ class Array(AST):
 
 class ArrayAccess(AST):
     def __init__(self, id: object, _index:object):
+        self.type = None
         self.id = id
         self.index = _index
 
@@ -311,6 +324,7 @@ class ArrayAccess(AST):
 
 class Function(AST):
     def __init__(self, _id: object, _args: list[object]):
+        self.type = None
         self.id = _id
         self.args = _args
 
