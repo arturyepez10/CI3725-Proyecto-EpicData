@@ -41,3 +41,16 @@ class NullLogger():
 
     info = debug
     critical = debug
+
+# Snippet tomado de https://ruslanspivak.com/lsbasi-part7/
+class ASTNodeVisitor(object):
+    '''Clase que implementa el patrón de diseño de Visitor para el AST
+    de Stókhos.
+    '''
+    def visit(self, node):
+        method_name = 'visit_' + type(node).__name__
+        visitor = getattr(self, method_name, self.generic_visit)
+        return visitor(node)
+
+    def generic_visit(self, node):
+        raise Exception(f'No hay método visit_{type(node).__name__}')
