@@ -8,7 +8,7 @@ import pytest
 sys.path.insert(1, os.path.abspath('.'))
 
 import ply.yacc as yacc
-import stokhos.AST as AST
+from stokhos.AST import *
 import stokhos.grammar as grammar
 from stokhos.tokenrules import tokens
 from stokhos.VM import StokhosVM as SVM
@@ -34,29 +34,29 @@ test_cases = [
     'Ramon',    
 ]
 test_sol = [
-    AST.Number(2),
-    AST.Boolean(True),
-    AST.Id('Ramon'),
+    Number(2),
+    Boolean(True),
+    Id('Ramon'),
 ]
 # Operaciones Binarias numericas
 test_cases.extend(list((f'3{binOp}3' for binOp in NUM_BIN_OPS)))
-test_sol.extend(list(AST.BinOp(op, AST.Number(3), AST.Number(3)) for op in NUM_BIN_OPS))
+test_sol.extend(list(BinOp(op, Number(3), Number(3)) for op in NUM_BIN_OPS))
 
 
 # Operaciones Binarias Booleanas
 test_cases.extend(list((f'true{binOp}false' for binOp in BOOL_BIN_OPS)))
-test_sol.extend(list(AST.BinOp(op, AST.Boolean(True), AST.Boolean(False)) for op in BOOL_BIN_OPS))
+test_sol.extend(list(BinOp(op, Boolean(True), Boolean(False)) for op in BOOL_BIN_OPS))
 
 
 # Comparaciones
 test_cases.extend(list((f'epa{comp}caballero' for comp in COMPARISONS)))
-test_sol.extend(list(AST.Comparison(op, AST.Id('epa'), AST.Id('caballero')) for op in COMPARISONS))
+test_sol.extend(list(Comparison(op, Id('epa'), Id('caballero')) for op in COMPARISONS))
 
 # Unarias
 test_cases.extend(list((f'{unaryOp}xNoNecesariamenteBooleana' for unaryOp in BOOL_UN_OPS)))
 test_cases.extend(list((f'{unaryOp}soulCalibur' for unaryOp in NUM_UN_OPS)))
-test_sol.extend(list(AST.UnOp(op, AST.Id('xNoNecesariamenteBooleana')) for op in BOOL_UN_OPS))
-test_sol.extend(list(AST.UnOp(op, AST.Id('soulCalibur')) for op in NUM_UN_OPS))
+test_sol.extend(list(UnOp(op, Id('xNoNecesariamenteBooleana')) for op in BOOL_UN_OPS))
+test_sol.extend(list(UnOp(op, Id('soulCalibur')) for op in NUM_UN_OPS))
 
 
 # Definiciones 
@@ -68,10 +68,10 @@ test_cases.extend(
     ])
 # Definiciones
 test_sol.extend([
-    AST.SymDef(AST.Type(AST.PrimitiveType('num')), AST.Id('x'), AST.Number(3)), 
-    AST.SymDef(AST.Type(AST.PrimitiveType('bool')), AST.Id('x'), AST.Boolean(True)),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('num'))), AST.Id('r'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(1), AST.Number(2)]))),
-    AST.SymDef(AST.Type(AST.TypeArray(AST.PrimitiveType('bool'))), AST.Id('F'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Boolean(True), AST.Boolean(False)])))
+    SymDef(Type(PrimitiveType('num')), Id('x'), Number(3)), 
+    SymDef(Type(PrimitiveType('bool')), Id('x'), Boolean(True)),
+    SymDef(Type(TypeArray(PrimitiveType('num'))), Id('r'), Array([Number(1), Number(2)])),
+    SymDef(Type(TypeArray(PrimitiveType('bool'))), Id('F'), Array([Boolean(True), Boolean(False)]))
     ])
 
 # Asignaciones 
@@ -83,16 +83,16 @@ test_cases.extend(
     'arreglo[2] := 5;'
     ])
 test_sol.extend([
-    AST.Assign(AST.Id('x'), AST.Number(2)),
-    AST.Assign(AST.Id('y'), AST.Boolean(False)),
-    AST.Assign(AST.Id('z'), AST.Id('esto_cansa')),
-    AST.Assign(AST.Id('arr'), AST.Array(AST.ElemList(None).__debug_Init__([AST.Number(3), AST.Number(1), AST.Number(2)]))),
-    AST.AssignArrayElement(AST.ArrayAccess(AST.Id('arreglo'), AST.Number(2)), AST.Number(5))
+    Assign(Id('x'), Number(2)),
+    Assign(Id('y'), Boolean(False)),
+    Assign(Id('z'), Id('esto_cansa')),
+    Assign(Id('arr'), Array([Number(3), Number(1), Number(2)])),
+    AssignArrayElement(ArrayAccess(Id('arreglo'), Number(2)), Number(5))
     ])
 
 # Acceso a arreglos
 test_cases.append('g[2]')
-test_sol.append(AST.ArrayAccess(AST.Id('g'), AST.Number(2)))
+test_sol.append(ArrayAccess(Id('g'), Number(2)))
 
 # Llamadas a funcion
 test_cases.extend(
@@ -100,16 +100,16 @@ test_cases.extend(
     'hola(2)',
     'unosCuantos(2,true,qlq)'])
 test_sol.extend([
-    AST.Function(AST.Id('h'), AST.ElemList(None)),
-    AST.Function(AST.Id('hola'), AST.ElemList(AST.Number(2))),
-    AST.Function(AST.Id('unosCuantos'), AST.ElemList(None).__debug_Init__([AST.Number(2), AST.Boolean(True), AST.Id('qlq')]))])
+    Function(Id('h'), []),
+    Function(Id('hola'), [Number(2)]),
+    Function(Id('unosCuantos'), [Number(2), Boolean(True), Id('qlq')])])
 
 # Parentesis y acotado
 test_cases.append("'y'")
-test_sol.append(AST.Quoted(AST.Id('y')))
+test_sol.append(Quoted(Id('y')))
 
 test_cases.append('(y)')
-test_sol.append(AST.Id('y'))
+test_sol.append(Id('y'))
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)

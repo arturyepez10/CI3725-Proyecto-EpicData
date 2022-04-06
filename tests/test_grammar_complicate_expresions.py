@@ -38,11 +38,11 @@ test_sol.extend(list((SymDef(Type(PrimitiveType(varType)), Id("x"), Comparison(c
 
 # Asignaciones de arreglos
 test_cases.extend(list(( f'array := [2 {bin_num_op} {un_op}3, z {comparison} false {bool_bin_op} x, h[2 {bin_num_op} {un_op}3]];' for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS )))
-test_sol.extend(list((Assign(Id('array'), Array(ElemList(None).__debug_Init__([BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Id('x') ), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))) )]))) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS)))
+test_sol.extend(list((Assign(Id('array'), Array([BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Id('x') ), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))) )])) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS)))
 
 # Definiciones de arreglos
 test_cases.extend(list((f'[{arr_type}] array := [2 {bin_num_op} {un_op}3, z {comparison} false {bool_bin_op} x, h[2 {bin_num_op} {un_op}3]];' for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE )))
-test_sol.extend(list((SymDef(Type(TypeArray(PrimitiveType(arr_type))), Id('array'), Array(ElemList(None).__debug_Init__([BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Id('x') ), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))) )]))) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE)))
+test_sol.extend(list((SymDef(Type(TypeArray(PrimitiveType(arr_type))), Id('array'), Array([BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Id('x') ), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), UnOp(un_op, Number(3))) )])) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE)))
 
 # Asignaciones con expresiones usando parentesis
 test_cases.extend(list((f"x := 3 {prod_div_pow} ({plus_or_minus_unary}2{plus_or_minus}3) {comparison} 2{prod_div_pow}{plus_or_minus_unary} 5;" for plus_or_minus_unary in NUM_UN_OPS for plus_or_minus in NUM_UN_OPS for comparison in COMPARISONS for prod_div_pow in ["^", "*", "/"])))
@@ -54,11 +54,11 @@ test_sol.extend(list((Assign(Id("x"), Comparison(comparison, BinOp(prod_div_pow,
 
 # Definiciones de arreglos con funciones, parentesis y acotamiento
 test_cases.extend(list((f"[{arr_type}] array := [2 {bin_num_op} (({un_op}3) {bin_num_op} 7),      z {comparison} false {bool_bin_op} fun(h[x]),     h[2 {bin_num_op} '{un_op}3']];" for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE )))
-test_sol.extend(list((SymDef(Type(TypeArray(PrimitiveType(arr_type))), Id('array'), Array(ElemList(None).__debug_Init__([BinOp(bin_num_op, Number(2), BinOp(bin_num_op, UnOp(un_op, Number(3)), Number(7))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Function(Id('fun'), ElemList(ArrayAccess(Id('h'), Id('x'))))), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), Quoted(UnOp(un_op, Number(3)))) )]))) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE)))
+test_sol.extend(list((SymDef(Type(TypeArray(PrimitiveType(arr_type))), Id('array'), Array([BinOp(bin_num_op, Number(2), BinOp(bin_num_op, UnOp(un_op, Number(3)), Number(7))), BinOp (bool_bin_op, Comparison(comparison, Id('z'), Boolean(False)), Function(Id('fun'), [ArrayAccess(Id('h'), Id('x'))])), ArrayAccess(Id('h'),BinOp(bin_num_op, Number(2), Quoted(UnOp(un_op, Number(3)))) )])) for bin_num_op in NUM_BIN_OPS for un_op in NUM_UN_OPS for comparison in COMPARISONS for bool_bin_op in BOOL_BIN_OPS for arr_type in VAR_TYPE)))
 
 # Arreglo dentro de funcion con arreglos que es accesada como un arreglo
-test_cases.append("Hola([1,2], 2+2, h(2), [true, false][1])[1]")
-test_sol.append(ArrayAccess(Function(Id("Hola"), ElemList(None).__debug_Init__([Array(ElemList(None).__debug_Init__([Number(1), Number(2)])), BinOp('+', Number(2), Number(2)), Function(Id("h"), ElemList(Number(2))), ArrayAccess(Array(ElemList(None).__debug_Init__([Boolean(True), Boolean(False)])), Number(1))])), Number(1))) 
+test_cases.append("Hola([1, 2], 2 + 2, h(2), [true, false][1])[1]")
+test_sol.append(ArrayAccess(Function(Id("Hola"), [Array([Number(1), Number(2)]), BinOp('+', Number(2), Number(2)), Function(Id("h"), [Number(2)]), ArrayAccess(Array([Boolean(True), Boolean(False)]), Number(1))]), Number(1)))
 
 # ------------ Ejecucion de pruebas ---------------
 cases = list(zip(test_cases, test_sol))
