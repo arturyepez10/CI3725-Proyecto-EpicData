@@ -94,7 +94,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
         
         if rhs_type == expected_type:
-            return VOID
+            return VOID, expected_type
 
         raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
                 f'esperaba {expected_type.type}')
@@ -112,7 +112,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
 
         if expected_type == rhs_type:
-            return VOID
+            return VOID, expected_type
 
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {expected_type}')
@@ -123,7 +123,7 @@ class ASTValidator(ASTNodeVisitor):
         rhs_type = self.visit(ast.rhs_expr)
 
         if array_type == rhs_type:
-            return VOID
+            return VOID, array_type
         
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {array_type}')
@@ -136,16 +136,16 @@ class ASTValidator(ASTNodeVisitor):
         # Si el arreglo es vacío puede ser de cualquier tipo
         if not ast:
             return VOID_ARRAY
-        
+
         expected_type = self.visit(ast[0])
-        
+
         for el in ast:
             # Verifica que el tipo de cada elemento sea consistente# con el tipo
             # del primer elemento
-            el_type = self.visit(el)
-            if isinstance(el_type, TypeArray):
+            if type(el) == Array:
                 raise SemanticError('Arreglos anidados no están permitidos')
             
+            el_type = self.visit(el)
             if el_type != expected_type:
                 raise SemanticError(f'El tipo de todos los elementos del '
                     f'arreglo debe ser {expected_type}, pero {el} es de tipo {el_type}')
