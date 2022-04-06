@@ -48,9 +48,6 @@ class Terminal(AST):
             return self.value == other.value
         return False
 
-    def evaluate(self, symbol_table: dict):
-        return self
-
 class Number(Terminal):
     # Sobrecarga de operadores para números de Stókhos
     def __add__(self, other):
@@ -101,12 +98,7 @@ class Boolean(Terminal):
         return self.value
         
 class Id(Terminal):
-    def evaluate(self, symbol_table: dict):
-        if self.value in symbol_table:
-            return symbol_table[self.value].value
-        else:
-            # Verificar si en algún caso hace falta esto
-            raise SemanticError(f'Variable "{self.value}" no definida')
+    pass
 
 # -------- OPERACIONES BINARIAS --------
 class BinOp(AST):
@@ -128,18 +120,8 @@ class BinOp(AST):
                 and self.rhs_term == other.rhs_term)
         return False
 
-    def evaluate(self, symbol_table: dict):
-        return BINARY_OP[self.op](
-            self.lhs_term.evaluate(symbol_table), 
-            self.rhs_term.evaluate(symbol_table)
-        )
-
 class Comparison(BinOp):
-    def evaluate(self, symbol_table: dict):
-        return BINARY_OP[self.op](
-            self.lhs_term.evaluate(symbol_table),
-            self.rhs_term.evaluate(symbol_table)
-        )
+    pass
 
 # -------- OPERACIONES UNARIAS --------
 class UnOp(AST):
@@ -158,11 +140,6 @@ class UnOp(AST):
             return (self.op == other.op 
                 and self.term == other.term)
         return False
-
-    def evaluate(self, symbol_table: dict):
-        return UNARY_OP[self.op](
-            self.term.evaluate(symbol_table)
-        )
 
 # -------- TIPOS --------
 class Type(AST):
@@ -324,17 +301,6 @@ class Array(AST):
     def __getitem__(self, index: int) -> object:
         return self.elements[index]
 
-    def evaluate(self, symbol_table: dict):
-        # Se evaluan todas las expresiones dentro del arreglo
-        evaluated_list = []
-        for expr in self:
-            evaluated_list.append(expr.evaluate(symbol_table))
-        # Se retorna un arreglo cuya lista es la lista de expresiones
-        # evaluadas
-        
-        # Se retorna un arreglo con su lista de elementos evaluada        
-        return Array(ElemList(None).__debug_Init__(evaluated_list))
-        
 class ArrayAccess(AST):
     def __init__(self, id: object, _index:object):
         self.id = id
@@ -399,31 +365,3 @@ NUM_ARRAY = Type(TypeArray(PrimitiveType('num')))
 BOOL_ARRAY = Type(TypeArray(PrimitiveType('bool')))
 # De utilidad para 'inferencia de tipos'
 VOID_ARRAY = Type(TypeArray(PrimitiveType('void')))
-
-# Diccionarios de operadores
-stk_and = lambda p, q: p and q
-stk_or = lambda p, q: p or q
-stk_not = lambda p: Boolean(not p)
-stk_eq = lambda p, q: Boolean(p == q)
-stk_neq = lambda p, q: Boolean(p != q)
-BINARY_OP = {
-    '+': operator.add,
-    '-': operator.sub,
-    '*': operator.mul,
-    '^': operator.pow,
-    '%': operator.mod,
-    '/': operator.truediv,
-    '<': operator.lt,
-    '<=': operator.le,
-    '>': operator.gt,
-    '>=': operator.ge,
-    '=': stk_eq,
-    '<>': stk_neq,
-    '&&': stk_and,
-    '||': stk_or
-}
-UNARY_OP = {
-    '+': operator.pos,
-    '-': operator.neg,
-    '!': stk_not
-}
