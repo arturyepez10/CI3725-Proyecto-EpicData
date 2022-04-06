@@ -198,7 +198,7 @@ class StokhosVM:
         """
         try:
             # Evalua el lado derecho
-            res  = self.evaluator.evaluate(ast.rhs_expr)
+            res  = self.eval(ast.rhs_expr)
 
             # Si es una asignación a un elemento de un arreglo
             if isinstance(ast, AssignArrayElement):
