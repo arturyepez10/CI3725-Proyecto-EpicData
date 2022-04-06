@@ -67,6 +67,7 @@ class SymVar(Symbol):
 # Funciones precargadas de Stókhos
 
 PRELOADED_FUNCTIONS = {
+    'reset': SymFunctionSignature(stk_reset, [], BOOL),
     'uniform': SymFunctionSignature(stk_uniform, [], NUM,),
     'floor': SymFunctionSignature(stk_floor, [NUM], NUM),
     'length': SymFunctionSignature(stk_length, [[NUM_ARRAY], [BOOL_ARRAY]], NUM),
@@ -81,7 +82,7 @@ class SymTable:
     def __init__(self, preloaded=True):
         self.preloaded = preloaded
         if self.preloaded:
-            self.table = PRELOADED_FUNCTIONS
+            self.table = PRELOADED_FUNCTIONS.copy()
         else:
             self.table = {}
 
@@ -134,6 +135,6 @@ class SymTable:
 
     def clear(self):
         if self.preloaded:
-            self.table = PRELOADED_FUNCTIONS
+            self.table = PRELOADED_FUNCTIONS.copy()
         else:
             self.table = {}
