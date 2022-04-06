@@ -23,11 +23,11 @@ import ply.yacc as yacc
 from . import grammar
 from . import tokenrules
 
-from .AST import AST, SymDef, AssignArrayElement, Assign, Error
+from .AST import AST, VOID, ArrayAccess, Assign, AssignArrayElement, Error, Type
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
-from .symtable import SymTable
+from .symtable import SymTable, SymVar
 from .utils.validators import ASTValidator
 from .utils.evaluators import ASTEvaluator
 
@@ -86,16 +86,20 @@ class StokhosVM:
             return f'ERROR: {validation.cause}'
 
         # Si se llega a esta línea de código, el AST era válido
-        if type(ast) in [SymDef, Assign, AssignArrayElement]:
-            res = self.execute(ast)
-            if isinstance(res, Error):
-                return f'ERROR: {res.cause}'
-            return f'ACK: {res}'
-        else:
+        # Si el validator retornó solo
+        if isinstance(validation, Type):
             res = self.eval(ast)
             if isinstance(res, Error):
                 return f'ERROR: {res.cause}'
             return f'OK: {command} ==> {res}'
+        else:
+            # Si el validador retornó VOID era una SymDef/Assign
+            # validation[1] contiene el tipo del lado derecho
+            res = self.execute(ast, validation[1])
+            if isinstance(res, Error):
+                return f'ERROR: {res.cause}'
+            return f'ACK: {res}'
+
 
     def lextest(self, command: str) -> str:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
@@ -186,7 +190,7 @@ class StokhosVM:
         except SemanticError as e:
             return Error(e.message)
 
-    def execute(self, ast: AST) -> AST:
+    def execute(self, ast: AST, _type: Type) -> AST:
         """Ejecuta un Árbol de Sintaxis Abstracta.
 
         Retorna:
@@ -194,7 +198,21 @@ class StokhosVM:
             Sintaxis Abstracta pasado como argumento.
         """
         try:
-            return ast.execute(self.symbol_table)
+            res  = self.evaluator.evaluate(ast.rhs_expr)
+            # Falta tener cuidado del tema de la acotación,
+            # ver que hacer con eso, reminder
+            if isinstance(ast, AssignArrayElement):
+                self.symbol_table.update(ast.id.value, res)
+                return f'{ast.array_access} := {res}'
+            else:
+                if isinstance(ast, Assign):
+                    self.symbol_table.update(ast.id.value, res)
+                    return f'{ast.id} := {res}'
+                else:
+                    new_symbol = SymVar(_type, res)
+                    self.symbol_table.insert(ast.id.value, new_symbol)
+                    return f'{ast.type} {ast.id} := {res}'
+
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
             return Error(e.message)
 
