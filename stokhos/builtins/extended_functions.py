@@ -17,7 +17,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from ..VM import StokhosVM
 from ..AST import *
 
 def stk_type(ast: AST, sym_table: dict) -> Type:
@@ -52,19 +51,3 @@ def stk_type(ast: AST, sym_table: dict) -> Type:
     
     return ast.type
 
-def stk_reset(vm: StokhosVM) -> Boolean:
-    '''Resetea la tabla de símbolos de la vm dada.
-    
-    Args:
-        vm: Instancia de VM de Stókhos.
-    '''
-    vm.symbols.clear()
-    return Boolean(True)
-
-SPECIAL_FUNCTIONS = {
-      'reset': 
-        Symbol(
-            VOID,
-            FunctionSignature(stk_reset)
-        ),
-}
