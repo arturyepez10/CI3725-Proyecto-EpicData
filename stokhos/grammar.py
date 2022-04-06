@@ -101,19 +101,20 @@ def p_acceso_arreglo(p):
 
 # <listaElems> -> (lambda)
 #     | <expresion>
-#     | <listaElems> , <expresion>
+#     | <expresion>, <listaElems>
 def p_lista(p):
     '''listaElems : lambda
         | expresion
         | expresion TkComma listaElems'''
     # Caso base
     if len(p) == 2:
-        p[0] = AST.ElemList(p[1])
+        p[0] = [] if p[1] is None else [p[1]]
     # Caso recursivo
     else:
-        p[3].append(p[1])
-        p[0] = p[3]
-
+        if p[1] is not None:
+            p[3].insert(0, p[1])
+            p[0] = p[3]
+    
 # ---- errores de arreglos ----
 def p_acceso_arreglo_err(p):
     'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'

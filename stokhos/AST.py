@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import operator
 from math import floor
 
-
 from .utils.custom_exceptions import *
 from .utils.constants import *
 
@@ -93,10 +92,6 @@ class Number(Terminal):
 
     def __floor__(self):
         return Number(floor(self.value))
-
-    # Caso base del type checking
-    def type_check(self, symbol_table: dict):
-        return NUM
 
 class Id(Terminal):
     # Caso base del type checking
@@ -498,22 +493,21 @@ class Quoted(AST):
 
 # -------- ARREGLOS --------
 class Array(AST):
-    def __init__(self, list: object) -> None:
-        self.list = list
+    def __init__(self, elements: list[object]):
+        self.elements = elements
 
     def __str__(self) -> str:
-        return f'[{self.list}]'
+        return f'{self.elements}'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return self.list == other.list
-            
+            return self.elements == other.elements
         else:
             raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
 
     # Soporte de indexing y cálculo de longitud
     def __len__(self) -> Number:
-        return len(self.list)
+        return len(self.elements)
 
     def __getitem__(self, index: int) -> object:
         return self.list[index]
@@ -548,7 +542,7 @@ class Array(AST):
         return Array(ElemList(None).__debug_Init__(evaluated_list))
         
 class ArrayAccess(AST):
-    def __init__(self, id: object, _index:object) -> None:
+    def __init__(self, id: object, _index:object):
         self.id = id
         self.index = _index
 
@@ -596,12 +590,13 @@ class ArrayAccess(AST):
                 f'obtuvo {index.value}')
 
 class Function(AST):
-    def __init__(self, _id:object, _args:object) -> None:
+    def __init__(self, _id: object, _args: list[object]):
         self.id = _id
         self.args = _args
 
     def __str__(self) -> str:
-        return f'{self.id}({self.args})'
+        args_str = f'{self.args}'
+        return f'{self.id}({args_str[1:-1]})'
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
@@ -666,38 +661,6 @@ class Function(AST):
         f = symbol_table[self.id.value].value.callable
         
         return f(*args)
-
-class ElemList(AST):
-    def __init__(self, el: object):
-        self.elements = [] if el is None else [el]
-
-    def append(self, el:object):
-        return self.elements.insert(0, el)
-
-    def __str__(self) -> str:
-        return f'{", ".join([str(el) for el in self])}'
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, type(self)):
-            return self.elements == other.elements
-             
-        else:
-            raise TypeError(f'{type(self).__name__} is not {type(other).__name__}')
-
-    # Soporte de indexing y cálculo de longitud
-    def __len__(self) -> int:
-        return len(self.elements)
-    
-    def __getitem__(self, index):
-        return self.elements[index]
-
-    # Metodo usado para debug
-    def __debug_Init__(self, elements:object):
-        self.elements = elements
-        return self
-
-    # El chequeo de tipos de esta clase se hace por medio de las clases funciones
-    # de funciones o arreglos
 
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
 
