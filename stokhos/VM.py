@@ -19,7 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import ply.lex as lex
 import ply.yacc as yacc
-from .utils.validators import ASTValidator
 
 from . import grammar
 from . import tokenrules
@@ -29,7 +28,8 @@ from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
 from .symtable import SymTable
-# from .utils.validators import ASTValidator
+from .utils.validators import ASTValidator
+from .utils.evaluators import ASTEvaluator
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -48,6 +48,7 @@ class StokhosVM:
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
         self.symbol_table = SymTable()
         self.validator = ASTValidator(self.symbol_table)
+        self.evaluator = ASTEvaluator(self.symbol_table)
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
@@ -80,9 +81,9 @@ class StokhosVM:
         if isinstance(ast, Error):
             return f'ERROR: {ast.cause}'
         
-        valid = self.validate(ast)
-        if isinstance(valid, Error):
-            return f'ERROR: {valid.cause}'
+        validation = self.validate(ast)
+        if isinstance(validation, Error):
+            return f'ERROR: {validation.cause}'
 
         # Si se llega a esta línea de código, el AST era válido
         if type(ast) in [SymDef, Assign, AssignArrayElement]:
@@ -182,7 +183,7 @@ class StokhosVM:
         """
         try:
             return self.validator.validate(ast)
-        except (SemanticError, NotEnoughInfoError) as e:
+        except SemanticError as e:
             return Error(e.message)
 
     def execute(self, ast: AST) -> AST:
@@ -207,8 +208,8 @@ class StokhosVM:
         # Casi se garantiza que no puede haber errores en este punto,
         # pero no! todavía es posible
         try:
-            return ast.evaluate(self.symbol_table)
-        except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
+            return self.evaluator.evaluate(ast)
+        except (SemanticError, StkRuntimeError) as e:
             return Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply
