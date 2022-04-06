@@ -155,11 +155,30 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
     Args:
         expr: Expresión a obtener el tipo.
     '''
+    _type = expr.type
+
+    if _type == VOID_ARRAY:
+        raise SemanticError('No hay suficiente información para inferir el '
+            'tipo del arreglo')
+    
+    return _type
+
+def stk_ltype(evaluator: ASTEvaluator,  expr: AST) -> Type:
+    '''Retorna el tipo del AST pasado como parámetro, no lo evalua. Usa las
+    anotaciones del AST (el árbol ya se encuentra anotado tras la etapa de
+    validación estática)
+    
+    Args:
+        expr: Expresión a obtener el ltype.
+    '''
+    if not isinstance(expr, (Id, ArrayAccess)):
+        raise SemanticError(f"La expresión '{expr}' no tiene LVALUE")
     return expr.type
 
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
+    'type': stk_type,
+    'ltype': stk_ltype,
     'reset': stk_reset,
     'if': stk_if,
-    'type': stk_type
 }
