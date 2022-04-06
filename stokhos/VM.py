@@ -87,19 +87,18 @@ class StokhosVM:
 
         # Si se llega a esta línea de código, el AST era válido
         # Si el validator retornó solo
-        if isinstance(validation, Type):
-            res = self.eval(ast)
-            if isinstance(res, Error):
-                return f'ERROR: {res.cause}'
-            return f'OK: {command} ==> {res}'
-        else:
+        if validation == VOID:
             # Si el validador retornó VOID era una SymDef/Assign
             # El arbol ya está anotado con el tipo del lado derecho
             res = self.execute(ast)
             if isinstance(res, Error):
                 return f'ERROR: {res.cause}'
             return f'ACK: {res}'
-
+        else:
+            res = self.eval(ast)
+            if isinstance(res, Error):
+                return f'ERROR: {res.cause}'
+            return f'OK: {command} ==> {res}'
 
     def lextest(self, command: str) -> str:
         """Llama al lexer de Stókhos y construye una secuencia de tokens.
@@ -190,7 +189,7 @@ class StokhosVM:
         except SemanticError as e:
             return Error(e.message)
 
-    def execute(self, ast: AST, _type: Type) -> AST:
+    def execute(self, ast: AST) -> AST:
         """Ejecuta un Árbol de Sintaxis Abstracta.
 
         Retorna:
@@ -218,7 +217,7 @@ class StokhosVM:
                 
                 # Si es una definición
                 else:
-                    new_symbol = SymVar(ast._type, res)
+                    new_symbol = SymVar(ast.type, res)
                     self.symbol_table.insert(ast.id.value, new_symbol)
                     return f'{ast.type} {ast.id} := {res}'
 
