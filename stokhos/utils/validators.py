@@ -152,7 +152,7 @@ class ASTValidator(ASTNodeVisitor):
         # Verifica que la Id corresponda a un arreglo
         id_type = self.visit(ast.id)
 
-        if not isinstance(id_type, TypeArray):
+        if not isinstance(id_type.type, TypeArray):
             raise SemanticError('No se permite el acceso a arreglo para '
                 f'expresión de tipo {id_type}')
 
