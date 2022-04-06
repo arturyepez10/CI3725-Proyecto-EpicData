@@ -94,8 +94,8 @@ class StokhosVM:
             return f'OK: {command} ==> {res}'
         else:
             # Si el validador retornó VOID era una SymDef/Assign
-            # validation[1] contiene el tipo del lado derecho
-            res = self.execute(ast, validation[1])
+            # El arbol ya está anotado con el tipo del lado derecho
+            res = self.execute(ast)
             if isinstance(res, Error):
                 return f'ERROR: {res.cause}'
             return f'ACK: {res}'
@@ -198,21 +198,27 @@ class StokhosVM:
             Sintaxis Abstracta pasado como argumento.
         """
         try:
+            # Evalua el lado derecho
             res  = self.evaluator.evaluate(ast.rhs_expr)
-            # Falta tener cuidado del tema de la acotación,
-            # ver que hacer con eso, reminder
+
+            # Si es una asignación a un elemento de un arreglo
             if isinstance(ast, AssignArrayElement):
                 array_access = ast.array_access
                 _id = array_access.id.value
                 index = array_access.index.value
+
                 self.symbol_table.lookup(_id).value.elements[index] = res
+
                 return f'{ast.array_access} := {res}'
             else:
+                # Si es una asignación a variable
                 if isinstance(ast, Assign):
                     self.symbol_table.update(ast.id.value, res)
                     return f'{ast.id} := {res}'
+                
+                # Si es una definición
                 else:
-                    new_symbol = SymVar(_type, res)
+                    new_symbol = SymVar(ast._type, res)
                     self.symbol_table.insert(ast.id.value, new_symbol)
                     return f'{ast.type} {ast.id} := {res}'
 
@@ -229,6 +235,7 @@ class StokhosVM:
         # Casi se garantiza que no puede haber errores en este punto,
         # pero no! todavía es posible
         try:
+            # Tener cuidado en casos de acotación
             return self.evaluator.evaluate(ast)
         except (SemanticError, StkRuntimeError) as e:
             return Error(e.message)
