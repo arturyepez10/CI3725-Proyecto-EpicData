@@ -16,11 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from colorsys import rgb_to_hls
-import re
+from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
-from ..AST import *
+
 
 class ASTValidator(ASTNodeVisitor):
     def __init__(self, sym_table: SymTable):
