@@ -46,7 +46,9 @@ class ASTValidator(ASTNodeVisitor):
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> Type:
         # Verifica que los operandos sean del mismo tipo según el operador
+        print(f'visitando lhs: {ast.lhs_term}')
         lhs_type = self.visit(ast.lhs_term)
+        print(f'visitando rhs: {ast.rhs_term}')
         rhs_type = self.visit(ast.rhs_term)
         expected_type = BOOL if ast.op in ['&&', '||'] else NUM
 
@@ -79,6 +81,9 @@ class ASTValidator(ASTNodeVisitor):
 
         if term_type == expected_type:
             return expected_type
+
+        raise SemanticError(f'"{ast.op} no se puede aplicar a operando '
+            f'de tipo {term_type}')
 
     # ---- DEFINICIONES Y ASIGNACIONES ----
     def visit_SymDef(self, ast: SymDef) -> Type:
