@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from typing import Union
+
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -104,7 +105,6 @@ class ASTEvaluator(ASTNodeVisitor):
     def visit_Function(self, ast: Function):
         args = [self.visit(arg) for arg in ast.args]
         f = self.sym_table.get_value(ast.id.value)
-        # print(f'\n\n\n\n\n\n\n\n\n\nFUNCION F: {f.__name__}\n\n\n\n\n\n\n\n\n\n')
         return f(*args)
                         
     def generic_visit(self, ast: AST):
