@@ -34,3 +34,28 @@ num w := 5%2;
 
 arr_b := [x, y, w, x && w];
 arr := [x, y, z, w, w + 5, y^w];
+
+# CASO DE PRUEBA INTERESANTE
+x := .0;
+
+# Evalua x <> 0, da false
+# Por lo que evalua x=0, da true
+# Por lo que el resultado es false
+# Como da false, devuelve 1
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+
+# Ahora x es 1, como x <> da true, resulta true
+# Como resulta true, evalua (x-1)/x y da 0
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
