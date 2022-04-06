@@ -20,14 +20,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import ply.lex as lex
 import ply.yacc as yacc
 
-import stokhos.grammar as grammar
-import stokhos.tokenrules as tokenrules
+from . import grammar
+from . import tokenrules
 
-from . import AST
+from .AST import AST, SymDef, AssignArrayElement, Assign, Error
+from .builtins.functions import PRELOADED_FUNCTIONS
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
-from .builtins.functions import PRELOADED_FUNCTIONS
+# from .utils.validators import ASTValidator
+
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
@@ -75,22 +77,22 @@ class StokhosVM:
                 donde <mensaje> es un mensaje de error descriptivo.
         """
         ast = self.parse(command)
-        if isinstance(ast, AST.Error):
+        if isinstance(ast, Error):
             return f'ERROR: {ast.cause}'
         
         valid = self.validate(ast)
-        if isinstance(valid, AST.Error):
+        if isinstance(valid, Error):
             return f'ERROR: {valid.cause}'
 
         # Si se llega a esta línea de código, el AST era válido
-        if type(ast) in [AST.SymDef, AST.Assign, AST.AssignArrayElement]:
+        if type(ast) in [SymDef, Assign, AssignArrayElement]:
             res = self.execute(ast)
-            if isinstance(res, AST.Error):
+            if isinstance(res, Error):
                 return f'ERROR: {res.cause}'
             return f'ACK: {res}'
         else:
             res = self.eval(ast)
-            if isinstance(res, AST.Error):
+            if isinstance(res, Error):
                 return f'ERROR: {res.cause}'
             return f'OK: {command} ==> {res}'
 
@@ -139,7 +141,7 @@ class StokhosVM:
         try:
             return self.parser.parse(command, lexer=self.lex, tracking=True)
         except ParseError as e:
-            return AST.Error(e.message)
+            return Error(e.message)
 
     def testparser(self, command: str) -> str:
         """Llama a parse(command) y convierte el Árbol de Sintaxis Abstracta
@@ -165,12 +167,12 @@ class StokhosVM:
             'ERROR: Punto y coma faltante al final (columna 9)'
         """
         out = self.parse(command)
-        if isinstance(out, AST.Error):
+        if isinstance(out, Error):
             return f'ERROR: {out.cause}'
         
         return f'OK: ast("{command}") ==> {out.ast2str()}'
 
-    def validate(self, ast: AST.AST) -> AST.AST:
+    def validate(self, ast: AST) -> AST:
         """Valida un Árbol de Sintaxis Abstracta.
 
         Retorna:
@@ -178,12 +180,13 @@ class StokhosVM:
             de entrada era válido, o un árbol de Error con la causa en
             caso contrario.
         """
+        validator = ASTValidator(ast, self.symbols)
         try:
             return ast.type_check(self.symbols)
         except (SemanticError, NotEnoughInfoError) as e:
-            return AST.Error(e.message)
+            return Error(e.message)
 
-    def execute(self, ast: AST.AST) -> AST.AST:
+    def execute(self, ast: AST) -> AST:
         """Ejecuta un Árbol de Sintaxis Abstracta.
 
         Retorna:
@@ -193,9 +196,9 @@ class StokhosVM:
         try:
             return ast.execute(self.symbols)
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
-            return AST.Error(e.message)
+            return Error(e.message)
 
-    def eval(self, ast: AST.AST) -> AST.AST:
+    def eval(self, ast: AST) -> AST:
         """Evalúa un Árbol de Sintaxis Abstracta.
 
         Retorna:
@@ -207,7 +210,7 @@ class StokhosVM:
         try:
             return ast.evaluate(self.symbols)
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:
-            return AST.Error(e.message)
+            return Error(e.message)
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):
