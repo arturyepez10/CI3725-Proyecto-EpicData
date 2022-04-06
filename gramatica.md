@@ -70,7 +70,7 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
 
 <listaElems> -> (lambda)
     | <expresión>
-    | <listaElems>, <expresión>
+    | <expresión>, <listaElems>
 
 <comparación> -> <expresion> < <expresion>
     | <expresion> <= <expresion>
