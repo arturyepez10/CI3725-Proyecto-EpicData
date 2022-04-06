@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from typing import overload
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -37,7 +38,7 @@ class ASTValidator(ASTNodeVisitor):
         if self.sym_table.exists(ast.value):
             return self.sym_table.get_type(ast.value)
         
-        raise SemanticError(f'Variable "{self.id}" no definida '
+        raise SemanticError(f'Variable "{ast.value}" no definida '
             'anteriormente')
 
     # ---- NODOS RECURSIVOS ----
@@ -83,7 +84,7 @@ class ASTValidator(ASTNodeVisitor):
     def visit_SymDef(self, ast: SymDef) -> Type:
         # Verifica que no exista la variables en la tabla de símbolos
         if self.sym_table.exists(ast.id.value):
-            raise SemanticError(f'Variable "{self.id}" ya definida anteriormente')
+            raise SemanticError(f'Variable "{ast.id}" ya definida anteriormente')
         
         # Verifica que el tipo del lado derecho de la definición sea consistente
         expected_type = ast.type
@@ -101,7 +102,7 @@ class ASTValidator(ASTNodeVisitor):
         
         # Verifica que no se intente asignar a una función
         if self.sym_table.is_function(ast.id.value):
-            raise SemanticError(f'Variable "{self.id}" es una función '
+            raise SemanticError(f'Variable "{ast.id}" es una función '
                 'precargada, no se puede asignar')
 
         # Verifica que el tipo del lado derecho de la asignación sea consistente
@@ -121,7 +122,6 @@ class ASTValidator(ASTNodeVisitor):
         if array_type == rhs_type:
             return VOID
         
-        print(f'tipo izquierda: {type(array_type)}, tipo derecha: {type(rhs_type)}')
         raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
             f'esperaba {array_type}')
 
@@ -174,55 +174,55 @@ class ASTValidator(ASTNodeVisitor):
         
         f_args = self.sym_table.get_args(ast.id.value)
 
-        # Si la lista de argumentos de la función no es vacía
-        if f_args:
-            # Si la función tiene sobrecargas
-            if isinstance(f_args[0], list):
-                # Verifica si los argumentos hacen match con alguna 
-                # de las sobrecargas
-                for i, arg_list in enumerate(f_args):
-                    # Primero viendo el número de argumentos
-                    if len(arg_list) != len(ast.args):
-                        # Se pasa a la siguiente sobrecarga
-                        if i != len(f_args) - 1:
-                            continue
-                        
-                        # Si ya no quedan sobrecargas se lanza el error
-                        raise SemanticError(f'La función "{self.id}" esperaba '
-                            f'{len(arg_list)} argumentos, pero se recibieron '
-                            f'{len(self.args)}')
-                    
-                    # Luego viendo el tipo de cada argumento
-                    for j, expected_type in enumerate(arg_list):
-                        arg_type = self.visit(ast.args[j])
-                        if arg_type != expected_type:
-                            # Si ya no quedan sobrecargas se lanza el error
-                            if i == len(f_args) - 1:
-                                raise SemanticError(f'El tipo del argumento #{i + 1} es '
-                                    f'{arg_type}, pero se esperaba {expected_type}')
-            
-            # Si la función no tiene sobrecargas
-            else:
-                # Verifica si los argumentos hacen match
-                # Primero por su número
-                if len(f_args) != len(ast.args):
-                    raise SemanticError(f'La función "{self.id}" esperaba '
-                        f'{len(arg_list)} argumentos, pero se recibieron '
-                        f'{len(self.args)}')
+        # Si la lista de argumentos de la función no es vacía y la función tiene sobrecargas
+        if f_args and isinstance(f_args[0], list):
+            # Número de sobrecargas que tiene la función
+            num_of_overloads = len(f_args)
 
-                # Luego por sus tipos
-                for i, expected_type in enumerate(f_args):
-                    arg_type = self.visit(ast.args[i])
-                    if arg_type != expected_type:
-                        raise SemanticError(f'El tipo del argumento #{i + 1} es '
-                            f'{arg_type}, pero se esperaba {expected_type}')
-        
-        # Si la función no espera argumentos
+            # Verifica si los argumentos hacen match con alguna 
+            # de las sobrecargas
+            for i, arg_list in enumerate(f_args):
+                # Primero viendo el número de argumentos
+                if len(arg_list) != len(ast.args):
+                    if i + 1 == num_of_overloads:
+                        raise SemanticError(f'La función "{ast.id}" esperaba '
+                            f'{len(arg_list)} argumentos, pero se recibieron '
+                            f'{len(ast.args)}')
+                    continue
+
+                # Luego viendo el tipo de cada argumento
+                # Contador de argumentos con tipos consistentes
+                matched_args = 0
+                for j, expected_type in enumerate(arg_list):
+                    arg_type = self.visit(ast.args[j])
+
+                    if arg_type == expected_type:
+                        matched_args += 1
+                    else:
+                        if i+1 == num_of_overloads:
+                            raise SemanticError(f'El tipo del argumento #{i + 1} es '
+                                f'{arg_type}, pero se esperaba {expected_type}')
+                        break
+                
+                if matched_args == len(arg_list):
+                    break
+
+        # Si la función no tiene sobrecargas o es una lista vacía
         else:
-            if len(ast.args) != 0:
-                raise SemanticError(f'La función "{self.id.value}" esperaba '
-                    f'0 argumentos, pero se recibieron {len(self.args)}')
-        
+            # Verifica si los argumentos hacen match
+            # Primero por su número
+            if len(f_args) != len(ast.args):
+                raise SemanticError(f'La función "{ast.id}" esperaba '
+                    f'{len(f_args)} argumentos, pero se recibieron '
+                    f'{len(ast.args)}')
+
+            # Luego por sus tipos
+            for i, expected_type in enumerate(f_args):
+                arg_type = self.visit(ast.args[i])
+                if arg_type != expected_type:
+                    raise SemanticError(f'El tipo del argumento #{i + 1} es '
+                        f'{arg_type}, pero se esperaba {expected_type}')
+
         return return_type
                         
     def generic_visit(self, ast: AST):
