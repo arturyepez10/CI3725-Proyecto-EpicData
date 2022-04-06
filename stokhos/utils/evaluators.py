@@ -147,8 +147,19 @@ def stk_if(evaluator: ASTEvaluator,  condicion: AST, exprT: AST, exprF: AST) -> 
     else:
         return evaluator.evaluate(exprF)
 
+def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
+    '''Retorna el tipo del AST pasado como parámetro, no lo evalua. Usa las
+    anotaciones del AST (el árbol ya se encuentra anotado tras la etapa de
+    validación estática)
+    
+    Args:
+        expr: Expresión a obtener el tipo.
+    '''
+    return expr.type
+
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'reset': stk_reset,
-    'if': stk_if
+    'if': stk_if,
+    'type': stk_type
 }
