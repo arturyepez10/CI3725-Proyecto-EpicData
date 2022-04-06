@@ -17,6 +17,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from typing import Union
 
+from stokhos.builtins.functions import stk_reset
+
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -55,10 +57,15 @@ class ASTEvaluator(ASTNodeVisitor):
     def visit_Boolean(self, ast: Boolean) -> Boolean:
         return ast
 
-    def visit_Id(self, ast: Id) -> AST:
-        return self.sym_table.get_value(ast.value)
+    def visit_Quoted(self, ast: Quoted) -> AST:
+        return ast.expr
 
     # ---- NODOS RECURSIVOS ----
+    def visit_Id(self, ast: Id) -> AST:
+        lookup = self.sym_table.get_value(ast.value)
+        
+        # Tiene que hacerse así por la existencia de expresiones acotadas
+        return self.visit(lookup)
 
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> AST:
@@ -77,9 +84,6 @@ class ASTEvaluator(ASTNodeVisitor):
         return UNARY_OP[ast.op](self.visit(ast.term))
 
     # ---- OTRAS EXPRESIONES ----
-    def visit_Quoted(self, ast: Quoted) -> AST:
-        return self.visit(ast.expr)
-
     def visit_Array(self, ast: Array) -> AST:
         # Se evaluan todas las expresiones dentro del arreglo
         evaluated_list = []
@@ -103,8 +107,14 @@ class ASTEvaluator(ASTNodeVisitor):
                 f'obtuvo {index.value}')
 
     def visit_Function(self, ast: Function):
+        # Tratamiento de funciones especiales
+        if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
+            return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self)
+
         args = [self.visit(arg) for arg in ast.args]
         f = self.sym_table.get_value(ast.id.value)
+
+
         return f(*args)
                         
     def generic_visit(self, ast: AST):
@@ -112,3 +122,12 @@ class ASTEvaluator(ASTNodeVisitor):
 
     def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
+
+# Handlers de funciones especiales
+def handle_reset(evaluator: ASTEvaluator):
+    return stk_reset(evaluator.sym_table)
+
+# Diccionario de handlers de funciones especiales
+SPECIAL_FUNCTION_HANDLERS = {
+    'reset': handle_reset
+}
