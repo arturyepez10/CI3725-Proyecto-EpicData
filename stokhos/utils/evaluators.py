@@ -91,13 +91,13 @@ class ASTEvaluator(ASTNodeVisitor):
 
     def visit_ArrayAccess(self, ast: ArrayAccess) -> AST:
         # Evaluar el indice
-        index = self.visit(ast.index)        
+        index = self.visit(ast.index)
 
         try:
-            return self.sym_table.get_value(ast.id.value)[index.value]
-        except IndexError:
+            return self.visit(ast.id)[index.value]
+        except (IndexError, AttributeError):
             raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
-                f'de la variable {self.id.value}')
+                f'de la expresión {ast.id}')
         except TypeError:
             raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
                 f'obtuvo {index.value}')
