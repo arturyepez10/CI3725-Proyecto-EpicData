@@ -315,19 +315,6 @@ class ArrayAccess(AST):
                 and self.index == other.index)
         return False
 
-    def evaluate(self, symbol_table: dict):
-        # Evaluar el indice
-        index = self.index.evaluate(symbol_table)        
-
-        try:
-            return symbol_table[self.id.value].value[index.value].value
-        except IndexError:
-            raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
-                f'de la variable {self.id.value}')
-        except TypeError:
-            raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
-                f'obtuvo {index.value}')
-
 class Function(AST):
     def __init__(self, _id: object, _args: list[object]):
         self.id = _id
