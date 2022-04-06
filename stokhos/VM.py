@@ -28,6 +28,7 @@ from .builtins.functions import PRELOADED_FUNCTIONS
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.helpers import NullLogger
+from .symtable import SymTable
 # from .utils.validators import ASTValidator
 
 
@@ -46,8 +47,7 @@ class StokhosVM:
         # No se imprime ningún mensaje que pueda generar ply
         self.lex = lex.lex(module=tokenrules)
         self.parser = yacc.yacc(module=grammar, errorlog=NullLogger)
-
-        self.symbols = PRELOADED_FUNCTIONS
+        self.symbol_table = SymTable()
 
     def process(self, command: str) -> str:
         """Procesa y ejecuta un comando de Stókhos.
