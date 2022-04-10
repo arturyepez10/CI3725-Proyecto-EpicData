@@ -16,11 +16,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from typing import Union
 from math import floor
+from typing import Union
 
 from .utils.constants import *
 from .utils.custom_exceptions import *
+
 
 class AST:
     def __repr__(self) -> str:
