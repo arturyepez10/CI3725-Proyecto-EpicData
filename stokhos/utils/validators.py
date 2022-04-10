@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from ..AST import *
 from ..symtable import SymTable
+from .err_strings import *
 from .helpers import ASTNodeVisitor
 
 
@@ -41,9 +42,8 @@ class ASTValidator(ASTNodeVisitor):
             _type = self.sym_table.get_type(ast.value)
             ast.type = _type
             return _type
-        
-        raise SemanticError(f'Variable "{ast.value}" no definida '
-            'anteriormente')
+
+        raise SemanticError(error_undefined_var(ast))
 
     # ---- NODOS RECURSIVOS ----
 
@@ -58,8 +58,7 @@ class ASTValidator(ASTNodeVisitor):
             ast.type = expected_type
             return expected_type
         
-        raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
-            f'de tipo {lhs_type.type} y {rhs_type.type}')
+        raise SemanticError(error_binop_operands(ast.op, lhs_type, rhs_type))
 
     def visit_Comparison(self, ast: Comparison) -> Type:
         # Verifica que los operandos sean del mismo tipo según el operador
@@ -76,8 +75,7 @@ class ASTValidator(ASTNodeVisitor):
                 ast.type = BOOL
                 return BOOL
         
-        raise SemanticError(f'"{ast.op}" no se puede aplicar a operandos '
-            f'de tipo {lhs_type.type} y {rhs_type.type}')            
+        raise SemanticError(error_binop_operands(ast.op, lhs_type, rhs_type))
 
     def visit_UnOp(self, ast: UnOp) -> Type:
         # Verifica que los operandos sean del tipo correcto según el operador
@@ -88,14 +86,13 @@ class ASTValidator(ASTNodeVisitor):
             ast.type = expected_type
             return expected_type
 
-        raise SemanticError(f'"{ast.op} no se puede aplicar a operando '
-            f'de tipo {term_type}')
+        raise SemanticError(error_unop_operands(ast.op, term_type))
 
     # ---- DEFINICIONES Y ASIGNACIONES ----
     def visit_SymDef(self, ast: SymDef) -> Type:
         # Verifica que no exista la variables en la tabla de símbolos
         if self.sym_table.exists(ast.id.value):
-            raise SemanticError(f'Variable "{ast.id}" ya definida anteriormente')
+            raise SemanticError(error_already_defined_var(ast.id))
         
         # Verifica que el tipo del lado derecho de la definición sea consistente
         expected_type = ast.type
@@ -104,9 +101,7 @@ class ASTValidator(ASTNodeVisitor):
         if rhs_type == expected_type:
             return VOID
 
-        raise SemanticError(f'El tipo inferido es {rhs_type.type}, pero se '
-            f'esperaba {expected_type.type}')
-        
+        raise SemanticError(error_unexpected_type(rhs_type, expected_type))
 
     def visit_Assign(self, ast: Assign):
         # Verifica que ya exista la variables en la tabla de símbolos
@@ -124,9 +119,8 @@ class ASTValidator(ASTNodeVisitor):
             # Se anota el arbol del lado derecho con el tipo asignado
             return VOID
 
-        raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
-            f'esperaba {expected_type}')
-    
+        raise SemanticError(error_unexpected_type(rhs_type, expected_type))
+
     def visit_AssignArrayElement(self, ast: AssignArrayElement) -> Type:
         # Verifica que el tipo del lado derecho de la asignación sea consistente
         array_type = self.visit(ast.array_access)
@@ -135,8 +129,7 @@ class ASTValidator(ASTNodeVisitor):
         if array_type == rhs_type:
             return VOID
         
-        raise SemanticError(f'El tipo inferido es {rhs_type}, pero se '
-            f'esperaba {array_type}')
+        raise SemanticError(error_unexpected_type(rhs_type, array_type))
 
     # ---- OTRAS EXPRESIONES ----
     def visit_Quoted(self, ast: Quoted) -> Type:
@@ -163,7 +156,7 @@ class ASTValidator(ASTNodeVisitor):
             if el_type != expected_type:
                 raise SemanticError(f'El tipo de todos los elementos del '
                     f'arreglo debe ser {expected_type}, pero {el} es de tipo {el_type}')
-        
+
         _type = NUM_ARRAY if expected_type == NUM else BOOL_ARRAY
         ast.type = _type
         return _type
@@ -181,9 +174,8 @@ class ASTValidator(ASTNodeVisitor):
             _type = Type(id_type.type.type)
             ast.type = _type
             return _type
-        
-        raise SemanticError(f'El tipo inferido del índice es '
-            f'{index_type.type}, pero se esperaba num')
+
+        raise SemanticError(error_unexpected_type(index_type, 'num'))
 
     def visit_FunctionCall(self, ast: FunctionCall):
         # Verifica que la id exista y sea una función
@@ -199,7 +191,7 @@ class ASTValidator(ASTNodeVisitor):
                 self,
                 *[return_type, ast.args, f_args, ast.id.value]
             )
-            
+
             ast.type = _type
             return _type
 
@@ -232,7 +224,7 @@ class ASTValidator(ASTNodeVisitor):
                             raise SemanticError(f'El tipo del argumento #{i + 1} es '
                                 f'{arg_type}, pero se esperaba {expected_type}')
                         break
-                
+
                 if matched_args == len(arg_list):
                     break
 
@@ -254,7 +246,7 @@ class ASTValidator(ASTNodeVisitor):
 
         ast.type = return_type
         return return_type
-                        
+
     def generic_visit(self, ast: AST):
         raise Exception(f'Validador de {type(ast).__name__} no implementado')
 
@@ -283,8 +275,7 @@ def if_handler(validator: ASTValidator, *args):
     condition_type = validator.visit(args[1][0])
 
     if condition_type != BOOL:
-        raise SemanticError(f'El tipo del argumento #1 es '
-            f'{condition_type}, pero se esperaba {BOOL}')
+        raise SemanticError(error_unexpected_type(condition_type, 'bool'))
 
     exprT_type = validator.visit(args[1][1])
     exprF_type = validator.visit(args[1][2])
