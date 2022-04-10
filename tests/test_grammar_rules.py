@@ -68,10 +68,10 @@ test_cases.extend(
     ])
 # Definiciones
 test_sol.extend([
-    SymDef(Type(PrimitiveType('num')), Id('x'), Number(3)), 
-    SymDef(Type(PrimitiveType('bool')), Id('x'), Boolean(True)),
-    SymDef(Type(TypeArray(PrimitiveType('num'))), Id('r'), Array([Number(1), Number(2)])),
-    SymDef(Type(TypeArray(PrimitiveType('bool'))), Id('F'), Array([Boolean(True), Boolean(False)]))
+    SymDef(Type('num'), Id('x'), Number(3)), 
+    SymDef(Type('bool'), Id('x'), Boolean(True)),
+    SymDef(Type(TypedArray('num')), Id('r'), Array([Number(1), Number(2)])),
+    SymDef(Type(TypedArray('bool')), Id('F'), Array([Boolean(True), Boolean(False)]))
     ])
 
 # Asignaciones 
@@ -100,9 +100,9 @@ test_cases.extend(
     'hola(2)',
     'unosCuantos(2,true,qlq)'])
 test_sol.extend([
-    Function(Id('h'), []),
-    Function(Id('hola'), [Number(2)]),
-    Function(Id('unosCuantos'), [Number(2), Boolean(True), Id('qlq')])])
+    FunctionCall(Id('h'), []),
+    FunctionCall(Id('hola'), [Number(2)]),
+    FunctionCall(Id('unosCuantos'), [Number(2), Boolean(True), Id('qlq')])])
 
 # Parentesis y acotado
 test_cases.append("'y'")
