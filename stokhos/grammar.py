@@ -37,20 +37,12 @@ precedence = (
 )
 
 # -------- INSTRUCCIONES --------
-# <instruccion> -> <definicion>;
-#     | <asignacion>;
-#     | <expresion>
+# <instruccion> -> <definicion>; | <asignacion>; | <expresion>
 def p_instruccion(p):
     '''instruccion : definicion TkSemicolon
         | asignacion TkSemicolon
         | expresion'''
     p[0] = p[1]
-
-# ---- errores en instrucciones ----
-def p_instruccion_errores(p):
-    '''instruccion : definicion 
-        | asignacion'''
-    raise ParseError(error_missing_semicolon())
 
 # -------- DEFINICIONES --------
 # <definicion> -> <tipo> <identificador> := <expresion>
@@ -59,7 +51,7 @@ def p_definicion_var(p):
     p[0] = AST.SymDef(p[1], p[2], p[4])
 
 # -------- ASIGNACIONES --------
-# <asignacion>  -> <identificador> := <expresion>
+# <asignacion> -> <identificador> := <expresion>
 def p_asignacion_var(p):
     'asignacion : identificador TkAssign expresion'
     p[0] = AST.Assign(p[1], p[3])
@@ -69,26 +61,22 @@ def p_asignacion_elemento_arr(p):
     'asignacion : acceso_arreglo TkAssign expresion'
     p[0] = AST.AssignArrayElement(p[1], p[3])
 
-# ---- errores en asignaciones y definiciones ----
-
-def p_assign_def_err1(p):
-   '''definicion : tipo TkAssign expresion
-   asignacion : TkAssign expresion'''
-   col = p.lexpos(2)
-   if isinstance(p[1], str) and p[1] == ':=':
-       col = p.lexpos(1) + 1
-
-   raise ParseError(error_id_expected(col))
-
-def p_assign_def_err2(p):
-   '''definicion : tipo identificador TkAssign
-   asignacion : identificador TkAssign'''
-   col = p.lexspan(2)[1] + 3
-   if len(p) == 4:
-       col = p.lexspan(3)[1] + 3
-   raise ParseError(error_expression_expected(col))
-
 # -------- LISTAS --------
+# <listaElems> -> <expresion> 
+#     | <expresion>, <listaElems>
+#     | vacío
+def p_lista(p):
+    '''listaElems : vacio
+        | expresion
+        | expresion TkComma listaElems'''
+    # Caso base
+    if len(p) == 2:
+        p[0] = [] if p[1] is None else [p[1]]
+    # Caso recursivo
+    else:
+        p[3].insert(0, p[1])
+        p[0] = p[3]
+
 # <acceso_arreglo> -> <identificador>[<expresión>]
 #     | <funcion>[<expresión>]
 #     | <arreglo>[<expresión>]
@@ -97,28 +85,6 @@ def p_acceso_arreglo(p):
         | funcion TkOpenBracket expresion TkCloseBracket
         | arreglo TkOpenBracket expresion TkCloseBracket'''
     p[0] = AST.ArrayAccess(p[1], p[3])
-
-
-# <listaElems> -> (lambda)
-#     | <expresion>
-#     | <expresion>, <listaElems>
-def p_lista(p):
-    '''listaElems : lambda
-        | expresion
-        | expresion TkComma listaElems'''
-    # Caso base
-    if len(p) == 2:
-        p[0] = [] if p[1] is None else [p[1]]
-    # Caso recursivo
-    else:
-        if p[1] is not None:
-            p[3].insert(0, p[1])
-            p[0] = p[3]
-    
-# ---- errores de arreglos ----
-def p_acceso_arreglo_err(p):
-    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
-    raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
 
 # -------- EXPRESIONES --------
 # <expresion> -> (<expresion>)
@@ -131,13 +97,6 @@ def p_expresion(p):
     else:
         p[0] = AST.Quoted(p[2])
 
-# No se pueden reportar errores de aquí en adelante de la manera anterior
-
-def p_expresion_err1(p):
-    '''expresion : TkOpenPar error
-        | TkQuote error '''
-    raise ParseError(error_unbalance_parentheses())
-    
 # -------- EXPRESIONES TERMINALES --------
 # <expresion> -> <numero>
 #     | <booleano>
@@ -224,7 +183,7 @@ def p_comparacion_menor_que(p):
 # -------- FUNCIONES --------
 def p_funcion(p):
     'funcion : identificador TkOpenPar listaElems TkClosePar'
-    p[0] = AST.Function(p[1], p[3])
+    p[0] = AST.FunctionCall(p[1], p[3])
 
 # -------- TERMINALES --------
 # <booleano> -> true
@@ -236,7 +195,21 @@ def p_booleano(p):
         p[0] = AST.Boolean(True)
     else:
         p[0] = AST.Boolean(False)
-        
+
+# -------- EXPRESIONES TERMINALES --------
+# <expresion> -> <numero>
+#     | <booleano>
+#     | <identificador>
+def p_expresion_terminales(p):
+    '''expresion : TkNumber
+        | booleano
+        | identificador'''
+    if type(p[1]) in [int, float]:
+        p[0] = AST.Number(p[1])
+    elif type(p[1]) == AST.Boolean:
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
 
 # <tipo> -> <tipo_primitivo> | <tipo_arreglo>
 def p_tipo(p):
@@ -247,35 +220,67 @@ def p_tipo(p):
 # <tipo_arreglo> -> [<tipo>]
 def p_tipo_arreglo(p):
     'tipo_arreglo : TkOpenBracket tipo_primitivo TkCloseBracket'
-    p[0] = AST.TypeArray(p[2])
+    p[0] = AST.TypedArray(p[2])
 
 # <tipo_primitivo> -> num
 #     | bool
 def p_tipo_primitivo(p):
     '''tipo_primitivo : TkNum
         | TkBool'''
-    p[0] = AST.PrimitiveType(p[1])
+    p[0] = p[1]
 
 # def p_easter_egg(p):
 #     'tokensfaltantes : TkOpenBrace TkSemicolon TkColon TkCloseBrace'
 #     # Imposible llegar a esta producción, está para esconder los warnings
 
 # -------- PALABRA VACÍA --------
-def p_lambda(p):
-    'lambda :'
+def p_vacio(p):
+    'vacio :'
     pass
 
-# -------- ERROR --------
+# ---- ERRORES ----
+# -> EN INSTRUCCIONES
+def p_instruccion_errores(p):
+    '''instruccion : definicion 
+        | asignacion'''
+    raise ParseError(error_missing_semicolon())
 
+# -> EN ASIGNACIONES Y DEFINICIONES
+def p_assign_def_err1(p):
+   '''definicion : tipo TkAssign expresion
+   asignacion : TkAssign expresion'''
+   col = p.lexpos(2)
+   if isinstance(p[1], str) and p[1] == ':=':
+       col = p.lexpos(1) + 1
+
+   raise ParseError(error_id_expected(col))
+
+def p_assign_def_err2(p):
+   '''definicion : tipo identificador TkAssign
+   asignacion : identificador TkAssign'''
+   col = p.lexspan(2)[1] + 3
+   if len(p) == 4:
+       col = p.lexspan(3)[1] + 3
+   raise ParseError(error_expression_expected(col))
+
+# -> EN ARREGLO
+def p_acceso_arreglo_err(p):
+    'acceso_arreglo : expresion TkOpenBracket expresion TkCloseBracket'
+    raise ParseError(error_invalid_expression_access(p.lexpos(2)+1))
+
+# No se pueden reportar errores de aquí en adelante de la manera anterior
+def p_expresion_err1(p):
+    '''expresion : TkOpenPar error
+        | TkQuote error '''
+    raise ParseError(error_unbalance_parentheses())
+
+# -> GENÉRICO
 def p_error(p):
     if p:
         if p.type == 'IllegalCharacter':
             raise ParseError(error_invalid_char(p.value, p.lexpos + 2))
-
         elif p.type == 'IllegalID':
             raise ParseError(error_invalid_id(p.value, p.lexpos + 1))
-
         raise ParseError(error_invalid_syntax_generic(p.value, p.lexpos + 1))
-
     else:
         raise ParseError(error_invalid_syntax_generic())
