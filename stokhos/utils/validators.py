@@ -15,11 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-
-import re
-from typing import overload
-
-from urllib3 import Retry
 from ..AST import *
 from ..symtable import SymTable
 from .helpers import ASTNodeVisitor
@@ -55,8 +50,8 @@ class ASTValidator(ASTNodeVisitor):
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> Type:
         # Verifica que los operandos sean del mismo tipo según el operador
-        lhs_type = self.visit(ast.lhs_term)
-        rhs_type = self.visit(ast.rhs_term)
+        lhs_type = self.visit(ast.lhs)
+        rhs_type = self.visit(ast.rhs)
         expected_type = BOOL if ast.op in ['&&', '||'] else NUM
 
         if lhs_type == expected_type and rhs_type == expected_type:
@@ -68,8 +63,8 @@ class ASTValidator(ASTNodeVisitor):
 
     def visit_Comparison(self, ast: Comparison) -> Type:
         # Verifica que los operandos sean del mismo tipo según el operador
-        lhs_type = self.visit(ast.lhs_term)
-        rhs_type = self.visit(ast.rhs_term)
+        lhs_type = self.visit(ast.lhs)
+        rhs_type = self.visit(ast.rhs)
         
         if ast.op in ['<>', '=']:
             if lhs_type == rhs_type:
@@ -104,7 +99,7 @@ class ASTValidator(ASTNodeVisitor):
         
         # Verifica que el tipo del lado derecho de la definición sea consistente
         expected_type = ast.type
-        rhs_type = self.visit(ast.rhs_expr)
+        rhs_type = self.visit(ast.rhs)
         
         if rhs_type == expected_type:
             return VOID
@@ -123,7 +118,7 @@ class ASTValidator(ASTNodeVisitor):
                 'precargada, no se puede asignar')
 
         # Verifica que el tipo del lado derecho de la asignación sea consistente
-        rhs_type = self.visit(ast.rhs_expr)
+        rhs_type = self.visit(ast.rhs)
 
         if expected_type == rhs_type:
             # Se anota el arbol del lado derecho con el tipo asignado
@@ -135,7 +130,7 @@ class ASTValidator(ASTNodeVisitor):
     def visit_AssignArrayElement(self, ast: AssignArrayElement) -> Type:
         # Verifica que el tipo del lado derecho de la asignación sea consistente
         array_type = self.visit(ast.array_access)
-        rhs_type = self.visit(ast.rhs_expr)
+        rhs_type = self.visit(ast.rhs)
 
         if array_type == rhs_type:
             return VOID
@@ -175,9 +170,9 @@ class ASTValidator(ASTNodeVisitor):
 
     def visit_ArrayAccess(self, ast: ArrayAccess) -> Type:
         # Verifica que la Id corresponda a un arreglo
-        id_type = self.visit(ast.id)
+        id_type = self.visit(ast.expr)
 
-        if not isinstance(id_type.type, TypeArray):
+        if not isinstance(id_type.type, TypedArray):
             raise SemanticError('No se permite el acceso a arreglo para '
                 f'expresión de tipo {id_type}')
 
@@ -190,7 +185,7 @@ class ASTValidator(ASTNodeVisitor):
         raise SemanticError(f'El tipo inferido del índice es '
             f'{index_type.type}, pero se esperaba num')
 
-    def visit_Function(self, ast: Function):
+    def visit_FunctionCall(self, ast: FunctionCall):
         # Verifica que la id exista y sea una función
         return_type = self.visit(ast.id)
         
