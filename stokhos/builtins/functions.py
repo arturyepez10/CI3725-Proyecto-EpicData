@@ -24,6 +24,7 @@ from time import time
 from ..AST import *
 from ..utils.constants import *
 
+
 def stk_uniform() -> Number:
     '''Retorna un número aleatorio entre 0 y 1.
     '''

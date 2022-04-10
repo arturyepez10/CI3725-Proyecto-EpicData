@@ -20,8 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from typing import Union
 
 from .AST import *
-from .utils.custom_exceptions import UndefinedSymbolError
 from .builtins.functions import *
+from .utils.custom_exceptions import UndefinedSymbolError
+
 
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
 class Symbol:

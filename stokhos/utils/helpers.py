@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
 
+
 def match_magic_command(name: str, line: str) -> bool:
     '''Retorna un booleano indicando si la línea contiene un comando magico
     

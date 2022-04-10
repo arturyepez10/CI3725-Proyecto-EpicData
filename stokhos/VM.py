@@ -20,16 +20,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import ply.lex as lex
 import ply.yacc as yacc
 
-from . import grammar
-from . import tokenrules
-
+from . import grammar, tokenrules
 from .AST import AST, VOID, Assign, AssignArrayElement, Error
+from .symtable import SymTable, SymVar
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
-from .utils.helpers import NullLogger
-from .symtable import SymTable, SymVar
-from .utils.validators import ASTValidator
 from .utils.evaluators import ASTEvaluator
+from .utils.helpers import NullLogger
+from .utils.validators import ASTValidator
+
 
 class StokhosVM:
     """Máquina Virtual intérprete del lenguaje Stókhos.
