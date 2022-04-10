@@ -36,34 +36,49 @@ def error_invalid_char(char: str, column: int) -> str:
 def error_invalid_id(_id: str, column: int) -> str:
     return f'ID ilegal ("{_id}") (columna {column})'
 
-def error_missing_semicolon():
+def error_missing_semicolon() -> str:
     return f'Punto y coma faltante al final'
 
-def error_expression_expected(column: int):
+def error_expression_expected(column: int) -> str:
     return f'Se esperaba una expresión (columna {column})'
 
-def error_id_expected(column: int):
+def error_id_expected(column: int) -> str:
     return f'Se esperaba un identificador (columna {column})'
 
-def error_invalid_expression_access(column: int):
+def error_invalid_expression_access(column: int) -> str:
     return f'Acceso inválido a expresión (columna {column})'
 
-def error_invalid_syntax_generic(offender: str = None, column: int = None):
+def error_invalid_syntax_generic(offender: str = None, column: int = None) -> str:
     if not offender and not column:
         return 'Sintaxis inválida al final de la línea'
     else:
         return f'Sintaxis inválida en "{offender}" (columna {column})'
 
-def error_unbalance_parentheses():
+def error_undefined_var(var: str) -> str:
+    return f'Variable "{var}" no definida anteriormente'
+
+def error_already_defined_var(var: str) -> str:
+    return f'Variable "{var}" ya definida anteriormente'
+
+def error_binop_operands(op: str, lhs_type: str, rhs_type: str) -> str:
+    return f'"{op}" no se puede aplicar a operandos de tipo {lhs_type} y {rhs_type}'
+
+def error_unop_operands(op: str, expr_type: str) -> str:
+    return f'"{op} no se puede aplicar a operando de tipo {expr_type}'
+
+def error_unexpected_type(inferred_type: str, expected_type: str):
+    return f'El tipo inferido es {inferred_type}, pero se esperaba {expected_type}'
+
+def error_unbalance_parentheses() -> str:
     return 'Paréntesis desbalanceados'
 
-def error_nonexistent_special_command():
+def error_nonexistent_special_command() -> str:
     return 'Comando especial inexistente'
 
-def error_non_implemented_interpretation():
+def error_non_implemented_interpretation() -> str:
     return 'interpretación no implementada'
 
-def error_invalid_arguments(command: str):
+def error_invalid_arguments(command: str) -> str:
     return f'{command} no acepta argumentos'
 
 def prefix_error(err) -> str:
