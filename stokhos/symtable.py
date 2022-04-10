@@ -37,15 +37,12 @@ class SymFunctionSignature(Symbol):
             función correspondiente de Stókhos. Los tipos de los argumentos
             y del retorno son consistentes con los indicados en args y
             return_type.
-        args: Lista donde cada elemento cumple una de estas dos condiciones:
-            1. Es una lista con los tipos de argumentos que pide cada
-                sobrecarga de la función.
-            2. Una lista donde cada elemento son los tipos de argumento que
-                pide la función, si esta no admite sobrecargas.
+        args: Lista donde cada elemento son los tipos de argumento que
+            pide la función en orden.
         return_type: Tipo de retorno de la función.
     '''
     def __init__(self, _callable: callable,
-    _args: Union[list[list[Type]], list[Type]], return_type: Type):
+    _args: list[Type], return_type: Type):
         self.callable = _callable
         self.args = _args
         self.return_type = return_type
@@ -88,7 +85,7 @@ PRELOADED_FUNCTIONS = {
     'reset': SymFunctionSignature(dummy_function, [], BOOL),
     'uniform': SymFunctionSignature(stk_uniform, [], NUM,),
     'floor': SymFunctionSignature(stk_floor, [NUM], NUM),
-    'length': SymFunctionSignature(stk_length, [[NUM_ARRAY], [BOOL_ARRAY]], NUM),
+    'length': SymFunctionSignature(stk_length, [ANY_ARRAY], NUM),
     'sum': SymFunctionSignature(stk_sum, [NUM_ARRAY], NUM),
     'avg': SymFunctionSignature(stk_avg, [NUM_ARRAY], NUM),
     'pi': SymFunctionSignature(stk_pi, [], NUM),
@@ -97,7 +94,7 @@ PRELOADED_FUNCTIONS = {
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---
 class SymTable:
-    def __init__(self, preloaded=True):
+    def __init__(self, preloaded: Boolean = True):
         self.preloaded = preloaded
         if self.preloaded:
             self.table = PRELOADED_FUNCTIONS.copy()
