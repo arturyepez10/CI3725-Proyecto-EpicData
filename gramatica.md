@@ -68,9 +68,9 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
 
 <arreglo> -> [<lista_elementos>]
 
-<listaElems> -> (lambda)
+<lista_elementos> -> <vacío>
     | <expresión>
-    | <expresión>, <listaElems>
+    | <expresión>, <lista_elementos>
 
 <comparación> -> <expresion> < <expresion>
     | <expresion> <= <expresion>
@@ -105,4 +105,6 @@ La tabla de precedencia de las operaciones es la siguiente, listada desde los op
 
 <tipo_primitivo> -> num
     | bool
+
+<vacío> -> 
 ```
