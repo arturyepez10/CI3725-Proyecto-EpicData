@@ -198,12 +198,12 @@ class StokhosVM:
         """
         try:
             # Evalua el lado derecho
-            res  = self.eval(ast.rhs_expr)
+            res  = self.eval(ast.rhs)
 
             # Si es una asignación a un elemento de un arreglo
             if isinstance(ast, AssignArrayElement):
                 array_access = ast.array_access
-                _id = array_access.id.value
+                _id = array_access.expr.value
                 index = array_access.index.value
 
                 self.symbol_table.lookup(_id).value.elements[index] = res
