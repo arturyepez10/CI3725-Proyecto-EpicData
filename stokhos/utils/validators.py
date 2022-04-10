@@ -148,8 +148,8 @@ class ASTValidator(ASTNodeVisitor):
         # Si el arreglo es vacío puede ser de cualquier tipo
         if not ast:
             # Debe dar erro cuando se pide type([])
-            ast.type = VOID_ARRAY
-            return VOID_ARRAY
+            ast.type = ANY_ARRAY
+            return ANY_ARRAY
 
         expected_type = self.visit(ast[0])
 
@@ -290,7 +290,7 @@ def if_handler(validator: ASTValidator, *args):
     exprF_type = validator.visit(args[1][2])
     
     if exprT_type == exprF_type:
-        if exprT_type is VOID_ARRAY:
+        if exprT_type is ANY_ARRAY:
             return exprF_type
         return exprT_type
     

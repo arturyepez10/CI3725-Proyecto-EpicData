@@ -164,7 +164,7 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
     else:
         _type = expr.type
 
-    if _type is VOID_ARRAY:
+    if _type is ANY_ARRAY:
         raise SemanticError('No hay suficiente información para inferir el '
             'tipo del arreglo')
     

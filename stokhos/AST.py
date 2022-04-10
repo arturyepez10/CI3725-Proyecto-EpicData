@@ -113,7 +113,7 @@ class TypedArray(AST):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
             # Hace que un arreglo vacío pase por bool o num según sea necesario
-            if self.type == 'void' or other.type== 'void':
+            if self.type == 'any' or other.type== 'any':
                 return True
             return self.type == other.type
         return False
@@ -310,4 +310,4 @@ VOID = Type('void')
 NUM_ARRAY = Type(TypedArray('num'))
 BOOL_ARRAY = Type(TypedArray('bool'))
 # De utilidad para 'inferencia de tipos'
-VOID_ARRAY = Type(TypedArray('void'))
+ANY_ARRAY = Type(TypedArray('any'))
