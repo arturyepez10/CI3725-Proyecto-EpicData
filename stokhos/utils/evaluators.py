@@ -69,14 +69,14 @@ class ASTEvaluator(ASTNodeVisitor):
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> AST:
         return BINARY_OP[ast.op](
-            self.visit(ast.lhs_term),
-            self.visit(ast.rhs_term)
+            self.visit(ast.lhs),
+            self.visit(ast.rhs)
         )
 
     def visit_Comparison(self, ast: Comparison) -> AST:
         return BINARY_OP[ast.op](
-            self.visit(ast.lhs_term),
-            self.visit(ast.rhs_term)
+            self.visit(ast.lhs),
+            self.visit(ast.rhs)
         )
 
     def visit_UnOp(self, ast: UnOp) -> AST:
@@ -97,15 +97,15 @@ class ASTEvaluator(ASTNodeVisitor):
         index = self.visit(ast.index)
 
         try:
-            return self.visit(ast.id)[index.value]
+            return self.visit(ast.expr)[index.value]
         except (IndexError, AttributeError):
             raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
-                f'de la expresión {ast.id}')
+                f'de la expresión {ast.expr}')
         except TypeError:
             raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
                 f'obtuvo {index.value}')
 
-    def visit_Function(self, ast: Function):
+    def visit_FunctionCall(self, ast: FunctionCall):
         # Tratamiento de funciones especiales
         if ast.id.value in SPECIAL_FUNCTION_HANDLERS:
             return SPECIAL_FUNCTION_HANDLERS[ast.id.value](self, *ast.args)
@@ -158,7 +158,7 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
     '''
     if isinstance(expr, Id):
         if evaluator.sym_table.is_function(expr.value):
-            return Type(PrimitiveType('function'))
+            return Type('function')
         else:
             _type = evaluator.sym_table.get_type(expr.value)
     else:
