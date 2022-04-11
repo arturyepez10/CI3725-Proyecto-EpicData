@@ -8,7 +8,9 @@ import ply.yacc as yacc
 import stokhos.grammar as grammar
 from stokhos.AST import *
 from stokhos.VM import StokhosVM as SVM
-import copy
+from stokhos.utils.validators import ASTValidator
+from stokhos.symtable import SymTable, SymVar
+
 NUM_UN_OPS = ['+', '-']
 BOOL_UN_OPS = ['!']
 NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
@@ -17,7 +19,7 @@ COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
 ALL_BIN_OPS = NUM_BIN_OPS + BOOL_BIN_OPS + COMPARISONS
 # -------------- Pruebas de errores semanticos ----------
 test_cases, test_sol = [], []
-VM = SVM()
+
 
 # Operaciones binarias y unarias con errores en semantica
 test_cases.extend([f'2 {binOp} true' for binOp in ALL_BIN_OPS])
@@ -49,7 +51,22 @@ test_cases.append(f'[bool] x := 2;')
 test_cases.append(f'[bool] x := true;')
 test_cases.append(f'[bool] x := [3, -1, 4];')
 
-# Faltan las asignaciones
+# Pruebas con asignaciones
+test_cases.append(f'unNumero := false;')
+test_cases.append(f'unNumero := [1,2,3];')
+test_cases.append(f'unNumero := [true, false, true];')
+
+test_cases.append(f'unBooleano := 2;')
+test_cases.append(f'unBooleano := [1,2,3];')
+test_cases.append(f'unBooleano := [true, false, true];')
+
+test_cases.append(f'arregloDeNumeros := 2;')
+test_cases.append(f'arregloDeNumeros := true;')
+test_cases.append(f'arregloDeNumeros := [true, false, true];')
+
+test_cases.append(f'arregloDeBooleanos := 2;')
+test_cases.append(f'arregloDeBooleanos := true;')
+test_cases.append(f'arregloDeBooleanos := [3, -1, 4];')
 
 # llamadas a funciones en operaciones con problemas de tipo (y que no explotan
 # la a VM
@@ -60,6 +77,23 @@ test_cases.append(f'sum([1,2,3])+true')
 test_cases.append(f'avg([1,2,3]) * 3 + [2]')
 # Cuando se ejecutan estas pruebas de forma individual, funcionan. Pero al hacerlo,
 # global (con solo "pytest") fallan. El programa no falla con estos casos
+
+# Configuración del entorno de pruebas
+symbols = [
+    ('x', SymVar(NUM, Number(42))),
+    ('y', SymVar(BOOL, Boolean(True))),
+    ('unNumero', SymVar(NUM, Number(616))),
+    ('unBooleano', SymVar(BOOL, Boolean(False))),
+    ('arregloDeNumeros', SymVar(NUM_ARRAY, Array([Number(42)]))),
+    ('arregloDeBooleanos', SymVar(BOOL_ARRAY, Array([Boolean(False)])))
+]
+
+symbol_table = SymTable()
+for _id, sym in symbols:
+    symbol_table.insert(_id, sym)
+
+VM = SVM()
+VM.validator = ASTValidator(symbol_table)
 
 cases = list(zip(test_cases, test_cases))
 @pytest.mark.parametrize("test_case,test_sol", cases)

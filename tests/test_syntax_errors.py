@@ -33,15 +33,6 @@ test_sol.append([prefix_error(error_expression_expected(5))])
 test_cases.append(lambda: repl.default(r'.ast [num] := [1];'))
 test_sol.append([prefix_error(error_id_expected(6))])
 
-# Se esperaba el constructor del arreglo
-#test_cases.append(lambda: repl.default(r'.ast [num] x := ;'))
-#test_sol.append([prefix_error(error_array_constructor_expected(11))])
-
-#test_cases.append(lambda: repl.default(r'.ast [num] x := 1,2,3;'))
-#test_sol.append([prefix_error(error_array_constructor_expected(11))])
-
-
-
 # Acceso invalido a expresion
 test_cases.append(lambda: repl.default(r'.ast true[2]'))
 test_sol.append([prefix_error(error_invalid_expression_access(5))])
