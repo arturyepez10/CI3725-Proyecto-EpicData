@@ -99,7 +99,7 @@ test_sol.append(Boolean(True))
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
-def test_evaluate(test_case:str, test_sol:object):
+def test_evaluate_complicate_expresions(test_case:str, test_sol:object):
     ast = VM.parse(test_case)
     if isinstance(ast, Error):
         # No se construye el AST
