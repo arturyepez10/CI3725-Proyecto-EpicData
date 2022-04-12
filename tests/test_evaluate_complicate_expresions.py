@@ -81,16 +81,10 @@ test_sol.append(Boolean(True))
 test_cases.append('2*10/2+100^30-500 = 2*10/2+100^30-500 || false || 1 <> 1') 
 test_sol.append(Boolean(True))
 
-test_cases.append('4 = 4 = true') 
-test_sol.append(Boolean(True))
-
 test_cases.append('(4 = 4) = true') 
 test_sol.append(Boolean(True))
 
 test_cases.append('(4 <> 4) <> true') 
-test_sol.append(Boolean(True))
-
-test_cases.append('4 <> 4 <> true') 
 test_sol.append(Boolean(True))
 
 test_cases.append('4 <> 5 && true || false') 
