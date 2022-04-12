@@ -4,11 +4,10 @@ import sys
 import pytest
 
 sys.path.insert(1, os.path.abspath('.'))
-import ply.yacc as yacc
-import stokhos.grammar as grammar
+
 from stokhos.AST import *
 from stokhos.VM import StokhosVM as SVM
-import copy
+
 NUM_UN_OPS = ['+', '-']
 BOOL_UN_OPS = ['!']
 NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
@@ -42,6 +41,12 @@ test_sol.append(Number(14))
 
 test_cases.append('(35 + 7)%(5/1) * length([-1*2, -2, -3+2, -4, -5, -6, -7])') 
 test_sol.append(Number(14))
+
+test_cases.append('sum([-42, 42, -42/2, 42/2, -42/(2+2), 42/(2+2)]) * 10^100') 
+test_sol.append(Number(0))
+
+test_cases.append('avg([-42, 42, -42/2, 42/2, -42/(2+2), 42/(2+2), 7]) + 1') 
+test_sol.append(Number(2))
 
 # Indeterminaciones numericas, esto no tiene sentido aqui pero lo dejo para recordar que esta explotando el programa
 test_cases.append('1/0') 
