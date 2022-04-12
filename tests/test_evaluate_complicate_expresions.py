@@ -34,7 +34,13 @@ test_sol.append(Number(96))
 test_cases.append('(100/10*5 + 14)^(1/2)') 
 test_sol.append(Number(8))
 
+test_cases.append('(-4)^(1/2)')
+test_sol.append("")
+
 test_cases.append('42%(4+1) * 7') 
+test_sol.append(Number(14))
+
+test_cases.append('(35 + 7)%(5/1) * length([-1*2, -2, -3+2, -4, -5, -6, -7])') 
 test_sol.append(Number(14))
 
 # Indeterminaciones numericas, esto no tiene sentido aqui pero lo dejo para recordar que esta explotando el programa
@@ -42,7 +48,7 @@ test_cases.append('1/0')
 test_sol.append('') 
 
 test_cases.append('0^0') 
-test_sol.append('') 
+test_sol.append(Number(1)) 
 
 # Operaciones booleanas
 test_cases.append('!!!!!!((!!!!true || !!false) && !false && !!!!!!!!!!!false)') 
