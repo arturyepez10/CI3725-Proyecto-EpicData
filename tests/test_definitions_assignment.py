@@ -31,45 +31,66 @@ def test_definitions_assignments():
     simulated_symbol_table = []
 
     # Crear x de tipo num
-    command_process(VM, 'num x := 2;')
+    process_command(VM, 'num x := 2;')
     # Comprobar existencia de x, y su valor
     assert VM.symbol_table.lookup('x')
     assert eq_SymVar(VM.symbol_table.lookup('x'), SymVar(NUM, Number(2)))
-    # Agregar x la simulacion
-    simulated_symbol_table.append(('x', SymVar(NUM, Number(2))))
 
 
     # Crear y de tipo bool
-    command_process(VM, 'bool y := false;')
+    process_command(VM, 'bool y := false;')
     # Comprobar existencia de y, y su valor
     assert VM.symbol_table.lookup('y')
     assert eq_SymVar(VM.symbol_table.lookup('y'), SymVar(BOOL, Boolean(False)))
-    # Agregar y la simulacion
-    simulated_symbol_table.append(('y', SymVar(BOOL, Boolean(False))))
 
 
     # Crear arrX de tipo [num]
-    command_process(VM, '[num] arrX := [1,2,3];') 
+    process_command(VM, '[num] arrX := [1,2,3];') 
     # Comprobar existencia de arrX, y su valor
     assert VM.symbol_table.lookup('arrX')
     assert eq_SymVar(VM.symbol_table.lookup('arrX'), SymVar(NUM_ARRAY, Array([Number(1), Number(2), Number(3)])))
-    # Agregar arrX la simulacion
-    simulated_symbol_table.append(('arrX', SymVar(NUM_ARRAY, Array([Number(1), Number(2), Number(3)]))))
 
 
     # Crear arrY de tipo [bool]
-    command_process(VM, '[bool] arrY := [true, false, true];') 
+    process_command(VM, '[bool] arrY := [true, false, true];') 
     # Comprobar existencia de arrY, y su valor    
     assert VM.symbol_table.lookup('arrY')
     assert eq_SymVar(VM.symbol_table.lookup('arrY'), SymVar(BOOL_ARRAY, Array([Boolean(True), Boolean(False), Boolean(True)])))
-    # Agregar arrY la simulacion
-    simulated_symbol_table.append(('arrY', SymVar(BOOL_ARRAY, Array([Boolean(True), Boolean(False), Boolean(True)]))))
+
+
+    # Todas las variables fueron creadas y su valor es el indicado, se cambia su valor con asignaciones que las usan a ellas mismas
+
+    # Aumentar x
+    process_command(VM, 'x := x^2 + 2;')
+    # Comprobar existencia de x, y su valor
+    assert VM.symbol_table.lookup('x')
+    assert eq_SymVar(VM.symbol_table.lookup('x'), SymVar(NUM, Number(6)))
+
+    # Negar y
+    process_command(VM, 'y := !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!y;')
+    # Comprobar existencia de y, y su valor
+    assert VM.symbol_table.lookup('y')
+    assert eq_SymVar(VM.symbol_table.lookup('y'), SymVar(BOOL, Boolean(True)))
+
+    # Modificar todos los valores de arrX
+    process_command(VM, 'arrX[0] := +(arrX[0]*1) - 1;')
+    process_command(VM, 'arrX[1] := +(arrX[1]*1) - 2;')
+    process_command(VM, 'arrX[2] := +(arrX[2]*1) - 3;')
+    # Comprobar existencia de arrX, y sus nuevos valores
+    assert VM.symbol_table.lookup('arrX')
+    assert eq_SymVar(VM.symbol_table.lookup('arrX'), SymVar(NUM_ARRAY, Array([Number(0), Number(0), Number(0)])))
+
+    # Negar todos los valores de arrY
+    process_command(VM, 'arrY[0] := !!!arrY[0];')
+    process_command(VM, 'arrY[1] := !!!!!arrY[1];')
+    process_command(VM, 'arrY[2] := !arrY[2] || !(arrY[0] || !arrY[0]);')
+    # Comprobar existencia de arrY, y sus nuevos valores
+    assert VM.symbol_table.lookup('arrY')
+    assert eq_SymVar(VM.symbol_table.lookup('arrY'), SymVar(BOOL_ARRAY, Array([Boolean(False), Boolean(True), Boolean(False)])))
 
 
     
-
-    
-def command_process(VM, command:str):
+def process_command(VM, command:str):
     out = VM.process(command)
 
     if out.startswith("ERROR: "):        
