@@ -5,6 +5,7 @@ import pytest
 
 
 
+
 sys.path.insert(1, os.path.abspath('.'))
 
 from stokhos.symtable import SymVar
@@ -26,10 +27,7 @@ ALL_BIN_OPS = NUM_BIN_OPS + BOOL_BIN_OPS + COMPARISONS
 def test_definitions_assignments():
     # Crear VM
     VM = SVM()
-
-    # Tabla de simbolos simulada
-    simulated_symbol_table = []
-
+    
     # Crear x de tipo num
     process_command(VM, 'num x := 2;')
     # Comprobar existencia de x, y su valor
@@ -88,8 +86,30 @@ def test_definitions_assignments():
     assert VM.symbol_table.lookup('arrY')
     assert eq_SymVar(VM.symbol_table.lookup('arrY'), SymVar(BOOL_ARRAY, Array([Boolean(False), Boolean(True), Boolean(False)])))
 
+    # Resetar la VM y comprobar que todas las variables creadas ya no existen
+    process_command(VM, 'reset()')
+    try:
+        VM.symbol_table.lookup('x')
+        assert False
+    except UndefinedSymbolError:
+        pass
+    try:
+        VM.symbol_table.lookup('y')
+        assert False
+    except UndefinedSymbolError:
+        pass
+    try:
+        VM.symbol_table.lookup('arrX')
+        assert False
+    except UndefinedSymbolError:
+        pass
+    try:
+        VM.symbol_table.lookup('arrY')
+        assert False
+    except UndefinedSymbolError:
+        pass
 
-    
+
 def process_command(VM, command:str):
     out = VM.process(command)
 
