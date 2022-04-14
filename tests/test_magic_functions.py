@@ -3,6 +3,8 @@ import pytest
 from stokhos.REPL import StokhosCMD
 from stokhos.utils.constants import *
 from stokhos.utils.err_strings import *
+from stokhos.VM import StokhosVM as SVM
+from stokhos.AST import *
 
 def lex_error_invalid_char(char:str) -> str:
     return f'Caracter inválido ("{char}")'
@@ -304,3 +306,59 @@ def test_failed(test_case:str, test_sol:object, capsys):
 
     # Comprobar las salidas
     assert captured1.out == captured2.out
+
+
+# ------------ Pruebas para la funcion magica type() --------
+VM = SVM()
+test_cases, test_sol = [], []
+
+test_cases.append('type(2)')
+test_sol.append(NUM)
+
+test_cases.append('type(true)')
+test_sol.append(BOOL)
+
+test_cases.append('type([1,2,3])')
+test_sol.append(NUM_ARRAY)
+
+test_cases.append('type([true, false, true])')
+test_sol.append(BOOL_ARRAY)
+
+test_cases.append('type([true, false, true])')
+test_sol.append(BOOL_ARRAY)
+
+test_cases.append('type(2 + 9 * 3 / 2 ^5 --------1)')
+test_sol.append(NUM)
+
+test_cases.append('type(false || true && if(10+10=64, false, 64=10+10))')
+test_sol.append(BOOL)
+
+test_cases.append('type([1,2,3,4][2])')
+test_sol.append(NUM)
+
+test_cases.append('type([true, false, true][2])')
+test_sol.append(BOOL)
+
+test_cases.append('type(if)')
+test_sol.append('')
+
+test_cases.append('type(type(2))')
+test_sol.append('')
+
+
+cases = list(zip(test_cases, test_sol))
+@pytest.mark.parametrize("test_case,test_sol", cases)
+def test_fuction_type(test_case:str, test_sol:object):
+    ast = VM.parse(test_case)
+    if isinstance(ast, Error):
+        # No se construye el AST
+        assert False, f'{ast}'
+    
+    val = VM.validate(ast)
+    if isinstance(val, Error):
+        # AST invalido
+        assert False, f'{ast}'
+
+    res = VM.eval(ast)
+    
+    assert res == test_sol

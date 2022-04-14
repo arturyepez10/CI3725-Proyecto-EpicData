@@ -90,6 +90,25 @@ test_sol.append(Boolean(True))
 test_cases.append('4 <> 5 && true || false') 
 test_sol.append(Boolean(True))
 
+# Expresiones con aplicaciones de la funcion if
+test_cases.append('if(true, 1, 2)') 
+test_sol.append(Number(1))
+
+test_cases.append('if(false, 1, 2)') 
+test_sol.append(Number(2))
+
+test_cases.append('(if(true, 1, 2) + 9) * 6') 
+test_sol.append(Number(60))
+
+test_cases.append('(if(false, 1, 2) / 4)') 
+test_sol.append(Number(0.5))
+
+test_cases.append('if(true||!false, --1*7%5, 2+9) + 8') 
+test_sol.append(Number(10))
+
+test_cases.append('if(if(if(length([1,2,3]) <> 3, true = true, false = true), false || false, true && true), --1*7%5, 2+9) + 8') 
+test_sol.append(Number(10))
+
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
