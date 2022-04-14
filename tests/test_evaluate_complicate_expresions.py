@@ -109,6 +109,9 @@ test_sol.append(Number(10))
 test_cases.append('if(if(if(length([1,2,3]) <> 3, true = true, false = true), false || false, true && true), --1*7%5, 2+9) + 8') 
 test_sol.append(Number(10))
 
+test_cases.append('if(true, (([1,2,3])), (([1,2,3])))[2] + 3') 
+test_sol.append(Number(6))
+
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
