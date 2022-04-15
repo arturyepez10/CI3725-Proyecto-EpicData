@@ -192,8 +192,9 @@ class StokhosCMD(Cmd):
     def send_reset(self):
         """Vacía la lista de errores de la sesión."""
         self.errors.clear()
-        self.handle_output('OK: Lista de errores vaciada correctamente')
         self.vm.symbol_table.clear()
+        self.handle_output('OK: Lista de errores y tabla de símbolos vaciadas '
+            ' correctamente')
 
     # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):
