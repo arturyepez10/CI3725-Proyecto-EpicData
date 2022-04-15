@@ -87,7 +87,7 @@ class Number(Terminal):
 
 class Boolean(Terminal):
     def __init__(self, value: bool):
-        self.type = NUM
+        self.type = BOOL
         self.value = value
 
     def __str__(self) -> str:
