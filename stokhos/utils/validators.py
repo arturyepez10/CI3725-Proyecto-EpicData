@@ -218,7 +218,7 @@ class ASTValidator(ASTNodeVisitor):
     def validate(self, ast: AST) -> Type:
         return self.visit(ast)
 
-# Handlers de funciones especiales
+# ---- Handlers de funciones especiales ----
 def pass_handler(validator: ASTValidator, *args):
     # Valida igualmente cada argumento
     # (Número correcto y expresiones semánticamente válidas)

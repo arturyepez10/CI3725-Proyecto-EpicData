@@ -14,6 +14,7 @@ type(x)
 type(y)
 
 # Tipo de funciones
+ltype([1, 2])
 type(pi)
 type(length)
 
