@@ -14,7 +14,7 @@ Se puede acceder a los elementos de un arreglo colocando una expresión numéric
 <definición> -> <tipo> <identificador> := <expresión>
 
 <asignación> -> <identificador> := <expresión>
-    | <acceso_arreglo> := <expresión>
+    | <identificador>[<expresión>] := <expresión>
 
 <tipo> -> <tipo_primitivo> | <tipo_arreglo>
 <tipo_arreglo> -> [<tipo_primitivo>]
