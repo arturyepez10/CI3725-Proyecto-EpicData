@@ -69,7 +69,7 @@ class SymVar(Symbol):
         self.value = value
     
     def __str__(self):
-        return f'({self.type} <--> {self.value})'
+        return f'({self.type}, {self.value})'
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -108,6 +108,9 @@ class SymTable:
             self.table = PRELOADED_FUNCTIONS.copy()
         else:
             self.table = {}
+
+    def __str__(self) -> str:
+        return str(self.table)
 
     def exists(self, _id: str) -> bool:
         '''Retorna un booleano indicando si existe en la tabla de símbolos un

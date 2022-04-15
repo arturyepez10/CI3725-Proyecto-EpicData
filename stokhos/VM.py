@@ -196,26 +196,30 @@ class StokhosVM:
             Sintaxis Abstracta pasado como argumento.
         """
         try:
-            # Evalua el lado derecho
+            # Evalua el lado derecho (cálculo de RVALUE(ast.rhs))
             res  = self.eval(ast.rhs)
 
+            # Cálculo de LVALUE(ast) dependiendo del tipo de asign/def
             # Si es una asignación a un elemento de un arreglo
             if isinstance(ast, AssignArrayElement):
                 array_access = ast.array_access
                 _id = array_access.expr.value
                 index = array_access.index.value
 
-                self.symbol_table.lookup(_id).value.elements[index] = res
+                # CVALUE(LVALUE(id[index])) = RVALUE(ast.rhs)
+                self.symbol_table.lookup(_id).value[index] = res
 
                 return f'{ast.array_access} := {res}'
             else:
                 # Si es una asignación a variable
                 if isinstance(ast, Assign):
+                    # CVALUE(LVALUE(id)) = RVALUE(ast.rhs)
                     self.symbol_table.update(ast.id.value, res)
                     return f'{ast.id} := {res}'
 
                 # Si es una definición
                 else:
+                    # CVALUE(id) = RVALUE(ast.rhs)
                     self.symbol_table.insert(ast.id.value, ast.type, res)
                     return f'{ast.type} {ast.id} := {res}'
 

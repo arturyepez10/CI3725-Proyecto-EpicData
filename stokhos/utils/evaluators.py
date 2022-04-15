@@ -68,10 +68,18 @@ class ASTEvaluator(ASTNodeVisitor):
 
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> AST:
-        return BINARY_OP[ast.op](
-            self.visit(ast.lhs),
-            self.visit(ast.rhs)
-        )
+        try:
+            res = BINARY_OP[ast.op](
+                self.visit(ast.lhs),
+                self.visit(ast.rhs)
+            )
+
+            if isinstance(res.value, complex):
+                raise StkRuntimeError(f'No se puede realizar aritmética con '
+                    f'números complejos')
+            return res
+        except ZeroDivisionError:
+            raise StkRuntimeError(f'División por cero en la expresión {ast}')
 
     def visit_Comparison(self, ast: Comparison) -> AST:
         return BINARY_OP[ast.op](
