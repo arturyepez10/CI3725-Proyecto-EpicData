@@ -216,8 +216,7 @@ class StokhosVM:
 
                 # Si es una definición
                 else:
-                    new_symbol = SymVar(ast.type, res)
-                    self.symbol_table.insert(ast.id.value, new_symbol)
+                    self.symbol_table.insert(ast.id.value, ast.type, res)
                     return f'{ast.type} {ast.id} := {res}'
 
         except (SemanticError, NotEnoughInfoError, StkRuntimeError) as e:

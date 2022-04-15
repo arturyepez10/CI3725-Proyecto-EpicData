@@ -144,17 +144,17 @@ test_sol.append(VOID)
 # ------------ Ejecucion de pruebas ---------------
 # Configuración del entorno de pruebas
 symbols = [
-    ('x', SymVar(NUM, Number(42))),
-    ('y', SymVar(BOOL, Boolean(True))),
-    ('unNumero', SymVar(NUM, Number(616))),
-    ('unBooleano', SymVar(BOOL, Boolean(False))),
-    ('arregloDeNumeros', SymVar(NUM_ARRAY, Array([Number(42)]))),
-    ('arregloDeBooleanos', SymVar(BOOL_ARRAY, Array([Boolean(False)])))
+    ('x', NUM, Number(42)),
+    ('y', BOOL, Boolean(True)),
+    ('unNumero', NUM, Number(616)),
+    ('unBooleano', BOOL, Boolean(False)),
+    ('arregloDeNumeros', NUM_ARRAY, Array([Number(42)])),
+    ('arregloDeBooleanos', BOOL_ARRAY, Array([Boolean(False)]))
 ]
 
 symbol_table = SymTable()
-for _id, sym in symbols:
-    symbol_table.insert(_id, sym)
+for _id, _type, val in symbols:
+    symbol_table.insert(_id, _type, val)
 
 parser = yacc.yacc(debug=True, module=grammar)
 validator = ASTValidator(symbol_table)

@@ -26,30 +26,29 @@ from .utils.custom_exceptions import UndefinedSymbolError
 
 # --- ENTRADAS DE LA TABLA DE SIMBOLOS ---
 class Symbol:
-    def __init__(self, _type: Type, value: Union[AST, callable]):
-        pass
+    pass
 
-class SymFunctionSignature(Symbol):
+class SymFunction(Symbol):
     '''Símbolo que representa una función en la tabla de símbolos.
 
     Atributos:
         callable: Función de Python con la implementación interna de la
             función correspondiente de Stókhos. Los tipos de los argumentos
             y del retorno son consistentes con los indicados en args y
-            return_type.
+            type.
         args: Lista donde cada elemento son los tipos de argumento que
             pide la función en orden.
-        return_type: Tipo de retorno de la función.
+        type: Tipo de retorno de la función.
     '''
     def __init__(self, _callable: callable,
-    _args: list[Type], return_type: Type):
+    _args: list[Type], _type: Type):
         self.callable = _callable
         self.args = _args
-        self.return_type = return_type
+        self.type = _type
 
     def __str__(self) -> str:
         return (f'{self.callable.__name__}({self.args}) '
-            f'-> {self.return_type}')
+            f'-> {self.type}')
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -76,24 +75,33 @@ class SymVar(Symbol):
         return self.__str__()
 
 # Funciones precargadas de Stókhos
-dummy_function = lambda x: None
-
 PRELOADED_FUNCTIONS = {
-    'type': SymFunctionSignature(dummy_function, [VOID], Type('type')),
-    'ltype': SymFunctionSignature(dummy_function, [VOID], Type('type')),
-    'if': SymFunctionSignature(dummy_function, [], None),
-    'reset': SymFunctionSignature(dummy_function, [], BOOL),
-    'uniform': SymFunctionSignature(stk_uniform, [], NUM,),
-    'floor': SymFunctionSignature(stk_floor, [NUM], NUM),
-    'length': SymFunctionSignature(stk_length, [ANY_ARRAY], NUM),
-    'sum': SymFunctionSignature(stk_sum, [NUM_ARRAY], NUM),
-    'avg': SymFunctionSignature(stk_avg, [NUM_ARRAY], NUM),
-    'pi': SymFunctionSignature(stk_pi, [], NUM),
-    'now': SymFunctionSignature(stk_now, [], NUM),
+    'type': SymFunction(None, [VOID], Type('type')),
+    'ltype': SymFunction(None, [VOID], Type('type')),
+    'if': SymFunction(None, [], None),
+    'reset': SymFunction(None, [], BOOL),
+    'uniform': SymFunction(stk_uniform, [], NUM,),
+    'floor': SymFunction(stk_floor, [NUM], NUM),
+    'length': SymFunction(stk_length, [ANY_ARRAY], NUM),
+    'sum': SymFunction(stk_sum, [NUM_ARRAY], NUM),
+    'avg': SymFunction(stk_avg, [NUM_ARRAY], NUM),
+    'pi': SymFunction(stk_pi, [], NUM),
+    'now': SymFunction(stk_now, [], NUM),
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---
 class SymTable:
+    '''Clase que implementa la tabla de símbolos del intérprete de Stókhos.
+    
+    Incluye las funciones precargadas con su firma.
+    
+    Soporta las operaciones de búsqueda, existencia, inserción de variables
+    y limpieza de variables definidas.
+
+    Args:
+        preloaded: Booleano que indica si se incluirán las funciones
+            precargadas del intérprete. True por defecto.
+    '''
     def __init__(self, preloaded: Boolean = True):
         self.preloaded = preloaded
         if self.preloaded:
@@ -102,16 +110,31 @@ class SymTable:
             self.table = {}
 
     def exists(self, _id: str) -> bool:
+        '''Retorna un booleano indicando si existe en la tabla de símbolos un
+        símbolo definido con la id especificada.
+        '''
         return _id in self.table
 
-    def insert(self, _id: str, s: Symbol) -> bool:
+    def insert(self, _id: str, _type: Type, value: AST) -> bool:
+        '''Inserta una variable en la tabla de símbolos, dado el nombre, su
+        tipo y su valor.
+        
+        Retorna un booleano indicando si la inserción resultó exitosa. De lo
+        contrario, retorna False.
+        '''
         if not self.exists(_id):
-            self.table[_id] = s
+            self.table[_id] = SymVar(_type, value)
             return True
 
         return False
 
     def update(self, _id: str, value: AST) -> bool:
+        '''Reemplaza el valor de una variable en la tabla de símbolos por el
+        indicado, dado su identificador.
+        
+        Retorna un booleano indicando si la actualización resultó exitosa. De
+        lo contrario, retorna False.
+        '''
         if self.exists(_id):
             self.table[_id].value = value
             return True
@@ -119,20 +142,34 @@ class SymTable:
         return False
     
     def lookup(self, _id: str) -> Symbol:
+        '''Retorna el contenido del símbolo con la id especificada en la tabla
+        símbolos.
+
+        En caso de no existir, lanza una excepción UndefinedSymbolError.
+        '''
         if self.exists(_id):
             return self.table[_id]
 
         raise UndefinedSymbolError(_id)
 
     def get_type(self, _id: str) -> Type:
+        '''Obtiene el tipo del símbolo con la id especificada.
+        
+        Retorna:
+            - El tipo de la variable, si el símbolo era una variable.
+            - El tipo de retorno de la función, si el símbolo era una función.
+        '''
         s = self.lookup(_id)
-        # print(self.table)
-        if isinstance(s, SymVar):
-            return s.type
-        else:
-            return s.return_type
+        return s.type
     
     def get_value(self, _id: str) -> Type:
+        '''Obtiene el valor del símbolo con la id especificada.
+        
+        Retorna:
+            - El valor de la variable, si el símbolo era una variable.
+            - El callable de la implementación interna de la función, si el
+                símbolo era una función.
+        '''
         s = self.lookup(_id)
         if isinstance(s, SymVar):
             return s.value
@@ -140,16 +177,27 @@ class SymTable:
             return s.callable
 
     def get_args(self, _id: str) -> Union[list[list[Type]], list[Type]]:
+        '''Retorna la lista con los tipos de argumentos que recibe la función
+        con la id especificada.
+
+        En caso de no ser una función, lanza una excepción NotAFunctionError
+        '''
         s = self.lookup(_id)
-        if isinstance(s, SymFunctionSignature):
+        if isinstance(s, SymFunction):
             return s.args
         raise NotAFunctionError(_id)
 
     def is_function(self, _id: str) -> bool:
+        '''Retorna un booleano indicando si el símbolo con la id especificada
+        es una función precargada de la tabla de símbolos.
+        '''
         s = self.lookup(_id)
-        return isinstance(s, SymFunctionSignature) 
+        return isinstance(s, SymFunction) 
 
     def clear(self):
+        '''Limpia la tabla de símbolos. Vuelve a precargar las funciones si
+        self.preloaded se estableció como True.
+        '''
         if self.preloaded:
             self.table = PRELOADED_FUNCTIONS.copy()
         else:
