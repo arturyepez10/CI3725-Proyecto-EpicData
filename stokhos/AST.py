@@ -139,7 +139,8 @@ class BinOp(AST):
         self.rhs = rhs
 
     def __str__(self) -> str:
-        return f'{self.lhs} {self.op} {self.rhs}'
+        # Remueve lo paréntesis redundantes más externos
+        return self.ast2str()[1:-1]
 
     def ast2str(self) -> str:
         return f'({self.lhs.ast2str()} {self.op} {self.rhs.ast2str()})'
@@ -162,7 +163,8 @@ class UnOp(AST):
         self.term = term
 
     def __str__(self) -> str:
-        return f'{self.op}{self.term}'
+        # Remueve lo paréntesis redundantes más externos
+        return self.ast2str()[1:-1]
 
     def ast2str(self) -> str:
         return f'({self.op}{self.term.ast2str()})'
@@ -213,6 +215,9 @@ class Array(AST):
 
     def __getitem__(self, index: int) -> AST:
         return self.elements[index]
+
+    def __setitem__(self, index: int, value: AST):
+        self.elements[index] = value
 
 class FunctionCall(AST):
     def __init__(self, _id: Id, _args: list[AST]):
