@@ -87,6 +87,10 @@ PRELOADED_FUNCTIONS = {
     'avg': SymFunction(stk_avg, [NUM_ARRAY], NUM),
     'pi': SymFunction(stk_pi, [], NUM),
     'now': SymFunction(stk_now, [], NUM),
+    'ln': SymFunction(stk_ln, [NUM], NUM),
+    'exp': SymFunction(stk_exp, [NUM], NUM),
+    'sin': SymFunction(stk_sin, [NUM], NUM),
+    'cos': SymFunction(stk_cos, [NUM], NUM),
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---

@@ -1,3 +1,4 @@
 .load 1.stk
 .load 2.stk
 .load 3.stk
+.load newfuncs.stk

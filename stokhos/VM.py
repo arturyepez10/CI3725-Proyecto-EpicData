@@ -22,7 +22,7 @@ import ply.yacc as yacc
 
 from . import grammar, tokenrules
 from .AST import AST, VOID, Assign, AssignArrayElement, Error
-from .symtable import SymTable, SymVar
+from .symtable import SymTable
 from .utils.custom_exceptions import *
 from .utils.err_strings import error_invalid_char, error_invalid_id
 from .utils.evaluators import ASTEvaluator
@@ -234,7 +234,7 @@ class StokhosVM:
             Sintaxis Abstracta pasado como argumento.
         """
         # Casi se garantiza que no puede haber errores en este punto,
-        # pero no! todavía es posible
+        # ¡pero no! todavía es posible (runtime errors could happen)
         try:
             # Tener cuidado en casos de acotación
             return self.evaluator.evaluate(ast)

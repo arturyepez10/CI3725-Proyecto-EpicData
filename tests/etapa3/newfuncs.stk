@@ -1,0 +1,59 @@
+num x := 0;
+num eps := 0.000001;
+
+# ----- Pruebas logaritmo ----
+ln(1)
+ln(0.5)
+ln(exp(1))
+
+ln(-1)
+ln(0)
+
+# ----- Pruebas exponencial ----
+exp(1)
+exp(-1)
+exp(ln(5))
+
+# Valor absoluto: if(x >= 0, x, -x)
+# Se hace |valorObtenido - valorEsperado| <= eps
+
+# ----- Pruebas sin ----
+x := sin(0);
+if(x>0, x, -x) <= eps
+
+x := sin(pi()/6) - 1/2;
+if(x>0, x, -x) <= eps
+
+x := sin(pi()/4) - 2^0.5/2;
+if(x>0, x, -x) <= eps
+
+x := sin(pi()/3) - 3^0.5/2;
+if(x>0, x, -x) <= eps
+
+x := sin(pi()/2) - 1;
+if(x>0, x, -x) <= eps
+
+x := sin(pi());
+if(x>0, x, -x) <= eps
+
+# ----- Pruebas cos ----
+x := cos(0) - 1;
+if(x>0, x, -x) <= eps
+
+x := cos(pi()/6) - 3^0.5/2;
+if(x>0, x, -x) <= eps
+
+x := cos(pi()/4) - 2^0.5/2;
+if(x>0, x, -x) <= eps
+
+x := cos(pi()/3) - 1/2;
+if(x>0, x, -x) <= eps
+
+x := cos(pi()/2);
+if(x>0, x, -x) <= eps
+
+x := cos(pi()) + 1;
+if(x>0, x, -x) <= eps
+
+# ---- TAN ?? ----
+sin(pi()/4) / cos(pi()/4)

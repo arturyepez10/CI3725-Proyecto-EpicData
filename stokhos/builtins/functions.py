@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from math import floor
+from math import floor, log, exp, sin, cos
 from random import uniform
 from time import time
 
@@ -74,3 +74,40 @@ def stk_now() -> Number:
     La implementación interna es la de currentmillis.com sugerida para Python.
     '''
     return Number(int(round(time() * 1000)))
+
+def stk_ln(x: Number) -> Number:
+    '''Retorna el logaritmo natural de x.
+    
+    Args:
+        x: Número a evaluar.
+    '''
+    try:
+        res = Number(log(x.value))
+    except ValueError:
+        raise StkRuntimeError('El logaritmo natural de un número negativo o '
+            'nulo no existe')
+    return res
+
+def stk_exp(x: Number) -> Number:
+    '''Retorna e elevado a x.
+    
+    Args:
+        x: Número a evaluar.
+    '''
+    return Number(exp(x.value))
+
+def stk_sin(x: Number) -> Number:
+    '''Retorna el seno de x.
+    
+    Args:
+        x: Número a evaluar.
+    '''
+    return Number(sin(x.value))
+
+def stk_cos(x: Number) -> Number:
+    '''Retorna el coseno de x.
+    
+    Args:
+        x: Número a evaluar.
+    '''
+    return Number(cos(x.value))
