@@ -57,8 +57,8 @@ def p_asignacion_var(p):
 
 # <asignacion> -> <acceso_arreglo> := <expresion>
 def p_asignacion_elemento_arr(p):
-    'asignacion : acceso_arreglo TkAssign expresion'
-    p[0] = AST.AssignArrayElement(p[1], p[3])
+    'asignacion : identificador TkOpenBracket expresion TkCloseBracket TkAssign expresion'
+    p[0] = AST.AssignArrayElement(AST.ArrayAccess(p[1], p[3]), p[6])
 
 # -------- LISTAS --------
 # <listaElems> -> <expresion> 
@@ -170,7 +170,7 @@ def p_arreglo(p):
 #     | <expresion> >= <expresion>
 #     | <expresion> = <expresion>
 #     | <expresion> <> <expresion>
-def p_comparacion_menor_que(p):
+def p_comparacion(p):
     '''comparacion : expresion TkLT expresion
         | expresion TkLE expresion
         | expresion TkGT expresion
