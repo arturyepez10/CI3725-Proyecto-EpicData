@@ -63,6 +63,9 @@ class ASTEvaluator(ASTNodeVisitor):
     def visit_Id(self, ast: Id) -> AST:
         lookup = self.sym_table.get_value(ast.value)
         
+        if callable(lookup):
+            raise StkRuntimeError('No se puede evaluar una función como una '
+                'expresión')
         # Tiene que hacerse así por la existencia de expresiones acotadas
         return self.visit(lookup)
 
@@ -196,10 +199,15 @@ def stk_ltype(evaluator: ASTEvaluator,  expr: AST) -> Type:
 
     return expr.type
 
+def stk_tick(evaluator: ASTEvaluator) -> Number:
+    '''Incrementa el ciclo de cómputo en 1 y retorna su nuevo valor.'''
+    return evaluator.sym_table.increment_cycle()
+
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'type': stk_type,
     'ltype': stk_ltype,
     'reset': stk_reset,
     'if': stk_if,
+    'tick': stk_tick,
 }
