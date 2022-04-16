@@ -74,12 +74,13 @@ class SymVar(Symbol):
     def __repr__(self) -> str:
         return self.__str__()
 
+stk_dummy = lambda x: None
 # Funciones precargadas de Stókhos
 PRELOADED_FUNCTIONS = {
-    'type': SymFunction(None, [VOID], Type('type')),
-    'ltype': SymFunction(None, [VOID], Type('type')),
-    'if': SymFunction(None, [], None),
-    'reset': SymFunction(None, [], BOOL),
+    'type': SymFunction(stk_dummy, [VOID], Type('type')),
+    'ltype': SymFunction(stk_dummy, [VOID], Type('type')),
+    'if': SymFunction(stk_dummy, [], None),
+    'reset': SymFunction(stk_dummy, [], BOOL),
     'uniform': SymFunction(stk_uniform, [], NUM,),
     'floor': SymFunction(stk_floor, [NUM], NUM),
     'length': SymFunction(stk_length, [ANY_ARRAY], NUM),
@@ -91,6 +92,7 @@ PRELOADED_FUNCTIONS = {
     'exp': SymFunction(stk_exp, [NUM], NUM),
     'sin': SymFunction(stk_sin, [NUM], NUM),
     'cos': SymFunction(stk_cos, [NUM], NUM),
+    'tick': SymFunction(stk_dummy, [], NUM),
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---
@@ -112,6 +114,9 @@ class SymTable:
             self.table = PRELOADED_FUNCTIONS.copy()
         else:
             self.table = {}
+        
+        # Ciclo de cómputo (se inicializa a 0)
+        self.cycle = 0
 
     def __str__(self) -> str:
         return str(self.table)
@@ -209,3 +214,10 @@ class SymTable:
             self.table = PRELOADED_FUNCTIONS.copy()
         else:
             self.table = {}
+
+    def increment_cycle(self):
+        '''Incrementa el ciclo de cómputo de la tabla de símbolos y retorna
+        su nuevo valor.
+        '''
+        self.cycle += 1
+        return self.cycle
