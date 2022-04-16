@@ -259,4 +259,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'ltype': pass_handler,
     'reset': pass_handler,
     'if': if_handler,
+    'tick': pass_handler,
 }
