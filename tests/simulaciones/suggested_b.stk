@@ -1,0 +1,4 @@
+num N := 1000;
+[num] a := ['2 * uniform() - 1', '2 * uniform() - 1', '2 * uniform() - 1', '2 * uniform() - 1'];
+num promedio := 'avg(a)';
+# [num] resultado := histogram('promedio', N, 40, -1, 1);

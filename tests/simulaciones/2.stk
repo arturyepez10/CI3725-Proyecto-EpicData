@@ -1,0 +1,17 @@
+# Num aleatorio entre 0 y 15
+num size := 'floor(uniform() * 15)';
+# Arreglo de ese tamaño
+# Cada elemento es un num aleatorio entre 0 y size
+[num] arr := 'array(size, 'floor(uniform()* size)')';
+arr
+arr
+arr
+tick()
+arr
+arr
+num x:= 5;
+arr
+arr
+
+# Da error porque se está intentando acceder a 'array(size, 'floor(uniform()* size)')'
+arr[0] := 5;

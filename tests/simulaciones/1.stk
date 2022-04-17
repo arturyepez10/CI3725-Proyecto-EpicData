@@ -1,0 +1,7 @@
+# Genera arreglos con numero aleatorio de elementos
+# donde cada elemento del arreglo es su número de elementos
+
+num x:= 'floor(uniform() * 15)';
+array(x,x)
+tick()
+array(x,x)

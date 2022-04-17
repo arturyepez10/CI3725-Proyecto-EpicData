@@ -19,7 +19,7 @@ import operator
 from typing import Union
 
 from ..AST import *
-from ..symtable import SymTable
+from ..symtable import SymFunction, SymTable
 from .helpers import ASTNodeVisitor
 
 # Diccionarios de operadores
@@ -61,13 +61,21 @@ class ASTEvaluator(ASTNodeVisitor):
 
     # ---- NODOS RECURSIVOS ----
     def visit_Id(self, ast: Id) -> AST:
-        lookup = self.sym_table.get_value(ast.value)
+        lookup = self.sym_table.lookup(ast.value)
         
-        if callable(lookup):
+        if isinstance(lookup, SymFunction):
             raise StkRuntimeError('No se puede evaluar una función como una '
                 'expresión')
-        # Tiene que hacerse así por la existencia de expresiones acotadas
-        return self.visit(lookup)
+
+        # Implementación de memoización para Ids
+        if self.sym_table.cycle != lookup.last_cycle:
+            val = self.visit(lookup.value)
+
+            lookup.cache = val
+            lookup.last_cycle = self.sym_table.cycle
+            return val
+
+        return lookup.cache
 
     # ---- OPERADORES ----
     def visit_BinOp(self, ast: BinOp) -> AST:
