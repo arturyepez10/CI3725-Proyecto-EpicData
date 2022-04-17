@@ -1,10 +1,6 @@
 """Modulo de pruebas para el chequeo de tipos"""
 import os
 import sys
-import pytest
-
-
-
 
 sys.path.insert(1, os.path.abspath('.'))
 
@@ -12,17 +8,7 @@ from stokhos.symtable import SymVar
 from stokhos.AST import *
 from stokhos.VM import StokhosVM as SVM
 
-NUM_UN_OPS = ['+', '-']
-BOOL_UN_OPS = ['!']
-NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
-BOOL_BIN_OPS = ['&&', '||']
-COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
-ALL_BIN_OPS = NUM_BIN_OPS + BOOL_BIN_OPS + COMPARISONS
-
 # -------------- Pruebas de asignaciones ----------
-
-
-
 
 def test_definitions_assignments():
     # Crear VM
