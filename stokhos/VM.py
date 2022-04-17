@@ -173,7 +173,7 @@ class StokhosVM:
         if isinstance(out, Error):
             return f'ERROR: {out.cause}'
         
-        return f'OK: ast("{command}") ==> {out.ast2str()}'
+        return f'OK: ast("{command}") ==> {out}'
 
     def validate(self, ast: AST) -> AST:
         """Valida un Árbol de Sintaxis Abstracta.

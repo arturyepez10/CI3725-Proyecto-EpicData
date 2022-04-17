@@ -2,3 +2,4 @@
 .load 2.stk
 .load 3.stk
 .load newfuncs.stk
+.load formula.stk

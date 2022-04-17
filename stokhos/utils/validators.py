@@ -260,4 +260,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'reset': pass_handler,
     'if': if_handler,
     'tick': pass_handler,
+    'formula': pass_handler,
 }

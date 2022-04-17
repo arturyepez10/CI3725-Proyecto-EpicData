@@ -1,0 +1,37 @@
+# Pruebas para formula
+
+num x := floor(6 * uniform()) + 1;
+formula(x)
+
+# ------ Amtes de temer la implementación de array -------
+
+[num] A0 := [x, x, x];
+formula(A0)
+# OK: formula(A0) ==> [valordex, valordex, valordex]
+
+[num] B0 := [floor(6 * uniform()) + 1, floor(6 * uniform()) + 1, floor(6 * uniform()) + 1, floor(6 * uniform()) + 1];
+formula(B0)
+# OK: formula(B0) ==> [random1, random2, random3, random4]
+
+[num] C0 := ['floor(6 * uniform()) + 1','floor(6 * uniform()) + 1', 'floor(6 * uniform()) + 1'];
+formula(C0)
+# OK: formula(C0) ==> [ floor(6 * uniform()) + 1, floor(6 * uniform()) + 1, floor(6 * uniform()) + 1 ]
+
+# -----------------------------------------------------
+
+[num] A := array(3, floor(6 * uniform()) + 1);
+formula(A)
+# OK: formula(A) ==> [random1, random1, random1]
+
+[num] B := array(4, 'floor(6 * uniform()) + 1');
+formula(B)
+# OK: formula(B) ==> [random1, random2, random3, random4]
+
+[num] C := array(3, ''floor(6 * uniform()) + 1'');
+formula(C)
+# OK: formula(C) ==> [ floor(6 * uniform()) + 1, floor(6 * uniform()) + 1, floor(6 * uniform()) + 1 ]
+
+# --------- ERRORES -----------
+formula(5+1)
+formula(formula)
+formula(formula(x))

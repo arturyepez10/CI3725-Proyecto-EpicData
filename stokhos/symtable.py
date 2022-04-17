@@ -74,11 +74,11 @@ class SymVar(Symbol):
     def __repr__(self) -> str:
         return self.__str__()
 
-stk_dummy = lambda x: None
+stk_dummy = lambda: None
 # Funciones precargadas de Stókhos
 PRELOADED_FUNCTIONS = {
-    'type': SymFunction(stk_dummy, [VOID], Type('type')),
-    'ltype': SymFunction(stk_dummy, [VOID], Type('type')),
+    'type': SymFunction(stk_dummy, [VOID], Type('<metatype>')),
+    'ltype': SymFunction(stk_dummy, [VOID], Type('<metatype>')),
     'if': SymFunction(stk_dummy, [], None),
     'reset': SymFunction(stk_dummy, [], BOOL),
     'uniform': SymFunction(stk_uniform, [], NUM,),
@@ -93,6 +93,7 @@ PRELOADED_FUNCTIONS = {
     'sin': SymFunction(stk_sin, [NUM], NUM),
     'cos': SymFunction(stk_cos, [NUM], NUM),
     'tick': SymFunction(stk_dummy, [], NUM),
+    'formula': SymFunction(stk_dummy, [VOID], Type('<metatype>'))
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---

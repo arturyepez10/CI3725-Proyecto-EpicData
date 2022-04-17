@@ -132,7 +132,8 @@ class ASTEvaluator(ASTNodeVisitor):
     def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
 
-# Funciones especiales
+# -------- FUNCIONES ESPECIALES --------
+
 # Son funciones que reciben el evaluador y pasan los argumentos
 # de la forma requerida, dándoles un tratamiento especial
 def stk_reset(evaluator: ASTEvaluator):
@@ -176,7 +177,7 @@ def stk_type(evaluator: ASTEvaluator,  expr: AST) -> Type:
         _type = expr.type
 
     if _type is ANY_ARRAY:
-        raise SemanticError('No hay suficiente información para inferir el '
+        raise StkRuntimeError('No hay suficiente información para inferir el '
             'tipo del arreglo')
     
     return _type
@@ -190,18 +191,34 @@ def stk_ltype(evaluator: ASTEvaluator,  expr: AST) -> Type:
         expr: Expresión a obtener el ltype.
     '''
     if not isinstance(expr, (Id, ArrayAccess)):
-        raise SemanticError(f"La expresión '{expr}' no tiene LVALUE")
+        raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
     elif isinstance(expr, Id):
         # En Stókhos no se puede asignar a una función
         # Debería ?
         if evaluator.sym_table.is_function(expr.value):
-            raise SemanticError(f"La expresión '{expr}' no tiene LVALUE")
+            raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
+    elif isinstance(expr, ArrayAccess) and not isinstance(expr.expr, Id):
+            raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
 
     return expr.type
 
 def stk_tick(evaluator: ASTEvaluator) -> Number:
     '''Incrementa el ciclo de cómputo en 1 y retorna su nuevo valor.'''
     return evaluator.sym_table.increment_cycle()
+
+def stk_formula(evaluator: ASTEvaluator,  expr: AST) -> AST:
+    '''Retorna el CVALUE de la expresión pasada como argumento, si lo tiene.
+    En caso de no tener LVALUE, lanza error.
+    
+    Args:
+        expr: Expresión a obtener el cvalue.
+    '''
+
+    # Se chequea que la expresión tenga ltype
+    stk_ltype(evaluator, expr)
+    _id = expr.value if isinstance(expr, Id) else expr.expr.value
+
+    return evaluator.sym_table.lookup(_id).value
 
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
@@ -210,4 +227,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'reset': stk_reset,
     'if': stk_if,
     'tick': stk_tick,
+    'formula': stk_formula,
 }
