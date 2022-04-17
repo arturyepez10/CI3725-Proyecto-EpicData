@@ -253,6 +253,25 @@ def if_handler(validator: ASTValidator, *args):
     raise SemanticError(f'El tipo del argumento #3 es '
         f'{exprF_type}, pero se esperaba {exprT_type}')
 
+def array_handler(validator, *args):
+    if len(args[1]) != 2:
+        raise SemanticError('La función "array" esperaba '
+            f'2 argumentos, pero se recibieron {len(args[1])}')
+
+    # Verifica que el primer argumento sea num y el otro num o bool
+    size_type = validator.visit(args[1][0])
+
+    if size_type != NUM:
+        raise SemanticError(error_unexpected_type(size_type, 'num'))
+
+    init_type = validator.visit(args[1][1])
+
+    if init_type not in [NUM, BOOL]:
+        raise SemanticError(f'El tipo del argumento #2 es '
+            f'{init_type}, pero se esperaba num o bool')
+    
+    return NUM_ARRAY if init_type == NUM else BOOL_ARRAY
+
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'type': pass_handler,
@@ -261,4 +280,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'if': if_handler,
     'tick': pass_handler,
     'formula': pass_handler,
+    'array': array_handler,
 }

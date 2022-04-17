@@ -220,6 +220,23 @@ def stk_formula(evaluator: ASTEvaluator,  expr: AST) -> AST:
 
     return evaluator.sym_table.lookup(_id).value
 
+def stk_array(evaluator: ASTEvaluator,  size: AST, expr: AST) -> Array:
+    '''Retorna un arreglo de tamaño size dnode cada elemento está inicializado
+    con el resultado de evaluar expr.
+    
+    Args:
+        size: Tamaño del arreglo a retornar
+        expr: Expresión a evaluar para obtener cada elemento del arreglo.
+    '''
+
+    arr = []
+    n = evaluator.evaluate(size)
+    init = evaluator.evaluate(expr)
+
+    for i in range(n.value):
+        arr.append(evaluator.evaluate(init))
+    return Array(arr)
+
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'type': stk_type,
@@ -228,4 +245,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'if': stk_if,
     'tick': stk_tick,
     'formula': stk_formula,
+    'array': stk_array,
 }
