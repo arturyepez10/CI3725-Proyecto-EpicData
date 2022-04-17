@@ -345,10 +345,10 @@ test_cases.append('type([true, false, true][2])')
 test_sol.append(BOOL)
 
 test_cases.append('type(if)')
-test_sol.append('')
+test_sol.append(Type('function'))
 
 test_cases.append('type(type(2))')
-test_sol.append('')
+test_sol.append(Type('<metatype>'))
 
 
 cases = list(zip(test_cases, test_sol))
