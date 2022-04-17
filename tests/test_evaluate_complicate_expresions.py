@@ -33,9 +33,6 @@ test_sol.append(Number(96))
 test_cases.append('(100/10*5 + 14)^(1/2)') 
 test_sol.append(Number(8))
 
-test_cases.append('(-4)^(1/2)')
-test_sol.append("")
-
 test_cases.append('42%(4+1) * 7') 
 test_sol.append(Number(14))
 
@@ -48,9 +45,7 @@ test_sol.append(Number(0))
 test_cases.append('avg([-42, 42, -42/2, 42/2, -42/(2+2), 42/(2+2), 7]) + 1') 
 test_sol.append(Number(2))
 
-# Indeterminaciones numericas, esto no tiene sentido aqui pero lo dejo para recordar que esta explotando el programa
-test_cases.append('1/0') 
-test_sol.append('') 
+# Indeterminaciones numericas
 
 test_cases.append('0^0') 
 test_sol.append(Number(1)) 

@@ -6,6 +6,11 @@ from stokhos.utils.err_strings import *
 from stokhos.VM import StokhosVM as SVM
 from stokhos.AST import *
 
+NUM_BIN_OPS = ['^', '+', '-', '*', '%', '/']
+BOOL_BIN_OPS = ['&&', '||']
+COMPARISONS = ['<', '<=', '>', '>=', '=', '<>']
+ALL_BIN_OPS = NUM_BIN_OPS + BOOL_BIN_OPS + COMPARISONS
+
 def lex_error_invalid_char(char:str) -> str:
     return f'Caracter inválido ("{char}")'
 
@@ -362,3 +367,52 @@ def test_fuction_type(test_case:str, test_sol:object):
     res = VM.eval(ast)
     
     assert res == test_sol
+
+
+
+# ------------ Pruebas para la funcion magica ltype() --------
+def test_function_lvalue():
+    # Crear VM
+    VM = SVM()
+    
+    # Crear variables de distintos tipos
+    process_command(VM, 'num x := 2;')
+    process_command(VM, 'bool y := true;')
+    process_command(VM, '[num] xArray := [1,2,3];')
+    process_command(VM, '[bool] yArray := [true, false, true];')
+
+    # Los siguientes comandos no deben arrojar error por la VM
+    process_command(VM, 'ltype(x)')
+    process_command(VM, 'ltype(y)')
+    process_command(VM, 'ltype(xArray)')
+    process_command(VM, 'ltype(yArray)')
+    process_command(VM, 'ltype(xArray[0])')
+    process_command(VM, 'ltype(yArray[0])')
+    process_command(VM, 'ltype(xArray[1])')
+    process_command(VM, 'ltype(yArray[1])')
+    process_command(VM, 'ltype(xArray[2])')
+    process_command(VM, 'ltype(yArray[2])')
+
+    # Los siguientes comandos deben arrojar errores
+    process_bad_command(VM, 'ltype(2+2)')
+    process_bad_command(VM, 'ltype(2)')
+    process_bad_command(VM, 'ltype(true)')
+    process_bad_command(VM, 'ltype(z)')
+    
+    for binOp in ALL_BIN_OPS:
+        process_bad_command(VM, f'ltype(2{binOp}3)')
+        process_bad_command(VM, f'ltype(x){binOp}ltype(y)')
+
+def process_command(VM, command:str):
+    'Procesa un comando en la VM y comprueba que sea valido'
+    out = VM.process(command)
+    
+    if out.startswith("ERROR: "):        
+        assert False, f'{out}'
+
+def process_bad_command(VM, command:str):
+    'Procesa un comando invalido en la VM y comprueba que no sea valido'
+    out = VM.process(command)
+
+    if not out.startswith("ERROR: "):        
+        assert False, f'{out}'
