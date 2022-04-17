@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from math import floor, log, exp, sin, cos
+from math import floor, log, exp, sin, cos, sqrt
 from random import uniform
 from time import time
 
@@ -111,3 +111,16 @@ def stk_cos(x: Number) -> Number:
         x: Número a evaluar.
     '''
     return Number(cos(x.value))
+
+def stk_sqrt(x: Number) -> Number:
+    '''Retorna la raiz cuadrada de x.
+    
+    Args:
+        x: Número a evaluar.
+    '''
+    try:
+        res = Number(sqrt(x.value))
+    except ValueError:
+        raise StkRuntimeError('No se puede realizar aritmética con números '
+            'complejos')
+    return res
