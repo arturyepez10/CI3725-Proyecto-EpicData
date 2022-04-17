@@ -67,6 +67,10 @@ class SymVar(Symbol):
 
         # Un terminal o un AST en caso de que se guarde una expresión acotada
         self.value = value
+
+        # For memoization
+        self.cache = None
+        self.last_cycle = -1
     
     def __str__(self):
         return f'({self.type}, {self.value})'
@@ -95,6 +99,7 @@ PRELOADED_FUNCTIONS = {
     'tick': SymFunction(stk_dummy, [], NUM),
     'formula': SymFunction(stk_dummy, [VOID], Type('<metatype>')),
     'array': SymFunction(stk_dummy, [], None),
+    'sqrt': SymFunction(stk_sqrt, [NUM], NUM),
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---
@@ -138,6 +143,9 @@ class SymTable:
         '''
         if not self.exists(_id):
             self.table[_id] = SymVar(_type, value)
+            
+            if isinstance(value, Array):
+                self.table[_id].cache = [None for i in range(len(value))]
             return True
 
         return False
@@ -151,6 +159,8 @@ class SymTable:
         '''
         if self.exists(_id):
             self.table[_id].value = value
+            if isinstance(value, Array):
+                self.table[_id].cache = [None for i in range(len(value))]
             return True
 
         return False
@@ -176,7 +186,7 @@ class SymTable:
         s = self.lookup(_id)
         return s.type
     
-    def get_value(self, _id: str) -> Type:
+    def get_value(self, _id: str) -> Union[AST, callable]:
         '''Obtiene el valor del símbolo con la id especificada.
         
         Retorna:

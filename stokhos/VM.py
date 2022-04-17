@@ -200,25 +200,37 @@ class StokhosVM:
             res  = self.eval(ast.rhs)
 
             # Cálculo de LVALUE(ast) dependiendo del tipo de asign/def
+            # Se incrementa el ciclo de cómputo solo cuando se está seguro
+            # de que el cambio de estado será exitoso.
+
             # Si es una asignación a un elemento de un arreglo
             if isinstance(ast, AssignArrayElement):
                 array_access = ast.array_access
                 _id = array_access.expr.value
                 index = array_access.index.value
 
-                # CVALUE(LVALUE(id[index])) = RVALUE(ast.rhs)
-                self.symbol_table.lookup(_id).value[index] = res
+                try:
+                    self.symbol_table.increment_cycle()
 
+                    # CVALUE(LVALUE(id[index])) = RVALUE(ast.rhs)
+                    self.symbol_table.lookup(_id).value[index] = res
+                except:
+                    self.symbol_table.cycle -= 1
+                    return Error('Acceso a arreglo inválido')
                 return f'{ast.array_access} := {res}'
             else:
                 # Si es una asignación a variable
                 if isinstance(ast, Assign):
+                    self.symbol_table.increment_cycle()
+
                     # CVALUE(LVALUE(id)) = RVALUE(ast.rhs)
                     self.symbol_table.update(ast.id.value, res)
                     return f'{ast.id} := {res}'
 
                 # Si es una definición
                 else:
+                    self.symbol_table.increment_cycle()
+
                     # CVALUE(id) = RVALUE(ast.rhs)
                     self.symbol_table.insert(ast.id.value, ast.type, res)
                     return f'{ast.type} {ast.id} := {res}'
