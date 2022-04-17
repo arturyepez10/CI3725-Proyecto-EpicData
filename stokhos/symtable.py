@@ -98,8 +98,9 @@ PRELOADED_FUNCTIONS = {
     'cos': SymFunction(stk_cos, [NUM], NUM),
     'tick': SymFunction(stk_dummy, [], NUM),
     'formula': SymFunction(stk_dummy, [VOID], Type('<metatype>')),
-    'array': SymFunction(stk_dummy, [], None),
     'sqrt': SymFunction(stk_sqrt, [NUM], NUM),
+    'array': SymFunction(stk_dummy, [], None),
+    'histogram': SymFunction(stk_dummy, [NUM, NUM, NUM, NUM, NUM], NUM_ARRAY),
 }
 
 # --- IMPLEMENTACIÓN DE TABLA DE SÍMBOLOS ---

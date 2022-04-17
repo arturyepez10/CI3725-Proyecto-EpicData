@@ -270,7 +270,7 @@ def array_handler(validator, *args):
         raise SemanticError(f'El tipo del argumento #2 es '
             f'{init_type}, pero se esperaba num o bool')
     
-    return NUM_ARRAY if init_type == NUM else BOOL_ARRAY
+    return NUM_ARRAY if init_type == NUM else BOOL
 
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
@@ -281,4 +281,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'tick': pass_handler,
     'formula': pass_handler,
     'array': array_handler,
+    'histogram': pass_handler,
 }

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import operator
+from math import floor
 from typing import Union
 
 from ..AST import *
@@ -140,6 +141,12 @@ class ASTEvaluator(ASTNodeVisitor):
     def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
 
+    def reduce(self, ast: AST) -> Terminal:
+        ret = ast
+        while not isinstance(ret, Terminal) or isinstance(ret, Id):
+            ret = self.evaluate(ret)
+        return ret
+
 # -------- FUNCIONES ESPECIALES --------
 
 # Son funciones que reciben el evaluador y pasan los argumentos
@@ -245,6 +252,43 @@ def stk_array(evaluator: ASTEvaluator,  size: AST, expr: AST) -> Array:
         arr.append(evaluator.evaluate(init))
     return Array(arr)
 
+def stk_histogram(evaluator: ASTEvaluator, x: AST,
+    NS: AST, NB: AST, LB: AST, UB: AST) -> Array:
+    lower_bound = evaluator.reduce(LB).value
+    upper_bound = evaluator.reduce(UB).value
+    n_samples = evaluator.reduce(NS).value
+    n_buckets = evaluator.reduce(NB).value
+    histogram = [Number(0) for i in range(n_buckets + 2)]
+
+    if upper_bound < lower_bound:
+        raise StkRuntimeError('El límite superior de histogram es menor al '
+            'límite inferior')
+
+    delta = (upper_bound - lower_bound) / n_buckets
+    for i in range(n_samples):
+        # Llama a tick por cada iteración
+        stk_tick(evaluator)
+
+        try:
+            sample = evaluator.reduce(x).value
+        except:
+            # Si hay un error en un sample se salta
+            continue
+
+        # Calcula el bucket correspondiente
+        # (Fórmula derivada manualmente)
+        # bucket = floor(((sample - lower_bound) / delta) + 1)
+        if sample < lower_bound:
+            histogram[0] += Number(1)
+        elif sample >= upper_bound:
+            histogram[-1] += Number(1)
+        else:
+            bucket = floor((sample - lower_bound) / delta + 1)
+            histogram[bucket] += Number(1)
+
+    return Array(histogram)
+
+
 # Diccionario de handlers de funciones especiales
 SPECIAL_FUNCTION_HANDLERS = {
     'type': stk_type,
@@ -254,4 +298,5 @@ SPECIAL_FUNCTION_HANDLERS = {
     'tick': stk_tick,
     'formula': stk_formula,
     'array': stk_array,
+    'histogram': stk_histogram,
 }
