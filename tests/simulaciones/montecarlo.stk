@@ -1,0 +1,17 @@
+# Método de Montecarlo para aproximar el valor de pi
+
+# Número de dardos a lanzar
+num n := 1000000;
+
+# Se cuentan los dardos que caen dentro del círculo de
+# radio 1 centrado en el origen
+
+# Dardo lanzado en un lugar aleatorio del tablero
+# de 2x2 centrado en el origen
+
+# Se suma 1 por cada dardo que caiga dentro
+#                              dart_x               dart_y
+[num] arr := array(n, ''if((2*uniform() - 1)^2 + (2*uniform() - 1)^2 <= 1, 1, 0)'');
+
+num darts_inside := sum(arr);
+num pi_stimate := 4*darts_inside/n;

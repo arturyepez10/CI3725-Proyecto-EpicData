@@ -1,0 +1,22 @@
+# Método de Montecarlo para aproximar el valor de pi
+
+# Número de dardos a lanzar
+num n := 1000000;
+
+# Se cuentan los dardos que caen dentro del círculo de
+# radio 1 centrado en el origen
+
+# Dardo lanzado en un lugar aleatorio del tablero
+# de 2x2 centrado en el origen
+
+# Se obtiene 1 por cada dardo que caiga dentro y -1 si cae fuera
+#                  dart_x               dart_y
+num dart := 'if((2*uniform() - 1)^2 + (2*uniform() - 1)^2 <= 1, 1, -1)';
+[num] darts_in_out := histogram('dart', n, 1, 0, 0);
+
+# darts_in_out[0] -> Los elementos que cayeron fuera
+# darts_in_out[2] -> Los elementos que cayeron dentro
+darts_in_out
+
+num darts_inside := darts_in_out[2];
+num pi_stimate := 4*darts_inside/n;
