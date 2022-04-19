@@ -264,6 +264,9 @@ def stk_histogram(evaluator: ASTEvaluator, x: AST,
         raise StkRuntimeError('El límite superior de histogram es menor al '
             'límite inferior')
 
+    if n_samples < 0:
+        raise StkRuntimeError('El número de muestras debe ser no negativo')
+
     delta = (upper_bound - lower_bound) / n_buckets
     for i in range(n_samples):
         # Llama a tick por cada iteración

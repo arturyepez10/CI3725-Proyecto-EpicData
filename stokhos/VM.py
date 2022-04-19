@@ -199,6 +199,9 @@ class StokhosVM:
             # Evalua el lado derecho (cálculo de RVALUE(ast.rhs))
             res  = self.eval(ast.rhs)
 
+            if isinstance(res, Error):
+                return res
+
             # Cálculo de LVALUE(ast) dependiendo del tipo de asign/def
             # Se incrementa el ciclo de cómputo solo cuando se está seguro
             # de que el cambio de estado será exitoso.
