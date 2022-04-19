@@ -254,10 +254,10 @@ def stk_array(evaluator: ASTEvaluator,  size: AST, expr: AST) -> Array:
 
 def stk_histogram(evaluator: ASTEvaluator, x: AST,
     NS: AST, NB: AST, LB: AST, UB: AST) -> Array:
-    lower_bound = evaluator.reduce(LB).value
-    upper_bound = evaluator.reduce(UB).value
-    n_samples = evaluator.reduce(NS).value
-    n_buckets = evaluator.reduce(NB).value
+    lower_bound = evaluator.evaluate(LB).value
+    upper_bound = evaluator.evaluate(UB).value
+    n_samples = evaluator.evaluate(NS).value
+    n_buckets = evaluator.evaluate(NB).value
     histogram = [Number(0) for i in range(n_buckets + 2)]
 
     if upper_bound < lower_bound:
