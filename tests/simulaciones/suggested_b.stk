@@ -1,11 +1,13 @@
 num N := 100000;
-[num] a := array(49, ''2 * uniform() - 1'');
+[num] a := array(49, '2 * uniform() - 1');
 num promedio := 'avg(a)';
 
 num ti := now();
 
 [num] resultado := histogram('promedio', N, 40, -1, 1);
+resultado
 
 num tf := now();
 
-num dt_ms := tf - ti;
+num dt_s := (tf - ti) / 1000;
+dt_s
