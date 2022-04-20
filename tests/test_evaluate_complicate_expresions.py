@@ -46,7 +46,6 @@ test_cases.append('avg([-42, 42, -42/2, 42/2, -42/(2+2), 42/(2+2), 7]) + 1')
 test_sol.append(Number(2))
 
 # Indeterminaciones numericas
-
 test_cases.append('0^0') 
 test_sol.append(Number(1)) 
 
@@ -107,6 +106,27 @@ test_sol.append(Number(10))
 test_cases.append('if(true, (([1,2,3])), (([1,2,3])))[2] + 3') 
 test_sol.append(Number(6))
 
+# Funciones predefinidas
+test_cases.append('ln(exp(1))') # Funcion exp
+test_sol.append(Number(1))
+
+test_cases.append('ln(2) + ln(3) = ln(2*3)') 
+test_sol.append(Boolean(True))
+
+test_cases.append('ln(4) - ln(2) = ln(4/2)') 
+test_sol.append(Boolean(True))
+
+test_cases.append('cos(pi())') 
+test_sol.append(Number(-1))
+
+test_cases.append('array(2*3, 3+1)') 
+test_sol.append(Array([Number(4), Number(4), Number(4), Number(4), Number(4), Number(4)]))
+
+test_cases.append('array(0.5*12., 3+1)') 
+test_sol.append(Array([Number(4), Number(4), Number(4), Number(4), Number(4), Number(4)]))
+
+test_cases.append('array(2.0*3.0, 3+1)') 
+test_sol.append(Array([Number(4), Number(4), Number(4), Number(4), Number(4), Number(4)]))
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
@@ -114,13 +134,90 @@ def test_evaluate_complicate_expresions(test_case:str, test_sol:object):
     ast = VM.parse(test_case)
     if isinstance(ast, Error):
         # No se construye el AST
-        assert False
+        assert False, f'{ast}'
     
     val = VM.validate(ast)
     if isinstance(val, Error):
         # AST invalido
-        assert False
+        assert False, f'{val}'
 
     res = VM.eval(ast)
     
     assert res == test_sol
+
+
+# ------ Pruebas que deben arrojar errores en la VM ---------
+test_cases = []
+# En la prueba se definen x e y como arreglos de num y bool, respectivamente,
+# de tamanio 3
+
+# Accesos invalidos a arreglos
+test_cases.append('[1,2,3,4][-1]')
+test_cases.append('[1,2,3,4][4]')
+test_cases.append('[1,2,3,4][1.1]')
+test_cases.append('[1,2,3,4][2.3]')
+test_cases.append('x[-1]')
+test_cases.append('x[4]')
+test_cases.append('x[1.1]')
+test_cases.append('x[2.3]')
+test_cases.append('y[-1]')
+test_cases.append('y[4]')
+test_cases.append('y[1.1]')
+test_cases.append('y[2.3]')
+
+
+# Funciones predefinidas mal usadas
+test_cases.append('length(3)')
+test_cases.append('floor([2])')
+test_cases.append('sum(123)')
+test_cases.append('avg(123)')
+test_cases.append('ln(0)')
+test_cases.append('ln(-1)')
+test_cases.append('ln([1])')
+test_cases.append('exp([3])')
+test_cases.append('cos([1])')
+test_cases.append('sin([1])')
+
+test_cases.append('length(true)')
+test_cases.append('floor(true)')
+test_cases.append('sum(true)')
+test_cases.append('avg(true)')
+test_cases.append('ln(true)')
+test_cases.append('ln(true)')
+test_cases.append('ln(true)')
+test_cases.append('exp(true)')
+test_cases.append('cos(true)')
+test_cases.append('sin(true)')
+
+test_cases.append('array(-1, 3)')
+test_cases.append('array(0.1, 3)')
+test_cases.append('array(-1.1, 3)')
+test_cases.append('array(12.76, 3)')
+test_cases.append('array([12.76], 3)')
+test_cases.append('array(true, 3)')
+test_cases.append('array(x, 3)')
+
+@pytest.mark.parametrize("test_case", test_cases)
+def test_evaluate_bad_complicate_expresions(test_case:str):
+    # Generar VM y definirle algunos arreglos
+    VM = SVM()
+    process_command(VM, '[num] x := [1,2,3];')
+    process_command(VM, '[bool] y := [true, false, true];')
+
+    process_bad_command(VM, test_case)
+
+
+def process_bad_command(VM, command:str):
+    'Procesa un comando invalido en la VM y comprueba que no sea valido'
+    out = VM.process(command)
+
+    if not out.startswith("ERROR: "):        
+        assert False, f'{out}'
+
+
+def process_command(VM, command:str):
+    'Procesa un comando en la VM y comprueba que sea valido'
+    out = VM.process(command)
+    
+    if out.startswith("ERROR: "):        
+        assert False, f'{out}'

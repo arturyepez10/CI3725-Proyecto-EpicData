@@ -116,13 +116,20 @@ class ASTEvaluator(ASTNodeVisitor):
         # Evaluar el indice
         index = self.visit(ast.index)
 
+        if index.value < 0:
+            raise StkRuntimeError(f'Se esperaba un índice entero no negativo, pero se '
+                f'obtuvo {index.value}')
+
+        # Tratar de convertir a entero
+        index_val = int(index.value) if index.value % 1 == 0 else index.value
+
         try:
-            return self.visit(ast.expr)[index.value]
+            return self.visit(ast.expr)[index_val]
         except (IndexError, AttributeError):
             raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
                 f'de la expresión {ast.expr}')
         except TypeError:
-            raise StkRuntimeError(f'Se esperaba un índice entero, pero se '
+            raise StkRuntimeError(f'Se esperaba un índice entero no negativo, pero se '
                 f'obtuvo {index.value}')
 
     def visit_FunctionCall(self, ast: FunctionCall):
@@ -243,12 +250,17 @@ def stk_array(evaluator: ASTEvaluator,  size: AST, expr: AST) -> Array:
         size: Tamaño del arreglo a retornar
         expr: Expresión a evaluar para obtener cada elemento del arreglo.
     '''
+    n = evaluator.evaluate(size)
+
+    if n.value < 0 or n.value % 1 != 0:
+        raise StkRuntimeError(f'Se esperaba como tamaño un entero no negativo, pero se '
+            f'obtuvo {n.value}')
 
     arr = []
-    n = evaluator.evaluate(size)
+    n_val = int(n.value)
     init = evaluator.evaluate(expr)
 
-    for i in range(n.value):
+    for i in range(n_val):
         arr.append(evaluator.evaluate(init))
     return Array(arr)
 

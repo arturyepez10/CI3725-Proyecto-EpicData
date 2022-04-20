@@ -77,7 +77,7 @@ test_sol.append(Boolean(True))
 test_cases.append('1 >= 1')
 test_sol.append(Boolean(True))
 
-# Funciones:
+# Funciones predefinidas:
 test_cases.append('pi()')
 test_sol.append(Number(3.141592653589793))
 
@@ -95,6 +95,28 @@ test_sol.append(Number(3))
 
 test_cases.append('avg([1,2,3,-3])')
 test_sol.append(Number(0.75))
+
+test_cases.append('array(2, 4)') 
+test_sol.append(Array([Number(4), Number(4)]))
+
+test_cases.append('[1,2,3,4]') 
+test_sol.append(Array([Number(1), Number(2), Number(3), Number(4)]))
+
+test_cases.append('sin(0)') 
+test_sol.append(Number(0))
+
+test_cases.append('cos(0)') 
+test_sol.append(Number(1))
+
+test_cases.append('cos(pi())') 
+test_sol.append(Number(-1))
+
+test_cases.append('ln(1)') 
+test_sol.append(Number(0))
+
+test_cases.append('ln(2.718281828459045235360)') # aproximacion del numero e
+test_sol.append(Number(1))
+
 
 cases = list(zip(test_cases, test_sol))
 @pytest.mark.parametrize("test_case,test_sol", cases)
