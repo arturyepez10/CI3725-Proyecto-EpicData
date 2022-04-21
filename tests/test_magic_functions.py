@@ -403,6 +403,75 @@ def test_function_lvalue():
         process_bad_command(VM, f'ltype(2{binOp}3)')
         process_bad_command(VM, f'ltype(x){binOp}ltype(y)')
 
+
+# --------- Pruebas para la funcion Formula() ------
+VM = SVM()
+test_cases, test_sol, pre_comands = [], [], []
+
+pre_comands.append(["num x := 2;"])
+test_cases.append('formula(x)')
+test_sol.append(Number(2))
+
+pre_comands.append(["bool x := true;"])
+test_cases.append('formula(x)')
+test_sol.append(Boolean(True))
+
+pre_comands.append(["[num] x := [1,2,3,4];"])
+test_cases.append('formula(x)')
+test_sol.append(Array([Number(1), Number(2), Number(3), Number(4)]))
+
+pre_comands.append(["[bool] x := [true, false];"])
+test_cases.append('formula(x)')
+test_sol.append(Array([Boolean(True), Boolean(False)]))
+
+pre_comands.append(["num x := '2+2';"])
+test_cases.append('formula(x)')
+test_sol.append(BinOp('+', Number(2), Number(2)))
+
+pre_comands.append(["bool x := 'true || false';"])
+test_cases.append('formula(x)')
+test_sol.append(BinOp('||', Boolean(True), Boolean(False)))
+
+pre_comands.append(["bool x := '!true';"])
+test_cases.append('formula(x)')
+test_sol.append(UnOp('!', Boolean(True)))
+
+pre_comands.append(["num x := '+2';"])
+test_cases.append('formula(x)')
+test_sol.append(UnOp('+', Number(2)))
+
+pre_comands.append(["num x := '-2';"])
+test_cases.append('formula(x)')
+test_sol.append(UnOp('-', Number(2)))
+
+
+cases = list(zip(test_cases, test_sol, pre_comands))
+@pytest.mark.parametrize("test_case,test_sol,define_vars", cases)
+def test_function_formula(test_case, test_sol, define_vars):
+    # Resetear VM
+    process_command(VM, 'reset()')
+    # define_vars: Comandos que se ejecutan para definir variables
+    # en la VM
+    for command in define_vars:
+        process_command(VM, command)
+
+    # Ejecutar el test_case
+    ast = VM.parse(test_case)
+    if isinstance(ast, Error):
+        # No se construye el AST
+        assert False, f'{ast}'
+    
+    val = VM.validate(ast)
+    if isinstance(val, Error):
+        # AST invalido
+        assert False, f'{ast}'
+
+    res = VM.eval(ast)
+
+    assert res == test_sol
+
+
+
 def process_command(VM, command:str):
     'Procesa un comando en la VM y comprueba que sea valido'
     out = VM.process(command)
