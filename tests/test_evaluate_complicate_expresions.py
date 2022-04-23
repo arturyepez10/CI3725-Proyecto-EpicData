@@ -1,6 +1,7 @@
 """Modulo de pruebas para el chequeo de tipos"""
 import os
 import sys
+
 import pytest
 
 sys.path.insert(1, os.path.abspath('.'))
@@ -146,6 +147,41 @@ def test_evaluate_complicate_expresions(test_case:str, test_sol:object):
     assert res == test_sol
 
 
+# Pruebas de histogram
+def test_histogram0():
+    samples = 20
+    ast = VM.parse(f'histogram(1, {samples}, 10, 1, 10)')
+    if isinstance(ast, Error):
+        # No se construye el AST
+        assert False, f'{ast}'
+
+    val = VM.validate(ast)
+    if isinstance(val, Error):
+        # AST invalido
+        assert False, f'{val}'
+
+    res = VM.eval(ast)
+
+    assert sum(res, Number(0)).value == samples
+
+def test_histogram1():
+    samples = 20
+    ast = VM.parse(f'histogram(1/0, {samples}, 10, 1, 10)')
+    if isinstance(ast, Error):
+        # No se construye el AST
+        assert False, f'{ast}'
+
+    val = VM.validate(ast)
+    if isinstance(val, Error):
+        # AST invalido
+        assert False, f'{val}'
+
+    res = VM.eval(ast)
+
+    assert sum(res, Number(0)).value == 0
+
+
+
 # ------ Pruebas que deben arrojar errores en la VM ---------
 test_cases = []
 # En la prueba se definen x e y como arreglos de num y bool, respectivamente,
@@ -196,6 +232,15 @@ test_cases.append('array(12.76, 3)')
 test_cases.append('array([12.76], 3)')
 test_cases.append('array(true, 3)')
 test_cases.append('array(x, 3)')
+
+test_cases.append('histogram(1, 2.1, 5, 1, 5)')
+test_cases.append('histogram(1, -2.1, 5, 1, 5)')
+test_cases.append('histogram(1, -2, 5, 1, 5)')
+test_cases.append('histogram(1, 5, 2.1, 1, 5)')
+test_cases.append('histogram(1, 5, -2.1, 1, 5)')
+test_cases.append('histogram(1, 5, -2, 1, 5)')
+test_cases.append('histogram(1, 5, -2, 7, 5)')
+
 
 @pytest.mark.parametrize("test_case", test_cases)
 def test_evaluate_bad_complicate_expresions(test_case:str):
