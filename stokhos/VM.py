@@ -255,6 +255,9 @@ class StokhosVM:
             return self.evaluator.evaluate(ast)
         except (SemanticError, StkRuntimeError) as e:
             return Error(e.message)
+        except RecursionError:
+            return Error('Recursión máxima alcanzada, posible dependencia '
+                'circular en la evaluación de la variable')
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):
