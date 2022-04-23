@@ -159,12 +159,13 @@ class ASTEvaluator(ASTNodeVisitor):
 # Son funciones que reciben el evaluador y pasan los argumentos
 # de la forma requerida, dándoles un tratamiento especial
 def stk_reset(evaluator: ASTEvaluator):
-    '''Resetea la tabla de símbolos.
+    '''Resetea la tabla de símbolos e incrementa en uno el ciclo de computo.
     
     Args:
         vm: Instancia de la tabla de símbolos a resetear.
     '''
     evaluator.sym_table.clear()
+    stk_tick(evaluator)
     return Boolean(True)
 
 def stk_if(evaluator: ASTEvaluator,  condicion: AST, exprT: AST, exprF: AST) -> Union[Boolean, Number, Array]:

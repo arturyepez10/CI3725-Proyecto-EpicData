@@ -28,6 +28,7 @@ def main():
 
 if __name__ == '__main__':
     enter = True
+    repl.do_clear('')
 
     if len(argv) != 1:
         for path in argv[1:]:
