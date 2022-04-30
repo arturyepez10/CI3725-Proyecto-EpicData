@@ -193,6 +193,7 @@ class StokhosCMD(Cmd):
         """Vacía la lista de errores de la sesión."""
         self.errors.clear()
         self.vm.symbol_table.clear()
+        self.vm.symbol_table.cycle = 0
         self.handle_output('OK: Lista de errores y tabla de símbolos vaciadas'
             ' correctamente')
 
@@ -239,6 +240,7 @@ class StokhosCMD(Cmd):
     def help_reset(self):
         print(dedent('''
             Limpia la lista de errores de la VM y su tabla de símbolos.
+            Reinicia a 0 el ciclo de cómputo.
 
             Su ejecucion se realiza mediante:
             >>> .reset'''))
