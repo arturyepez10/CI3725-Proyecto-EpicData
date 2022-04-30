@@ -36,9 +36,21 @@ class StokhosVM:
     Atributos:
         lex:
             Instancia de Lexer con el analizador lexicográfico
-            generado por la librería ply.
-        errors:
-            Lista de errores generados en el análisis del último comando/archivo.
+            generado por ply.
+        parser:
+            Instancia del Parser con el analizador sintáctico
+            generado por ply.
+        symbol_table:
+            Instancia de SymTable con información sobre las
+            variables de la VM.
+        validator:
+            Instancia de ASTValidator que valida recursivamente
+            los AST obtenidos luego de la traducción dirigida
+            por sintaxis.
+        evaluator:
+            Instancia de ASTEvaluator que evalúa recursivamente
+            los AST obtenidos luego de la traducción dirigida
+            por sintaxis.
     """
 
     def __init__(self):
@@ -258,6 +270,8 @@ class StokhosVM:
         except RecursionError:
             return Error('Recursión máxima alcanzada, posible dependencia '
                 'circular en la evaluación de la variable')
+        except:
+            return Error('Expresión inválida')
 
 # Sobreescritura del método __repr__ de los tokens de ply
 def custom_repr(t: lex.LexToken):
