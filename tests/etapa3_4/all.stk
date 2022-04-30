@@ -1,5 +1,16 @@
 .load 1.stk
+reset()
+@
 .load 2.stk
+reset()
+@
 .load 3.stk
+reset()
+@
 .load newfuncs.stk
+reset()
+@
 .load formula.stk
+reset()
+@
+.load circular_defs.stk

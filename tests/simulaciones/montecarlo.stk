@@ -15,3 +15,4 @@ num n := 1000000;
 
 num darts_inside := sum(arr);
 num pi_stimate := 4*darts_inside/n;
+pi_stimate

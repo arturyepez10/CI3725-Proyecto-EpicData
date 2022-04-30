@@ -25,6 +25,3 @@ type(type(type(1)))
 ltype(pi)
 ltype(length)
 ltype(ltype(ltype(1)))
-
-# Añadir
-# [1, 2, 3][1] := [4] es posible en Stokhos ??

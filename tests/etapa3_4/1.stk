@@ -43,19 +43,22 @@ x := .0;
 # Por lo que el resultado es false
 # Como da false, devuelve 1
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 
 # Ahora x es 1, como x <> da true, resulta true
 # Como resulta true, evalua (x-1)/x y da 0
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x
 x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
-x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
-x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
-x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
-x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
-x := if(if(x <> 0, true, if(x = 0, false, true)), (x-1)/x, 1.0);
+x

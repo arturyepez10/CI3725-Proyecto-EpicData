@@ -20,3 +20,4 @@ darts_in_out
 
 num darts_inside := darts_in_out[2];
 num pi_stimate := 4*darts_inside/n;
+pi_stimate
