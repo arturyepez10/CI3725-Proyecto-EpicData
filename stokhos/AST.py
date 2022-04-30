@@ -25,7 +25,7 @@ from .utils.custom_exceptions import *
 
 class AST:
     def __repr__(self) -> str:
-        return self.__str__()
+        return self.ast2str()
 
     def ast2str(self) -> str:
         return self.__str__()
