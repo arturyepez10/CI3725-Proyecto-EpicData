@@ -166,7 +166,7 @@ def test_histogram0():
 
 def test_histogram1():
     samples = 20
-    ast = VM.parse(f'histogram(1/0, {samples}, 10, 1, 10)')
+    ast = VM.parse(f"histogram('1/0', {samples}, 10, 1, 10)")
     if isinstance(ast, Error):
         # No se construye el AST
         assert False, f'{ast}'
