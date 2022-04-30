@@ -37,13 +37,13 @@ BINARY_OP = {
     '>=': operator.ge,
     '=': lambda p, q: Boolean(p == q),
     '<>': lambda p, q: Boolean(p != q),
-    '&&': lambda p, q: p and q,
-    '||': lambda p, q: p or q
+    '&&': lambda p, q: Boolean(p.value and q.value),
+    '||': lambda p, q: Boolean(p.value or q.value),
 }
 UNARY_OP = {
     '+': operator.pos,
     '-': operator.neg,
-    '!': lambda p: Boolean(not p)
+    '!': lambda p: Boolean(not p.value)
 }
 
 class ASTEvaluator(ASTNodeVisitor):
@@ -148,12 +148,6 @@ class ASTEvaluator(ASTNodeVisitor):
     def evaluate(self, ast: AST) -> AST:
         return self.visit(ast)
 
-    def reduce(self, ast: AST) -> Terminal:
-        ret = ast
-        while not isinstance(ret, Terminal) or isinstance(ret, Id):
-            ret = self.evaluate(ret)
-        return ret
-
 # -------- FUNCIONES ESPECIALES --------
 
 # Son funciones que reciben el evaluador y pasan los argumentos
@@ -214,14 +208,13 @@ def stk_ltype(evaluator: ASTEvaluator,  expr: AST) -> Type:
         expr: Expresión a obtener el ltype.
     '''
     if not isinstance(expr, (Id, ArrayAccess)):
-        raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
+        raise StkRuntimeError(f'La expresión "{expr}" no tiene LVALUE')
     elif isinstance(expr, Id):
         # En Stókhos no se puede asignar a una función
-        # Debería ?
         if evaluator.sym_table.is_function(expr.value):
-            raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
+            raise StkRuntimeError(f'La expresión "{expr}" no tiene LVALUE')
     elif isinstance(expr, ArrayAccess) and not isinstance(expr.expr, Id):
-            raise StkRuntimeError(f"La expresión '{expr}' no tiene LVALUE")
+        raise StkRuntimeError(f'La expresión "{expr}" no tiene LVALUE')
 
     return expr.type
 
@@ -237,11 +230,18 @@ def stk_formula(evaluator: ASTEvaluator,  expr: AST) -> AST:
         expr: Expresión a obtener el cvalue.
     '''
 
-    # Se chequea que la expresión tenga ltype
+    # Se chequea que la expresión tenga ltype, si no, ltype lanzará el Error
     stk_ltype(evaluator, expr)
     _id = expr.value if isinstance(expr, Id) else expr.expr.value
 
-    return evaluator.sym_table.lookup(_id).value
+    lookup = evaluator.sym_table.lookup(_id).value
+    if isinstance(expr, ArrayAccess):
+        try:
+            return lookup[expr.index.value]
+        except:
+            raise StkRuntimeError('Acceso a arreglo inválido')
+
+    return lookup
 
 def stk_array(evaluator: ASTEvaluator,  size: AST, expr: AST) -> Array:
     '''Retorna un arreglo de tamaño size dnode cada elemento está inicializado
@@ -289,12 +289,13 @@ def stk_histogram(evaluator: ASTEvaluator, x: AST,
     histogram = [Number(0) for i in range(n_buckets + 2)]
 
     delta = (upper_bound - lower_bound) / n_buckets
+    sample_eval = evaluator.evaluate(x)
     for i in range(n_samples):
         # Llama a tick por cada iteración
         stk_tick(evaluator)
 
         try:
-            sample = evaluator.reduce(x).value
+            sample = evaluator.evaluate(sample_eval).value
         except:
             # Si hay un error en un sample se salta
             continue
