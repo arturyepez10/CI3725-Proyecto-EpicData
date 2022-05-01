@@ -60,6 +60,64 @@ test_sol.append(Boolean(True))
 test_cases.append('false && true && true || false') 
 test_sol.append(Boolean(False))
 
+# Operaciones con acotaciones
+test_cases.append("'2' + '1'")
+test_sol.append(Number(3))
+
+test_cases.append("'2' - '1'")
+test_sol.append(Number(1))
+
+test_cases.append("'2' * '5'")
+test_sol.append(Number(10))
+
+test_cases.append("'6' / '2'")
+test_sol.append(Number(3))
+
+test_cases.append("'6' ^ '2'")
+test_sol.append(Number(36))
+
+test_cases.append("'3' % '2'")
+test_sol.append(Number(1))
+
+test_cases.append("-'3'")
+test_sol.append(Number(-3))
+
+test_cases.append("+'3'")
+test_sol.append(Number(3))
+
+test_cases.append("!'false'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'false' && 'true'")
+test_sol.append(Boolean(False))
+
+test_cases.append("'false' || 'true'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'2' < '3'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'2' <= '3'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'3' >= '3'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'2' >= '3'")
+test_sol.append(Boolean(False))
+
+test_cases.append("'2' = '3'")
+test_sol.append(Boolean(False))
+
+test_cases.append("'2' <> '3'")
+test_sol.append(Boolean(True))
+
+test_cases.append("'true' = 'false'")
+test_sol.append(Boolean(False))
+
+test_cases.append("'true' <> 'false'")
+test_sol.append(Boolean(True))
+
 # Combinaciones
 test_cases.append('2+1 >= 2 && -3-2^2 <= 3') 
 test_sol.append(Boolean(True))
@@ -83,6 +141,12 @@ test_cases.append('(4 <> 4) <> true')
 test_sol.append(Boolean(True))
 
 test_cases.append('4 <> 5 && true || false') 
+test_sol.append(Boolean(True))
+
+test_cases.append("'4' <> '5' && true || false") 
+test_sol.append(Boolean(True))
+
+test_cases.append("'4' <> '5' && 'true' || 'false'") 
 test_sol.append(Boolean(True))
 
 # Expresiones con aplicaciones de la funcion if
@@ -186,6 +250,32 @@ def test_histogram1():
 test_cases = []
 # En la prueba se definen x e y como arreglos de num y bool, respectivamente,
 # de tamanio 3
+
+# Expresiones acotadas no terminales con otras operaciones
+test_cases.extend([f"'2 {op0} 1' {op1} 2" for op0 in NUM_BIN_OPS for op1 in NUM_BIN_OPS])
+test_cases.extend([f"'true {op0} false' {op1} false" for op0 in BOOL_BIN_OPS for op1 in BOOL_BIN_OPS])
+test_cases.extend([f"'{op0} false' {op1} false" for op0 in BOOL_UN_OPS for op1 in BOOL_BIN_OPS])
+
+test_cases.append("''2'' + '1'")
+test_cases.append("''2'' - '1'")
+test_cases.append("''2'' * '5'")
+test_cases.append("''6'' / '2'")
+test_cases.append("''6'' ^ '2'")
+test_cases.append("''3'' % '2'")
+test_cases.append("-''3''")
+
+test_cases.append("+''3''")
+test_cases.append("!''false''")
+test_cases.append("''false'' && 'true'")
+test_cases.append("''false'' || 'true'")
+test_cases.append("'2' < ''3''")
+test_cases.append("'2' <= ''3''")
+test_cases.append("''3'' >= ''3''")
+test_cases.append("'2' >= ''3''")
+test_cases.append("'2' = ''3''")
+test_cases.append("'2' <> ''3''")
+test_cases.append("'true' = ''false''")
+test_cases.append("'true' <> ''false''")
 
 # Accesos invalidos a arreglos
 test_cases.append('[1,2,3,4][-1]')
