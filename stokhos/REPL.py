@@ -240,6 +240,17 @@ class StokhosCMD(Cmd):
             Su ejecucion se realiza mediante:
             >>> .failed'''))
 
+    def help_print(self):
+        print(dedent('''
+            Imprime un mensaje en color verde claro en la VM.
+
+            Su ejecucion se realiza mediante:
+            >>> .print Hola
+            
+            Y se imprime en la VM:
+            MESSAGE: Hola
+            '''))
+
     def help_reset(self):
         print(dedent('''
             Limpia la lista de errores de la VM y su tabla de símbolos.
