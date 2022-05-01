@@ -1,3 +1,3 @@
 @ title Stokhos
-@ python .\Stokhos.py
+@ python .\Stokhos.py %*
 @ cmd /k

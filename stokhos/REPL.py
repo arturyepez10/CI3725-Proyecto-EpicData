@@ -134,7 +134,7 @@ class StokhosCMD(Cmd):
             if os.path.isdir(full_path):
                 raise IsADirectoryError
 
-            with open(full_path) as fi:
+            with open(full_path, encoding="utf-8") as fi:
                 # Configura el nuevo contexto y actualiza conjunto de cargados
                 self.context = _dir
                 self.loaded.add(filename)
