@@ -35,8 +35,8 @@ BINARY_OP = {
     '<=': operator.le,
     '>': operator.gt,
     '>=': operator.ge,
-    '=': lambda p, q: Boolean(p == q),
-    '<>': lambda p, q: Boolean(p != q),
+    '=': lambda p, q: Boolean(p.value == q.value),
+    '<>': lambda p, q: Boolean(p.value!= q.value),
     '&&': lambda p, q: Boolean(p.value and q.value),
     '||': lambda p, q: Boolean(p.value or q.value),
 }
