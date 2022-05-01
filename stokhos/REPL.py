@@ -197,6 +197,9 @@ class StokhosCMD(Cmd):
         self.handle_output('OK: Lista de errores y tabla de símbolos vaciadas'
             ' correctamente')
 
+    def send_print(self, str_to_print: str):
+        self.handle_output(f'MESSAGE: {str_to_print}')
+
     # ---------- COMANDOS DE DOCUMENTACION DE COMANDOS EN REPL ----------
     def help_lexer(self):
         print(dedent('''
@@ -345,6 +348,12 @@ class StokhosCMD(Cmd):
             
             self.send_reset()
 
+        elif match_magic_command('print', line):
+            # Corta de la entrada '.print' e imprime lo restante
+            rem = line[6:].strip()
+
+            self.send_print(rem)
+
         elif line.startswith('.'):
             self.handle_output(prefix_error(error_nonexistent_special_command()))
             
@@ -389,7 +398,8 @@ class StokhosCMD(Cmd):
                     line = f'{line_1}{additional_info}{line_2}'
                 else:
                     line = f'{line} {additional_info}'
-
+        elif line.startswith('MESSAGE:'):
+            color = GREEN
         print(f'{RESET}{color}{line}{RESET}')
 
     def panic_exit_all_context(self):

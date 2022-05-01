@@ -20,5 +20,6 @@ VERSION = '1.0.0'
 # Lista de colores a utilizar para la impresión
 BOLD = '\033[1m'
 BLUE = '\33[96m'
+GREEN = '\033[1;32m'
 RESET = '\033[0m'
 RED = '\033[91m'
