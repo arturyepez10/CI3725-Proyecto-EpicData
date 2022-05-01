@@ -1,0 +1,51 @@
+# Arreglo pesado de generar, tarda unos segundos
+[num] a := 'array(1000000, '2 * uniform() - 1')';
+num ti := 0;
+
+# Cálculo computacionalmente pesado:
+# avg(a)
+
+# Arreglo de dos elementos con ese cálculo pesado
+[num] b := ['avg(a)*avg(a)*avg(a)*avg(a)', 'avg(a)*avg(a)*avg(a)*avg(a)'];
+
+# Se evalúa primero para que se memoice a y
+# no se tome el tiempo que este en sí mismo
+# tarda generándose
+avg(a)
+
+# Se evalúa solo el primer elemento (no dura demasiado)
+b[0]
+
+# Se evalúa solo el segundo (tampoco)
+b[1]
+
+# Se vuelven a evaluar (ya están memoizados, inmediato)
+b[0]
+b[0]
+b[0]
+b[1]
+b[1]
+b[1]
+b
+b
+b
+
+# Se avanza el ciclo de cómputo
+tick()
+
+# Análogo a arriba, se evalúa primero
+avg(a)
+
+# Se evalúa b entero nuevamente, debe durar el doble
+b
+
+# Se vuelven a evaluar (ya están memoizados, inmediato)
+b[0]
+b[0]
+b[0]
+b[1]
+b[1]
+b[1]
+b
+b
+b

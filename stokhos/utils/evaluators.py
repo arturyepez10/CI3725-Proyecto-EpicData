@@ -63,7 +63,7 @@ class ASTEvaluator(ASTNodeVisitor):
     # ---- NODOS RECURSIVOS ----
     def visit_Id(self, ast: Id) -> AST:
         lookup = self.sym_table.lookup(ast.value)
-        
+
         if isinstance(lookup, SymFunction):
             raise StkRuntimeError('No se puede evaluar una función como una '
                 'expresión')
@@ -76,6 +76,10 @@ class ASTEvaluator(ASTNodeVisitor):
             lookup.last_cycle = self.sym_table.cycle
             return val
 
+        if isinstance(lookup.cache, list):
+            for i in range(0, len(lookup.cache)):
+                if lookup.cache[i] is None:
+                    lookup.cache[i] = self.visit(lookup.value[i])
         return lookup.cache
 
     # ---- OPERADORES ----
@@ -115,7 +119,6 @@ class ASTEvaluator(ASTNodeVisitor):
     def visit_ArrayAccess(self, ast: ArrayAccess) -> AST:
         # Evaluar el indice
         index = self.visit(ast.index)
-
         if index.value < 0:
             raise StkRuntimeError(f'Se esperaba un índice entero no negativo, pero se '
                 f'obtuvo {index.value}')
@@ -124,7 +127,31 @@ class ASTEvaluator(ASTNodeVisitor):
         index_val = int(index.value) if index.value % 1 == 0 else index.value
 
         try:
-            return self.visit(ast.expr)[index_val]
+            if not isinstance(ast.expr, Id):
+                return self.visit(ast.expr)[index_val]
+
+            # Si es una Id, se busca en la tabla de símbolos
+            lookup = self.sym_table.lookup(ast.expr.value)
+
+            # Implementación de memoización para Arrays
+            # CASO DEGENERADO!!
+            if not isinstance(lookup.value, Array):
+                if self.sym_table.cycle != lookup.last_cycle:
+                    lookup.cache = self.visit(lookup.value)
+                    lookup.last_cycle = self.sym_table.cycle
+                return lookup.cache[index_val]
+
+            # Otros casos
+            if (self.sym_table.cycle != lookup.last_cycle
+                or lookup.cache is None 
+                or lookup.cache[index_val] is None
+            ):
+                val = self.visit(lookup.value[index_val])
+
+                lookup.cache[index_val] = val
+                lookup.last_cycle = self.sym_table.cycle
+
+            return lookup.cache[index_val]
         except (IndexError, AttributeError):
             raise StkRuntimeError(f'El indice {index.value} no está dentro del rango '
                 f'de la expresión {ast.expr}')
